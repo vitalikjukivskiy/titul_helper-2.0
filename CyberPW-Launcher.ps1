@@ -13,6 +13,8 @@ public static class LauncherNative {
 
 $AppDir=Split-Path -Parent $MyInvocation.MyCommand.Path
 $AssistantPath=Join-Path $AppDir 'CyberPW-Titles.ps1'
+$MultiLauncherPath=Join-Path $AppDir 'CyberPW-MultiLauncher.ps1'
+$ChestSimulatorPath=Join-Path $AppDir 'CyberPW-ChestSimulator.ps1'
 $LogoPath=Join-Path $AppDir 'cyberpw-logo.png'
 $TitlesPath=Join-Path $AppDir 'titles.json'
 $StatePath=Join-Path $AppDir 'state.json'
@@ -92,6 +94,18 @@ foreach($item in $nav){
 }
 
 $tab=New-Object Windows.Forms.Button;$tab.Text='◆  TITULHELPER';$tab.SetBounds(48,207,220,34);Style-Button $tab ([Drawing.Color]::FromArgb(20,113,91)) ([Drawing.Color]::White);$tab.Font=New-Object Drawing.Font('Segoe UI Semibold',10);Set-Rounded $tab 10
+$multiTab=New-Object Windows.Forms.Button;$multiTab.Text='◆  MULTILAUNCHER';$multiTab.SetBounds(278,207,220,34);Style-Button $multiTab ([Drawing.Color]::FromArgb(9,49,42)) $goldSoft;$multiTab.Font=New-Object Drawing.Font('Segoe UI Semibold',10);Set-Rounded $multiTab 10
+$multiTab.Add_Click({
+  if(-not(Test-Path $MultiLauncherPath)){[Windows.Forms.MessageBox]::Show('Не знайдено CyberPW-MultiLauncher.ps1')|Out-Null;return}
+  try{Start-Process powershell.exe -ArgumentList @('-NoProfile','-STA','-ExecutionPolicy','Bypass','-File',('"'+$MultiLauncherPath+'"')) -WorkingDirectory $AppDir;$form.Close()}
+  catch{[Windows.Forms.MessageBox]::Show("Не вдалося запустити MultiLauncher.`r`n$($_.Exception.Message)")|Out-Null}
+})
+$chestTab=New-Object Windows.Forms.Button;$chestTab.Text='◆  СИМУЛЯТОР · BETA';$chestTab.SetBounds(508,207,240,34);Style-Button $chestTab ([Drawing.Color]::FromArgb(126,85,15)) ([Drawing.Color]::White);$chestTab.Font=New-Object Drawing.Font('Segoe UI Semibold',10);Set-Rounded $chestTab 10
+$chestTab.Add_Click({
+  if(-not(Test-Path $ChestSimulatorPath)){[Windows.Forms.MessageBox]::Show('Не знайдено CyberPW-ChestSimulator.ps1')|Out-Null;return}
+  try{Start-Process powershell.exe -ArgumentList @('-NoProfile','-STA','-ExecutionPolicy','Bypass','-File',('"'+$ChestSimulatorPath+'"')) -WorkingDirectory $AppDir;$form.Close()}
+  catch{[Windows.Forms.MessageBox]::Show("Не вдалося запустити симулятор.`r`n$($_.Exception.Message)")|Out-Null}
+})
 $left=New-Object Windows.Forms.Panel;$left.SetBounds(48,250,600,290);$left.BackColor=$panel;Set-Rounded $left 18
 $eyebrow=New-TextLabel 'CYBER.PW ASISTANT' 28 18 520 24 10 $cyan 'Bold'
 $headline=New-TextLabel 'TITULHELPER' 26 44 540 52 27 $goldSoft 'Bold'
@@ -115,7 +129,7 @@ $support.Add_Click({Open-Link 'https://send.monobank.ua/jar/93N5FBB3zX'})
 $credit=New-TextLabel "Створив Кіт Михайло`r`nCyber.pw · клан DarkSide" 26 229 302 48 9 $muted
 $right.Controls.AddRange(@($statusTitle,$count,$status,$barBack,$support,$credit))
 
-$footer=New-TextLabel 'CYBER.PW ASISTANT  •  TITULHELPER  •  PORTABLE EDITION' 48 580 984 24 9 $muted 'Bold';$footer.TextAlign='MiddleCenter'
-$form.Controls.AddRange(@($logo,$close,$min,$tab,$left,$right,$footer)+$navButtons)
+$footer=New-TextLabel 'CYBER.PW ASISTANT  •  TITULHELPER  •  MULTILAUNCHER  •  СИМУЛЯТОР СКРИНІ' 48 580 984 24 9 $muted 'Bold';$footer.TextAlign='MiddleCenter'
+$form.Controls.AddRange(@($logo,$close,$min,$tab,$multiTab,$chestTab,$left,$right,$footer)+$navButtons)
 $form.Add_FormClosed({if($logo.Image){$logo.Image.Dispose()}})
 [void]$form.ShowDialog()

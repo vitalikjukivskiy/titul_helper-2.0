@@ -16,6 +16,8 @@ New-Item -ItemType Directory -Path $stage | Out-Null
 
 $files = @(
     'CyberPW-Launcher.ps1',
+    'CyberPW-MultiLauncher.ps1',
+    'CyberPW-ChestSimulator.ps1',
     'CyberPW-Titles.ps1',
     'titles.json',
     'ocr-rules.json',
@@ -29,6 +31,18 @@ foreach ($name in $files) {
     if (-not (Test-Path $source)) { throw "Не знайдено обов'язковий файл: $name" }
     Copy-Item -LiteralPath $source -Destination (Join-Path $stage $name)
 }
+$iconSource = Join-Path $root 'class-icons'
+if (-not (Test-Path -LiteralPath $iconSource -PathType Container)) { throw 'Не знайдено папку class-icons.' }
+$iconStage = Join-Path $stage 'class-icons'
+New-Item -ItemType Directory -Path $iconStage | Out-Null
+foreach ($iconName in @('warrior.png','mage.png','tank.png','druid.png','archer.png','cleric.png','assassin.png','shaman.png','seeker.png','mystic.png')) {
+    $iconFile = Join-Path $iconSource $iconName
+    if (-not (Test-Path -LiteralPath $iconFile -PathType Leaf)) { throw "Не знайдено іконку класу: $iconName" }
+    Copy-Item -LiteralPath $iconFile -Destination (Join-Path $iconStage $iconName)
+}
+$lootSource = Join-Path $root 'loot-icons'
+if (-not (Test-Path -LiteralPath $lootSource -PathType Container)) { throw 'Не знайдено папку loot-icons.' }
+Copy-Item -LiteralPath $lootSource -Destination (Join-Path $stage 'loot-icons') -Recurse
 Copy-Item -LiteralPath (Join-Path $root 'README-PORTABLE.md') -Destination (Join-Path $stage 'README.md')
 
 $cleanState = [ordered]@{
@@ -43,6 +57,8 @@ $cleanState = [ordered]@{
     }
 }
 $cleanState | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $stage 'state.json') -Encoding UTF8
+$cleanCharacters = [ordered]@{ GamePath=''; DelaySeconds=4; Characters=[ordered]@{} }
+$cleanCharacters | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $stage 'characters.json') -Encoding UTF8
 
 if (Test-Path $zip) { Remove-Item -LiteralPath $zip -Force }
 Compress-Archive -LiteralPath $stage -DestinationPath $zip -CompressionLevel Optimal

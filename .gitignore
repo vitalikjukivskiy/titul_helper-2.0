@@ -1,5 +1,6 @@
 state.json
 state-confirmed.json
+characters.json
 scan-report.json
 scan-pages/
 dist/
