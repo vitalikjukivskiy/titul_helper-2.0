@@ -1,5 +1,11 @@
 ﻿$ErrorActionPreference = 'Stop'
 
+if([Environment]::OSVersion.Version.Major-eq6-and[Environment]::OSVersion.Version.Minor-eq1){
+    Add-Type -AssemblyName System.Windows.Forms
+    [Windows.Forms.MessageBox]::Show('Windows 7 не містить системного Windows OCR. CyberPW-Asistant працюватиме без автоматичного OCR-сканування; інші функції залишаються доступними.','CyberPW-Asistant')|Out-Null
+    exit 0
+}
+
 $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
 $principal = New-Object Security.Principal.WindowsPrincipal($identity)
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {

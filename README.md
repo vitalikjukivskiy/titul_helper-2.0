@@ -6,7 +6,16 @@
 
 <p align="center">
   Неофіційний інструментарій гравця CyberPW<br>
-  <strong>Windows 10/11 · Portable · відкритий код</strong>
+  <strong>Версія 0.82 Beta · Windows 7/10/11 · Portable · відкритий код</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/vitalikjukivskiy/titul_helper/releases">
+    <img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper/total?style=for-the-badge&logo=github&label=Завантаження&color=0f9d7a" alt="Кількість завантажень">
+  </a>
+  <a href="https://github.com/vitalikjukivskiy/titul_helper/releases/latest">
+    <img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper?include_prereleases&style=for-the-badge&label=Остання версія&color=d4af37" alt="Остання версія">
+  </a>
 </p>
 
 <p align="center">
@@ -14,10 +23,18 @@
   <a href="https://cabinet.cyberpw.fun/">Кабінет</a> ·
   <a href="https://cabinet.cyberpw.fun/register.php?ref=4550">Реєстрація з бонусом</a> ·
   <a href="https://www.youtube.com/@Vitalik_Juk">YouTube</a> ·
+  <a href="https://github.com/vitalikjukivskiy">GitHub автора</a> ·
   <a href="https://send.monobank.ua/jar/93N5FBB3zX">Підтримати проєкт</a>
 </p>
 
 ## Можливості
+
+### CyberPW-Asistant
+
+- сучасний адаптивний інтерфейс зі світлою та темною темами в усіх вікнах;
+- головний календар із компактним розкладом щоденних івентів;
+- вікна можна масштабувати й використовувати на різних екранах та версіях Windows;
+- усі модулі зібрані в одному portable-лаунчері.
 
 ### TitulHelper
 
@@ -46,6 +63,21 @@
 
 > Симулятор є тестовим інструментом і не передбачає реальних платежів або предметів.
 
+### Розморозка вікон
+
+- окремий список усіх запущених вікон `ElementClient`;
+- вибір галочками клієнтів, які мають продовжувати рендер у фоні;
+- виконання `d_rendernofocus 1` окремо для кожного вибраного вікна;
+- запуск MultiLauncher із підтримкою debug-консолі через `console:1`.
+
+### Світові боси
+
+- українська база з 16 світових і 8 хроно-босів;
+- координати, хроно-розклад і таблиця шансів випадіння;
+- вибір конкретного вікна гри;
+- автоматичне встановлення координат і назви мітки;
+- використання калібрування, збереженого в TitulHelper.
+
 ## Швидкий запуск
 
 1. Завантажте `Cyber.pw-Asistant-Portable.zip` у розділі **Releases**.
@@ -54,6 +86,13 @@
 4. Якщо Windows OCR відсутній, запустіть `Встановити OCR.bat` від адміністратора.
 
 Python, інсталятор і сторонні бібліотеки не потрібні — використовується штатний Windows PowerShell.
+
+### Windows 7
+
+- потрібні Windows 7 SP1, .NET Framework 4.8 і Windows Management Framework 5.1;
+- TitulHelper підтримує пошук, ручні позначки, калібрування та встановлення міток;
+- MultiLauncher, розморозка вікон, симулятор і світові боси залишаються доступними;
+- автоматичний OCR-скан недоступний, оскільки Windows 7 не містить системного Windows OCR.
 
 ## Безпека
 
@@ -64,7 +103,7 @@ Python, інсталятор і сторонні бібліотеки не по�
 
 ## Автор
 
-Створив **Кіт Михайло** для гравців сервера **CyberPW**, клан **DarkSide**.
+Створив [**Кіт Михайло**](https://github.com/vitalikjukivskiy) для гравців сервера **CyberPW**, клан **DarkSide**.
 
 Автор не належить до адміністрації CyberPW — це неофіційний фанатський проєкт звичайного гравця: **пере-адмін, недо-DevOps**.
 

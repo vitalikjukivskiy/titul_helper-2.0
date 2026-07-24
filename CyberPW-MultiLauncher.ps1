@@ -7,8 +7,82 @@
 $ErrorActionPreference='Stop'
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+
+public static class CyberPWWindowInput {
+    [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
+    [DllImport("user32.dll")] public static extern void keybd_event(byte virtualKey, byte scanCode, uint flags, UIntPtr extraInfo);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct INPUT {
+        public uint type;
+        public INPUTUNION data;
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    private struct INPUTUNION {
+        [FieldOffset(0)] public KEYBDINPUT keyboard;
+        [FieldOffset(0)] public MOUSEINPUT mouse;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct KEYBDINPUT {
+        public ushort virtualKey;
+        public ushort scanCode;
+        public uint flags;
+        public uint time;
+        public UIntPtr extraInfo;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MOUSEINPUT {
+        public int dx;
+        public int dy;
+        public uint mouseData;
+        public uint flags;
+        public uint time;
+        public UIntPtr extraInfo;
+    }
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern uint SendInput(uint inputCount, INPUT[] inputs, int inputSize);
+
+    public static int InputSize() {
+        return Marshal.SizeOf(typeof(INPUT));
+    }
+
+    public static void OpenConsole() {
+        keybd_event(0x10, 0, 0, UIntPtr.Zero);
+        keybd_event(0xC0, 0, 0, UIntPtr.Zero);
+        keybd_event(0xC0, 0, 2, UIntPtr.Zero);
+        keybd_event(0x10, 0, 2, UIntPtr.Zero);
+    }
+
+    public static void SendUnicodeText(string text) {
+        foreach (char character in text) {
+            INPUT[] inputs = new INPUT[2];
+            inputs[0].type = 1;
+            inputs[0].data.keyboard.scanCode = character;
+            inputs[0].data.keyboard.flags = 0x0004;
+            inputs[1].type = 1;
+            inputs[1].data.keyboard.scanCode = character;
+            inputs[1].data.keyboard.flags = 0x0004 | 0x0002;
+            if (SendInput(2, inputs, Marshal.SizeOf(typeof(INPUT))) != 2)
+                throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+        }
+    }
+
+    public static void PressEnter() {
+        keybd_event(0x0D, 0, 0, UIntPtr.Zero);
+        keybd_event(0x0D, 0, 2, UIntPtr.Zero);
+    }
+}
+'@
 
 $AppDir=Split-Path -Parent $MyInvocation.MyCommand.Path
+. (Join-Path $AppDir 'CyberPW-Common.ps1')
 $ConfigPath=Join-Path $AppDir 'characters.json'
 $ClassIconDir=Join-Path $AppDir 'class-icons'
 $utf8NoBom=New-Object Text.UTF8Encoding($false,$false)
@@ -123,10 +197,9 @@ if($ScanOnly){
   exit
 }
 
-$jade=[Drawing.Color]::FromArgb(5,31,27);$jade2=[Drawing.Color]::FromArgb(9,55,47)
-$panel=[Drawing.Color]::FromArgb(14,43,38);$gold=[Drawing.Color]::FromArgb(222,177,54)
-$goldSoft=[Drawing.Color]::FromArgb(255,225,143);$textColor=[Drawing.Color]::FromArgb(239,245,241)
-$muted=[Drawing.Color]::FromArgb(160,186,176);$cyan=[Drawing.Color]::FromArgb(42,214,183);$danger=[Drawing.Color]::FromArgb(218,82,72)
+$theme=Get-CyberPWTheme
+$jade=$theme.Base;$jade2=$theme.Button;$panel=$theme.Panel;$gold=$theme.Gold
+$goldSoft=$theme.GoldSoft;$textColor=$theme.Text;$muted=$theme.Muted;$cyan=$theme.AccentBright;$danger=$theme.Danger
 
 function Style-Button($button,$back,$fore=$textColor){
   $button.FlatStyle='Flat';$button.FlatAppearance.BorderSize=1;$button.FlatAppearance.BorderColor=$gold
@@ -178,6 +251,20 @@ function Update-ConfigFromCards {
   }
   $script:Config.GamePath=$script:GamePath;$script:Config.DelaySeconds=[int]$delay.Value;Save-Config
 }
+function Enable-RenderNoFocus {
+  $targets=@(Get-Process -Name ElementClient -ErrorAction SilentlyContinue|Where-Object{$_.MainWindowHandle-ne[IntPtr]::Zero})
+  if(-not $targets.Count){[Windows.Forms.MessageBox]::Show('Не знайдено відкритих вікон ElementClient.','MultiLauncher')|Out-Null;return}
+  $success=0
+  foreach($process in $targets){
+    try{
+      [void][CyberPWWindowInput]::SetForegroundWindow($process.MainWindowHandle);Start-Sleep -Milliseconds 250
+      [CyberPWWindowInput]::OpenConsole();Start-Sleep -Milliseconds 180
+      [CyberPWWindowInput]::SendUnicodeText('d_rendernofocus 1');[CyberPWWindowInput]::PressEnter();Start-Sleep -Milliseconds 150
+      $success++
+    }catch{}
+  }
+  $status.Text="Розморожено вікон: $success з $($targets.Count)";$status.ForeColor=if($success-eq$targets.Count){$cyan}else{$danger}
+}
 function Launch-Character($item){
   if(-not $item.Valid){return $false}
   try{
@@ -185,7 +272,7 @@ function Launch-Character($item){
     if([string]::IsNullOrWhiteSpace($account.Login)-or[string]::IsNullOrEmpty($account.Password)){throw 'Спочатку відкрийте «АКАУНТ» і введіть логін та пароль.'}
     if($account.Login -match '["\r\n]' -or $account.Password -match '["\r\n]'){throw 'Логін і пароль не можуть містити лапки або перенесення рядка.'}
     if([string]::IsNullOrWhiteSpace($script:GamePath)){throw 'Не вибрано папку гри.'}
-    $arguments='startbypatcher user:"'+$account.Login+'" pwd:"'+$account.Password+'" role:"'+$item.Role+'"'
+    $arguments='startbypatcher console:1 user:"'+$account.Login+'" pwd:"'+$account.Password+'" role:"'+$item.Role+'"'
     $before=@(Get-Process -Name ElementClient -ErrorAction SilentlyContinue).Count
     $exe=Join-Path $script:GamePath 'ElementClient.exe';if(-not(Test-Path -LiteralPath $exe)){$exe=Join-Path $script:GamePath 'elementclient.exe'}
     Start-Process -FilePath $exe -ArgumentList $arguments -WorkingDirectory $script:GamePath|Out-Null
@@ -254,7 +341,7 @@ function Render-Cards {
   foreach($c in @($flow.Controls)){if($c.Tag -and $c.Tag.Icon.Image){$c.Tag.Icon.Image.Dispose()}}
   $flow.Controls.Clear()
   foreach($item in $script:Characters){
-    $card=New-Object Windows.Forms.Panel;$card.Size='312,160';$card.Margin='8,8,8,8';$card.BackColor=if($item.Valid){$panel}else{[Drawing.Color]::FromArgb(58,29,28)}
+    $card=New-Object Windows.Forms.Panel;$card.Size='312,160';$card.Margin='8,8,8,8';$card.BackColor=if($item.Valid){$panel}else{$theme.Panel}
     $check=New-Object Windows.Forms.CheckBox;$check.SetBounds(12,12,24,24);$check.Checked=[bool]$item.Selected;$check.Enabled=[bool]$item.Valid;$check.BackColor=[Drawing.Color]::Transparent
     $icon=New-Object Windows.Forms.PictureBox;$icon.SetBounds(42,18,58,58);$icon.SizeMode='StretchImage';$icon.Image=New-ClassIcon $item.Class
     $name=New-Label $item.Role.ToUpperInvariant() 112 12 187 25 11 $goldSoft 'Bold'
@@ -282,18 +369,22 @@ if($LaunchProfile){
   if(Launch-Character $profile){exit 0}else{exit 1}
 }
 foreach($profile in $script:Characters){Sync-ProfileBat $profile.FileName $profile.Role}
-$form=New-Object Windows.Forms.Form;$form.Text='Cyber.pw Asistant — MultiLauncher';$form.Size='1040,760';$form.MinimumSize='900,650';$form.StartPosition='CenterScreen';$form.BackColor=$jade;$form.ForeColor=$textColor;$form.Font=New-Object Drawing.Font('Segoe UI',9);$form.Icon=$null
+$form=New-Object Windows.Forms.Form;$form.Text='Cyber.pw Asistant — MultiLauncher';$form.Size='1040,800';$form.MinimumSize='900,690';$form.StartPosition='CenterScreen';$form.BackColor=$jade;$form.ForeColor=$textColor;$form.Font=New-Object Drawing.Font('Segoe UI',9);$form.Icon=$null
+$form.AutoScaleMode='Dpi';$form.AutoScroll=$true;$form.MaximizeBox=$true
 $header=New-Label 'MULTILAUNCHER' 24 16 400 42 24 $goldSoft 'Bold'
 $sub=New-Label 'Створюйте профілі персонажів і запускайте їх без ручного редагування BAT' 27 58 700 24 10 $muted
 $pathBox=New-Object Windows.Forms.TextBox;$pathBox.SetBounds(26,94,625,30);$pathBox.ReadOnly=$true;$pathBox.Text=$script:GamePath;$pathBox.BackColor=$panel;$pathBox.ForeColor=$textColor
+$pathBox.Anchor='Top,Left,Right'
 $browse=New-Object Windows.Forms.Button;$browse.Text='ПАПКА ГРИ';$browse.SetBounds(660,92,112,34);Style-Button $browse $jade2
+$browse.Anchor='Top,Right'
 $scan=New-Object Windows.Forms.Button;$scan.Text='+ ПРОФІЛЬ';$scan.SetBounds(780,92,112,34);Style-Button $scan ([Drawing.Color]::FromArgb(18,126,98))
-$windows=New-Label 'Вікон: 0' 902 98 100 24 10 $cyan 'Bold'
+$scan.Anchor='Top,Right'
+$windows=New-Label 'Вікон: 0' 902 98 100 24 10 $cyan 'Bold';$windows.Anchor='Top,Right'
 $summary=New-Label 'Персонажів: 0' 26 136 500 24 10 $textColor 'Bold'
 $delayLabel=New-Label 'Затримка між вікнами:' 620 136 170 24 9 $muted
 $delay=New-Object Windows.Forms.NumericUpDown;$delay.SetBounds(790,134,58,26);$delay.Minimum=1;$delay.Maximum=30;$delay.Value=[Math]::Min(30,[Math]::Max(1,[int]$script:Config.DelaySeconds));$delay.BackColor=$panel;$delay.ForeColor=$textColor
 $sec=New-Label 'сек.' 852 136 42 24 9 $muted
-$flow=New-Object Windows.Forms.FlowLayoutPanel;$flow.SetBounds(18,169,988,466);$flow.Anchor='Top,Bottom,Left,Right';$flow.AutoScroll=$true;$flow.WrapContents=$true;$flow.BackColor=[Drawing.Color]::FromArgb(6,36,31);$flow.Padding='8,8,8,8'
+$flow=New-Object Windows.Forms.FlowLayoutPanel;$flow.SetBounds(18,169,988,466);$flow.Anchor='Top,Bottom,Left,Right';$flow.AutoScroll=$true;$flow.WrapContents=$true;$flow.BackColor=$theme.Field;$flow.Padding='8,8,8,8'
 $status=New-Label 'Оберіть папку гри та створіть перший профіль.' 26 646 560 28 9 $muted;$status.Anchor='Bottom,Left'
 $launchSelected=New-Object Windows.Forms.Button;$launchSelected.Text='▶ ЗАПУСТИТИ ВИБРАНИХ';$launchSelected.SetBounds(596,642,190,42);$launchSelected.Anchor='Bottom,Right';Style-Button $launchSelected ([Drawing.Color]::FromArgb(18,126,98))
 $launchAll=New-Object Windows.Forms.Button;$launchAll.Text='▶▶ ЗАПУСТИТИ ВСІХ';$launchAll.SetBounds(796,642,190,42);$launchAll.Anchor='Bottom,Right';Style-Button $launchAll ([Drawing.Color]::FromArgb(138,94,16))
@@ -309,4 +400,6 @@ $timer=New-Object Windows.Forms.Timer;$timer.Interval=1500;$timer.Add_Tick({$win
 $form.Add_FormClosed({$timer.Stop();Update-ConfigFromCards;foreach($card in @($flow.Controls)){if($card.Tag.Icon.Image){$card.Tag.Icon.Image.Dispose()}}})
 Render-Cards
 if(-not $script:GamePath){$status.Text='Папку CyberPW не знайдено автоматично. Оберіть її вручну.'}elseif(-not $script:Characters.Count){$status.Text='Папку гри знайдено. Натисніть «+ ПРОФІЛЬ».'}else{$status.Text='Готово. Запускайте одного або кілька персонажів.'}
+[void](Add-CyberPWCommunityBar $form)
+[void](Add-CyberPWThemeToggle $form $MyInvocation.MyCommand.Path)
 [void]$form.ShowDialog()

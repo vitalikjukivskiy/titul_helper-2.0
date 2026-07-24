@@ -1,7 +1,11 @@
 ﻿$ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-Add-Type -AssemblyName System.Runtime.WindowsRuntime
+$script:IsWindows7=([Environment]::OSVersion.Version.Major-eq6-and[Environment]::OSVersion.Version.Minor-eq1)
+$script:OcrSupported=$false
+if(-not$script:IsWindows7){
+  try{Add-Type -AssemblyName System.Runtime.WindowsRuntime -ErrorAction Stop;$script:OcrSupported=$true}catch{}
+}
 
 # Один процес володіє state.json. Без mutex стара паралельна копія могла
 # перезаписати нові зелені позначки своїм застарілим станом під час закриття.
@@ -30,6 +34,7 @@ public static class NativePw {
 '@
 
 $AppDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+. (Join-Path $AppDir 'CyberPW-Common.ps1')
 $DataPath = Join-Path $AppDir 'titles.json'
 $StatePath = Join-Path $AppDir 'state.json'
 $ConfirmedStatePath = Join-Path $AppDir 'state-confirmed.json'
@@ -280,6 +285,10 @@ function Get-CyrillicOcrEngine {
   return $null
 }
 function Install-UkrainianOcr {
+  if(-not$script:OcrSupported){
+    [Windows.Forms.MessageBox]::Show('Системний Windows OCR доступний лише у Windows 10/11. У Windows 7 TitulHelper працює без автоматичного OCR-сканування. Пошук, ручні позначки, калібрування та встановлення координат залишаються доступними.','OCR недоступний')|Out-Null
+    return $false
+  }
   $answer=[Windows.Forms.MessageBox]::Show("На цьому ПК відсутнє розпізнавання українського тексту.`r`n`r`nВстановити офіційний компонент Windows «Український OCR» зараз? Windows покаже запит адміністратора і завантажить мовний компонент.",'Потрібен український OCR',[Windows.Forms.MessageBoxButtons]::YesNo,[Windows.Forms.MessageBoxIcon]::Question)
   if($answer-ne[Windows.Forms.DialogResult]::Yes){return $false}
   try{
@@ -686,6 +695,11 @@ function Scan-Titles {
   }catch{$form.WindowState='Normal';$form.Activate();[Windows.Forms.MessageBox]::Show($_.Exception.Message)|Out-Null}
 }
 function Scan-AllOwnedTitles {
+  if(-not$script:OcrSupported){
+    $form.WindowState='Normal';$form.Activate()
+    [Windows.Forms.MessageBox]::Show('Автоматичний OCR-скан недоступний у Windows 7. Використовуйте пошук, ручні зелені позначки та встановлення міток — ці функції підтримуються.','Режим Windows 7')|Out-Null
+    return
+  }
   try{
     $form.WindowState='Minimized'
     if(-not(Focus-Game)){$form.WindowState='Normal';return}
@@ -753,16 +767,17 @@ function Scan-AllOwnedTitles {
   }
 }
 
-$jadeDark=[Drawing.Color]::FromArgb(7,28,24)
-$jadePanel=[Drawing.Color]::FromArgb(13,48,40)
-$jade=[Drawing.Color]::FromArgb(20,126,99)
-$jadeBright=[Drawing.Color]::FromArgb(42,176,132)
-$gold=[Drawing.Color]::FromArgb(218,176,64)
-$goldSoft=[Drawing.Color]::FromArgb(244,213,125)
-$textSoft=[Drawing.Color]::FromArgb(205,221,214)
+$theme=Get-CyberPWTheme
+$jadeDark=$theme.Base
+$jadePanel=$theme.Field
+$jade=$theme.Accent
+$jadeBright=$theme.AccentBright
+$gold=$theme.Gold
+$goldSoft=$theme.GoldSoft
+$textSoft=$theme.Muted
 function Style-Button($button,$back,$fore=$goldSoft){$button.BackColor=$back;$button.ForeColor=$fore;$button.FlatStyle='Flat';$button.FlatAppearance.BorderColor=$gold;$button.FlatAppearance.BorderSize=1;$button.Cursor='Hand'}
 
-$form=New-Object Windows.Forms.Form; $form.Text='CyberPW — Titles Assistant · OCR R11'; $form.Size='960,790'; $form.MinimumSize='960,790'; $form.MaximumSize='960,790'; $form.StartPosition='CenterScreen'; $form.BackColor=$jadeDark; $form.ForeColor='White'; $form.Font=New-Object Drawing.Font('Segoe UI',10);$form.MaximizeBox=$false
+$form=New-Object Windows.Forms.Form; $form.Text='CyberPW — Titles Assistant · OCR R11'; $form.Size='960,830'; $form.MinimumSize='820,660'; $form.StartPosition='CenterScreen'; $form.BackColor=$jadeDark; $form.ForeColor='White'; $form.Font=New-Object Drawing.Font('Segoe UI',10);$form.MaximizeBox=$true;$form.AutoScaleMode='Dpi';$form.AutoScroll=$true
 $form.Text='Cyber.pw Asistant — TitulHelper'
 $logo=New-Object Windows.Forms.PictureBox;$logo.SetBounds(18,8,365,125);$logo.SizeMode='Zoom';$logo.BackColor=$jadeDark
 $logoPath=Join-Path $AppDir 'cyberpw-logo.png';if(Test-Path $logoPath){
@@ -798,6 +813,7 @@ $calCoord=New-Object Windows.Forms.Button; $calCoord.Text="2 · Поле вве�
 $cal1=New-Object Windows.Forms.Button; $cal1.Text='3 · Верхній лівий кут списку титулів (3 с)'; $cal1.SetBounds(450,485,455,34);Style-Button $cal1 $jadePanel $textSoft
 $cal2=New-Object Windows.Forms.Button; $cal2.Text='4 · Нижній правий кут списку титулів (3 с)'; $cal2.SetBounds(450,525,455,34);Style-Button $cal2 $jadePanel $textSoft
 $scan=New-Object Windows.Forms.Button; $scan.Text='АВТОСКАН УСІХ НАЯВНИХ ТИТУЛІВ'; $scan.SetBounds(450,572,455,46);Style-Button $scan ([Drawing.Color]::FromArgb(105,77,18)) $goldSoft
+if(-not$script:OcrSupported){$scan.Text='АВТОСКАН НЕДОСТУПНИЙ У WINDOWS 7';$scan.BackColor=$jadeDark}
 $resetDone=New-Object Windows.Forms.Button; $resetDone.Text='Скинути результати сканування'; $resetDone.SetBounds(450,626,455,30);Style-Button $resetDone $jadeDark $textSoft
 $credit=New-Object Windows.Forms.Label;$credit.Text='Створив Кіт Михайло для сервера Cyber.pw · клан DarkSide';$credit.ForeColor=$textSoft;$credit.SetBounds(20,684,620,23)
 $serverLink=New-Object Windows.Forms.LinkLabel;$serverLink.Text='Сайт CyberPW';$serverLink.LinkColor=$gold;$serverLink.ActiveLinkColor=$goldSoft;$serverLink.VisitedLinkColor=$gold;$serverLink.SetBounds(20,712,120,23);$serverLink.Cursor='Hand'
@@ -824,4 +840,6 @@ if($env:CYBERPW_AUTOSCAN-eq'1'){
   $autoScanTimer.Add_Tick({$autoScanTimer.Stop();Scan-AllOwnedTitles})
   $autoScanTimer.Start()
 }
+[void](Add-CyberPWCommunityBar $form)
+[void](Add-CyberPWThemeToggle $form $MyInvocation.MyCommand.Path)
 [void]$form.ShowDialog()

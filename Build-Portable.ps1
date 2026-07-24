@@ -16,8 +16,12 @@ New-Item -ItemType Directory -Path $stage | Out-Null
 
 $files = @(
     'CyberPW-Launcher.ps1',
+    'CyberPW-Common.ps1',
     'CyberPW-MultiLauncher.ps1',
+    'CyberPW-Unfreeze.ps1',
+    'CyberPW-WorldBosses.ps1',
     'CyberPW-ChestSimulator.ps1',
+    'VERSION',
     'CyberPW-Titles.ps1',
     'titles.json',
     'ocr-rules.json',
