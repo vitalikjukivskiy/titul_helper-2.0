@@ -1,4 +1,6 @@
-﻿function Open-CyberPWLink([string]$Url){
+﻿. (Join-Path $PSScriptRoot 'CyberPW-Design.ps1')
+
+function Open-CyberPWLink([string]$Url){
   try{
     $info=New-Object Diagnostics.ProcessStartInfo
     $info.FileName=$Url;$info.UseShellExecute=$true
@@ -10,7 +12,7 @@
 
 function Get-CyberPWThemeMode{
   $path=Join-Path $PSScriptRoot 'launcher-theme.json'
-  try{$saved=Get-Content -Raw -Encoding UTF8 -LiteralPath $path|ConvertFrom-Json;if($saved.Mode-eq'Light'){return 'Light'}}catch{}
+  try{$saved=Get-Content -Raw -Encoding UTF8 -LiteralPath $path -ErrorAction Stop|ConvertFrom-Json;if($saved.Mode-eq'Light'){return 'Light'}}catch{}
   'Dark'
 }
 

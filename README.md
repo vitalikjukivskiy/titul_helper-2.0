@@ -1,110 +1,130 @@
-<p align="center">
-  <img src="github-header-kitmikhailo.png" width="100%" alt="Кіт Михайло — Cyber.pw Assistant">
+﻿<p align="center">
+  <img src="github-header-kitmikhailo.png" width="100%" alt="CyberPW Assistant — інструментарій гравця">
 </p>
 
-<h1 align="center">Cyber.pw Assistant</h1>
+<h1 align="center">CyberPW Assistant</h1>
 
 <p align="center">
-  Неофіційний інструментарій гравця CyberPW<br>
-  <strong>Версія 0.82 Beta · Windows 7/10/11 · Portable · відкритий код</strong>
+  Неофіційний відкритий інструментарій для гравців CyberPW<br>
+  <strong>0.90 Design Preview · Windows 7/10/11 · Portable · PowerShell 5.1</strong>
 </p>
 
 <p align="center">
-  <a href="https://github.com/vitalikjukivskiy/titul_helper/releases">
-    <img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper/total?style=for-the-badge&logo=github&label=Завантаження&color=0f9d7a" alt="Кількість завантажень">
-  </a>
-  <a href="https://github.com/vitalikjukivskiy/titul_helper/releases/latest">
-    <img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper?include_prereleases&style=for-the-badge&label=Остання версія&color=d4af37" alt="Остання версія">
-  </a>
+  <a href="https://github.com/vitalikjukivskiy/titul_helper/releases"><img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper/total?style=for-the-badge&logo=github&label=Downloads&color=0f9d7a" alt="Завантаження релізів"></a>
+  <a href="https://github.com/vitalikjukivskiy/titul_helper/releases/latest"><img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper?include_prereleases&style=for-the-badge&label=Release&color=d4af37" alt="Остання версія"></a>
 </p>
 
 <p align="center">
   <a href="https://cyberpw.fun/">Сайт CyberPW</a> ·
+  <a href="https://forum.cyberpw.fun/">Форум</a> ·
   <a href="https://cabinet.cyberpw.fun/">Кабінет</a> ·
   <a href="https://cabinet.cyberpw.fun/register.php?ref=4550">Реєстрація з бонусом</a> ·
   <a href="https://www.youtube.com/@Vitalik_Juk">YouTube</a> ·
-  <a href="https://github.com/vitalikjukivskiy">GitHub автора</a> ·
   <a href="https://send.monobank.ua/jar/93N5FBB3zX">Підтримати проєкт</a>
 </p>
 
-## Можливості
+> [!IMPORTANT]
+> Це неофіційний фанатський проєкт. Перед використанням макросів перевірте правила сервера. Проєкт не містить обходу античита, прихованого драйвера або читання пам’яті гри.
 
-### CyberPW-Asistant
-
-- сучасний адаптивний інтерфейс зі світлою та темною темами в усіх вікнах;
-- головний календар із компактним розкладом щоденних івентів;
-- вікна можна масштабувати й використовувати на різних екранах та версіях Windows;
-- усі модулі зібрані в одному portable-лаунчері.
+## Що входить
 
 ### TitulHelper
 
-- база з 259 точок запуску титулів у 37 ланцюжках;
-- автоматичне введення координат і назви мітки у CyberPW;
+- база 259 точок запуску титулів у 37 ланцюжках;
+- пошук, прогрес, калібрування та автоматичне встановлення міток;
 - OCR-сканування отриманих титулів із прокручуванням списку;
-- збереження прогресу та підсвічування знайдених титулів;
-- калібрування відносно вікна гри для кількох моніторів.
+- підтримка кількох моніторів.
 
 ### MultiLauncher
 
-- створення профілів персонажів без ручного редагування BAT;
-- нік, клас, логін і пароль для кожного профілю;
-- запуск одного, вибраних або всіх персонажів із затримкою;
-- 10 класів версії 1.4.6 з окремими ілюстраціями;
-- збережені дані акаунта шифруються Windows для поточного користувача;
-- автоматичні BAT-ярлики не містять логінів і паролів.
+- профілі персонажів, запуск одного, вибраних або всіх клієнтів;
+- 10 класів Perfect World 1.4.6 з окремими ілюстраціями;
+- облікові дані шифруються Windows для поточного користувача;
+- BAT-ярлики не містять логінів і паролів.
 
-### Симулятор скрині — BETA
+### Macro Studio — Alpha
 
-- симуляція Скрині Тора за наданою таблицею шансів;
-- відкриття від 1 до 1 000 000 скринь;
-- останній дроп, загальні підсумки та фактична частота випадінь;
-- справжні іконки предметів Perfect World — без генерації зображень;
-- сума шансів у джерелі становить 100,137%, тому ваги пропорційно нормалізуються.
+- графічний конструктор без необхідності писати PowerShell;
+- екранна клавіатура, клавіші миші, затискання, паузи, текст і цикли;
+- очікування кольору пікселя з координатами, допуском і тайм-аутом;
+- virtual-key рушій для цифр, F-клавіш, Shift/Ctrl/Alt і стрілок;
+- аварійна зупинка `F12` із відпусканням затиснутих клавіш;
+- макроси зберігаються локально в `macros/*.json` і не потрапляють до Git.
 
-> Симулятор є тестовим інструментом і не передбачає реальних платежів або предметів.
+### Карта територіальних війн
 
-### Розморозка вікон
+- 51 інтерактивна територія з точними полігонами;
+- назва, рівень, нагорода, власник, атакуючий, захисник і час бою;
+- локальний стан у `territories.json` не потрапляє до Git;
+- актуальні власники та бої поки не синхронізуються з сервером автоматично.
 
-- окремий список усіх запущених вікон `ElementClient`;
-- вибір галочками клієнтів, які мають продовжувати рендер у фоні;
-- виконання `d_rendernofocus 1` окремо для кожного вибраного вікна;
-- запуск MultiLauncher із підтримкою debug-консолі через `console:1`.
+### Інші модулі
 
-### Світові боси
+- симулятор Скрині Тора зі статистикою випадінь;
+- розморозка вибраних вікон `ElementClient`;
+- 16 світових і 8 хроно-босів із координатами та розкладом;
+- календар івентів у головному лаунчері.
 
-- українська база з 16 світових і 8 хроно-босів;
-- координати, хроно-розклад і таблиця шансів випадіння;
-- вибір конкретного вікна гри;
-- автоматичне встановлення координат і назви мітки;
-- використання калібрування, збереженого в TitulHelper.
+## Дизайн 0.90
+
+- спільна дизайн-система для всіх модулів;
+- округлені кнопки, картки, панелі, списки й таблиці;
+- DPI-масштабування та подвійна буферизація;
+- системні округлені кути на Windows 11;
+- безпечний fallback для Windows 7 і Windows 10;
+- світла й темна теми зі збереженням вибору.
 
 ## Швидкий запуск
 
-1. Завантажте `Cyber.pw-Asistant-Portable.zip` у розділі **Releases**.
-2. Повністю розпакуйте архів.
-3. Запустіть `Запустити.bat`.
-4. Якщо Windows OCR відсутній, запустіть `Встановити OCR.bat` від адміністратора.
+1. Відкрийте [Releases](https://github.com/vitalikjukivskiy/titul_helper/releases).
+2. Завантажте `Cyber.pw-Asistant-Portable.zip`.
+3. Повністю розпакуйте архів у звичайну папку.
+4. Запустіть `Запустити.bat`.
+5. Для OCR за потреби запустіть `Встановити OCR.bat` від адміністратора.
 
-Python, інсталятор і сторонні бібліотеки не потрібні — використовується штатний Windows PowerShell.
+Python, npm та сторонні бібліотеки не потрібні.
 
-### Windows 7
+## Сумісність
 
-- потрібні Windows 7 SP1, .NET Framework 4.8 і Windows Management Framework 5.1;
-- TitulHelper підтримує пошук, ручні позначки, калібрування та встановлення міток;
-- MultiLauncher, розморозка вікон, симулятор і світові боси залишаються доступними;
-- автоматичний OCR-скан недоступний, оскільки Windows 7 не містить системного Windows OCR.
+| Система | Статус | Примітки |
+|---|---:|---|
+| Windows 11 | ✅ | Повна підтримка, системні округлені кути |
+| Windows 10 | ✅ | Повна підтримка |
+| Windows 7 SP1 | ✅ | Потрібні .NET Framework 4.8 та Windows Management Framework 5.1; системний OCR недоступний |
 
-## Безпека
+## Безпека й приватність
 
-- TitulHelper не читає пам'ять гри та не змінює файли клієнта.
-- Облікові дані MultiLauncher не зберігаються у відкритому вигляді.
-- Паролі не виводяться у журнал і не потрапляють до portable-збірки.
-- Вихідний код PowerShell доступний для перевірки у репозиторії.
+- код не читає пам’ять `ElementClient` і не змінює файли гри;
+- паролі MultiLauncher не зберігаються відкритим текстом;
+- `state.json`, `characters.json`, `territories.json`, `launcher-theme.json`, `macros/` і OCR-звіти виключені з Git;
+- Macro Studio активує лише вказаний процес і має аварійну клавішу `F12`;
+- перед використанням автоматизації користувач самостійно перевіряє правила сервера.
+
+## Збірка з вихідного коду
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Portable.ps1
+```
+
+Результат:
+
+- `dist/Cyber.pw-Asistant/`;
+- `dist/Cyber.pw-Asistant-Portable.zip`;
+- `dist/SHA256.txt`.
+
+## Посилання
+
+- [Сайт CyberPW](https://cyberpw.fun/)
+- [Форум CyberPW](https://forum.cyberpw.fun/)
+- [Особистий кабінет](https://cabinet.cyberpw.fun/)
+- [Реєстрація з бонусом](https://cabinet.cyberpw.fun/register.php?ref=4550)
+- [YouTube автора](https://www.youtube.com/@Vitalik_Juk)
+- [Релізи Assistant](https://github.com/vitalikjukivskiy/titul_helper/releases)
+- [GitHub автора](https://github.com/vitalikjukivskiy)
+- [Підтримати проєкт](https://send.monobank.ua/jar/93N5FBB3zX)
 
 ## Автор
 
-Створив [**Кіт Михайло**](https://github.com/vitalikjukivskiy) для гравців сервера **CyberPW**, клан **DarkSide**.
+Створив [**Кіт Михайло**](https://github.com/vitalikjukivskiy) для гравців CyberPW, клан **DarkSide**.
 
-Автор не належить до адміністрації CyberPW — це неофіційний фанатський проєкт звичайного гравця: **пере-адмін, недо-DevOps**.
-
-Назви, іконки й графічні матеріали гри належать їхнім правовласникам.
+Автор не належить до адміністрації CyberPW. Назви, іконки та графічні матеріали гри належать їхнім правовласникам.

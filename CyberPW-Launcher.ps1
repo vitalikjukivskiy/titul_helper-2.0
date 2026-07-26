@@ -62,6 +62,8 @@ $MultiLauncherPath=Join-Path $AppDir 'CyberPW-MultiLauncher.ps1'
 $ChestSimulatorPath=Join-Path $AppDir 'CyberPW-ChestSimulator.ps1'
 $UnfreezePath=Join-Path $AppDir 'CyberPW-Unfreeze.ps1'
 $WorldBossesPath=Join-Path $AppDir 'CyberPW-WorldBosses.ps1'
+$TerritoryMapPath=Join-Path $AppDir 'CyberPW-TerritoryMap.ps1'
+$MacroStudioPath=Join-Path $AppDir 'CyberPW-MacroStudio.ps1'
 $LogoPath=Join-Path $AppDir 'cyberpw-logo.png'
 $HeaderPath=Join-Path $AppDir 'github-header-kitmikhailo.png'
 $TitlesPath=Join-Path $AppDir 'titles.json'
@@ -196,19 +198,19 @@ function New-NavButton($caption,$glyph,$y,$action){
   $button.Add_Click($action);$button
 }
 function New-ModuleCard($title,$glyph,$description,$statusText,$statusColor,$x,$path,$moduleName){
-  $card=New-Object Windows.Forms.Panel;$card.Size='190,312';$card.Dock='Fill';$card.Margin='6,0,6,0';$card.BackColor=$panelSoft
+  $card=New-Object Windows.Forms.Panel;$card.Size='190,150';$card.Dock='Fill';$card.Margin='6,0,6,0';$card.BackColor=$panelSoft
   $card.Add_Paint({
     param($sender,$eventArgs)
     $pen=New-Object Drawing.Pen $gold,1
     $eventArgs.Graphics.DrawRectangle($pen,0,0,$sender.Width-1,$sender.Height-1);$pen.Dispose()
   })
-  $heading=New-Label $title 10 13 170 34 9 $goldSoft 'Bold';$heading.TextAlign='MiddleCenter';$heading.Anchor='Top,Left,Right'
-  $icon=New-Label $glyph 12 49 166 70 36 $goldSoft 'Regular';$icon.TextAlign='MiddleCenter';$icon.Anchor='Top,Left,Right'
-  $desc=New-Label $description 12 123 166 65 8 $muted;$desc.TextAlign='TopCenter';$desc.Anchor='Top,Left,Right'
-  $dot=New-Label '●' 14 239 17 20 9 $statusColor 'Bold'
-  $state=New-Label $statusText 32 239 146 22 8 $text;$state.Anchor='Bottom,Left,Right'
+  $heading=New-Label $title 10 4 170 24 9 $goldSoft 'Bold';$heading.TextAlign='MiddleCenter';$heading.Anchor='Top,Left,Right'
+  $icon=New-Label $glyph 10 29 44 38 20 $goldSoft 'Regular';$icon.TextAlign='MiddleCenter';$icon.Anchor='Top,Left,Right'
+  $desc=New-Label $description 54 31 124 42 8 $muted;$desc.TextAlign='TopCenter';$desc.Anchor='Top,Left,Right'
+  $dot=New-Label '●' 14 83 17 20 9 $statusColor 'Bold'
+  $state=New-Label $statusText 32 83 146 22 8 $text;$state.Anchor='Bottom,Left,Right'
   $dot.Anchor='Bottom,Left'
-  $open=New-Object Windows.Forms.Button;$open.Text='ВІДКРИТИ';$open.SetBounds(12,267,166,33);$open.Anchor='Bottom,Left,Right';Style-Button $open $jade2 $goldSoft 8;Set-Rounded $open 8
+  $open=New-Object Windows.Forms.Button;$open.Text='ВІДКРИТИ';$open.SetBounds(12,109,166,30);$open.Anchor='Bottom,Left,Right';Style-Button $open $jade2 $goldSoft 8;Set-Rounded $open 8
   $open.Tag=[pscustomobject]@{Back=$jade2;Fore=$goldSoft;Path=$path;Name=$moduleName}
   $open.Add_Click({Start-Module $this.Tag.Path $this.Tag.Name})
   $card.Controls.AddRange(@($heading,$icon,$desc,$dot,$state,$open));$card
@@ -259,7 +261,7 @@ $dayNames=@('Понеділок','Вівторок','Середа','Четвер
 $dayShort=@('ПН','ВТ','СР','ЧТ','ПТ','СБ','НД')
 
 $form=New-Object ResizableBorderlessForm
-$form.Text='CyberPW-Asistant 0.82 Beta';$form.FormBorderStyle='None';$form.Size='1280,800';$form.MinimumSize='1080,720'
+$form.Text='CyberPW-Asistant 0.90 Design Preview';$form.FormBorderStyle='None';$form.Size='1280,800';$form.MinimumSize='1080,720'
 $form.StartPosition='CenterScreen';$form.BackColor=$ink;$form.ForeColor=$text;$form.Font=New-Object Drawing.Font('Segoe UI',9)
 $form.AutoScaleMode='Dpi';$form.AutoScroll=$true
 $form.Add_Shown({Set-Rounded $form 16})
@@ -283,7 +285,7 @@ $brandLogo=New-Object Windows.Forms.PictureBox;$brandLogo.SetBounds(26,20,178,92
 if(Test-Path $LogoPath){$logoSource=[Drawing.Image]::FromFile($LogoPath);$brandLogo.Image=New-Object Drawing.Bitmap $logoSource;$logoSource.Dispose()}
 $brandLogo.Add_MouseDown($drag)
 $brand=New-Label 'CyberPW-Asistant' 14 113 202 30 15 $goldSoft 'Bold';$brand.TextAlign='MiddleCenter'
-$version=New-Label '0.82 BETA' 64 148 102 26 9 $goldSoft 'Bold';$version.TextAlign='MiddleCenter';$version.BackColor=$jade3;Set-Rounded $version 8
+$version=New-Label '0.90 PREVIEW' 64 148 102 26 9 $goldSoft 'Bold';$version.TextAlign='MiddleCenter';$version.BackColor=$jade3;Set-Rounded $version 8
 
 $navHome=New-NavButton 'ГОЛОВНА' '⌂' 194 {$null}
 $navTitles=New-NavButton 'TITULHELPER' '◆' 246 {Start-Module $AssistantPath 'TitulHelper'}
@@ -291,16 +293,18 @@ $navMulti=New-NavButton 'MULTILAUNCHER' '▣' 298 {Start-Module $MultiLauncherPa
 $navChest=New-NavButton 'СИМУЛЯТОР' '◈' 350 {Start-Module $ChestSimulatorPath 'симулятор'}
 $navFreeze=New-NavButton 'РОЗМОРОЗКА' '❄' 402 {Start-Module $UnfreezePath 'розморозку вікон'}
 $navBosses=New-NavButton 'СВІТОВІ БОСИ' '⚔' 454 {Start-Module $WorldBossesPath 'світових босів'}
+$navMacros=New-NavButton 'МАКРОСИ' 'M' 506 {Start-Module $MacroStudioPath 'Macro Studio'}
+$navTerritories=New-NavButton 'КАРТА ТВ' '⚑' 558 {Start-Module $TerritoryMapPath 'карту ТВ'}
 $navHome.BackColor=$jade3;$navHome.Tag.Back=$jade3
 
-$support=New-Object Windows.Forms.Button;$support.Text='💛  ПІДТРИМАТИ ПРОЄКТ';$support.SetBounds(18,535,194,42);Style-Button $support ([Drawing.Color]::FromArgb(105,70,13)) $goldSoft 8;Set-Rounded $support 10
+$support=New-Object Windows.Forms.Button;$support.Text='💛  ПІДТРИМАТИ ПРОЄКТ';$support.SetBounds(18,615,194,42);Style-Button $support ([Drawing.Color]::FromArgb(105,70,13)) $goldSoft 8;Set-Rounded $support 10
 $support.Anchor='Bottom,Left'
 $support.Add_Click({Open-Link 'https://send.monobank.ua/jar/93N5FBB3zX'})
-$site=New-Object Windows.Forms.Button;$site.Text='САЙТ CYBERPW';$site.SetBounds(18,587,194,36);Style-Button $site $jade2 $muted 8;Set-Rounded $site 9
+$site=New-Object Windows.Forms.Button;$site.Text='САЙТ CYBERPW';$site.SetBounds(18,665,194,36);Style-Button $site $jade2 $muted 8;Set-Rounded $site 9
 $site.Anchor='Bottom,Left'
 $site.Add_Click({Open-Link 'https://cyberpw.fun/'})
-$author=New-Label "Кіт Михайло · DarkSide`r`nНеофіційний фанатський проєкт" 18 682 194 40 8 $muted;$author.TextAlign='MiddleCenter';$author.Anchor='Bottom,Left'
-$sidebar.Controls.AddRange(@($brandLogo,$brand,$version,$navHome,$navTitles,$navMulti,$navChest,$navFreeze,$navBosses,$support,$site,$author))
+$author=New-Label "Кіт Михайло · DarkSide`r`nНеофіційний фанатський проєкт" 18 724 194 40 8 $muted;$author.TextAlign='MiddleCenter';$author.Anchor='Bottom,Left'
+$sidebar.Controls.AddRange(@($brandLogo,$brand,$version,$navHome,$navTitles,$navMulti,$navChest,$navFreeze,$navBosses,$navMacros,$navTerritories,$support,$site,$author))
 
 $top=New-Object Windows.Forms.Panel;$top.SetBounds(232,2,1046,64);$top.Anchor='Top,Left,Right';$top.BackColor=$ink;$top.Add_MouseDown($drag)
 $onlineDot=New-Label '●' 24 20 20 24 10 $cyan 'Bold'
@@ -331,8 +335,8 @@ $hero.Add_Paint({
 })
 $heroTitle=New-Label 'CyberPW-Asistant' 34 26 480 50 27 $goldSoft 'Bold'
 $heroSub=New-Label 'ІНСТРУМЕНТИ ТА ПОМІЧНИКИ ДЛЯ PERFECT WORLD' 37 80 510 26 10 $text 'Bold'
-$heroText=New-Label "П’ять модулів в одному лаунчері:`r`nтитули, персонажі, симуляція, фоновий рендер і світові боси." 38 119 500 58 11 $muted
-$heroStats=New-Label "◆  TITULHELPER: $done / $total     ●  ГОТОВО     ◈  0.82 BETA" 38 204 510 28 9 $cyan 'Bold'
+$heroText=New-Label "Сім модулів в одному лаунчері:`r`nтитули, персонажі, макроси, симуляція, фоновий рендер, боси й карта ТВ." 38 119 500 58 11 $muted
+$heroStats=New-Label "◆  TITULHELPER: $done / $total     ●  ГОТОВО     M  0.90 PREVIEW" 38 204 510 28 9 $cyan 'Bold'
 
 $calendar=New-Object Windows.Forms.Panel;$calendar.SetBounds(570,17,408,230);$calendar.Anchor='Top,Right';$calendar.BackColor=$panelSoft;Set-Rounded $calendar 12
 $calendarAccent=New-Object Windows.Forms.Panel;$calendarAccent.SetBounds(14,11,3,21);$calendarAccent.BackColor=$gold
@@ -416,12 +420,16 @@ $card2=New-ModuleCard 'MULTILAUNCHER' '▣' 'Профілі та запуск к
 $card3=New-ModuleCard 'СИМУЛЯТОР' '◈' 'Скриня Тора і статистика дропу' 'BETA' $gold 0 $ChestSimulatorPath 'симулятор'
 $card4=New-ModuleCard 'РОЗМОРОЗКА' '❄' 'Фоновий рендер вибраних вікон' 'ДОСТУПНО' $cyan 0 $UnfreezePath 'розморозку'
 $card5=New-ModuleCard 'СВІТОВІ БОСИ' '⚔' 'Координати, хроно та розклад' '24 БОСИ' $gold 0 $WorldBossesPath 'світових босів'
+$card6=New-ModuleCard 'КАРТА ТВ' '⚑' '51 територія, клани та розклад битв' 'НОВЕ' $gold 0 $TerritoryMapPath 'карту ТВ'
+$card7=New-ModuleCard 'MACRO STUDIO' 'M' 'Графічні сценарії клавіатури, миші та пікселів' 'ALPHA' $gold 0 $MacroStudioPath 'Macro Studio'
 $moduleGrid=New-Object Windows.Forms.TableLayoutPanel;$moduleGrid.SetBounds(246,372,1018,312)
 $moduleGrid.Anchor='Top,Bottom,Left,Right';$moduleGrid.BackColor=[Drawing.Color]::Transparent
-$moduleGrid.ColumnCount=5;$moduleGrid.RowCount=1;$moduleGrid.Padding='0,0,0,0'
-for($index=0;$index-lt5;$index++){$style=New-Object Windows.Forms.ColumnStyle 'Percent',20;[void]$moduleGrid.ColumnStyles.Add($style)}
-$moduleGrid.RowStyles.Add((New-Object Windows.Forms.RowStyle 'Percent',100))|Out-Null
-$moduleGrid.Controls.Add($card1,0,0);$moduleGrid.Controls.Add($card2,1,0);$moduleGrid.Controls.Add($card3,2,0);$moduleGrid.Controls.Add($card4,3,0);$moduleGrid.Controls.Add($card5,4,0)
+$moduleGrid.ColumnCount=4;$moduleGrid.RowCount=2;$moduleGrid.Padding='0,0,0,0'
+for($index=0;$index-lt4;$index++){$style=New-Object Windows.Forms.ColumnStyle 'Percent',25;[void]$moduleGrid.ColumnStyles.Add($style)}
+$moduleGrid.RowStyles.Add((New-Object Windows.Forms.RowStyle 'Percent',50))|Out-Null
+$moduleGrid.RowStyles.Add((New-Object Windows.Forms.RowStyle 'Percent',50))|Out-Null
+$moduleGrid.Controls.Add($card1,0,0);$moduleGrid.Controls.Add($card2,1,0);$moduleGrid.Controls.Add($card3,2,0);$moduleGrid.Controls.Add($card7,3,0)
+$moduleGrid.Controls.Add($card4,0,1);$moduleGrid.Controls.Add($card5,1,1);$moduleGrid.Controls.Add($card6,2,1)
 
 $footer=New-Label 'CYBERPW-ASISTANT  •  WINDOWS 7/10/11  •  PORTABLE  •  OPEN SOURCE' 252 728 1006 28 8 $muted 'Bold'
 $footer.Anchor='Bottom,Left,Right'
@@ -429,4 +437,4 @@ $footer.TextAlign='MiddleCenter'
 $form.Controls.AddRange(@($sidebar,$top,$hero,$moduleGrid,$footer))
 $communityBar=Add-CyberPWCommunityBar $form
 $form.Add_FormClosed({if($brandLogo.Image){$brandLogo.Image.Dispose()}})
-[void]$form.ShowDialog()
+Apply-CyberPWVisualPolish $form;[void]$form.ShowDialog()

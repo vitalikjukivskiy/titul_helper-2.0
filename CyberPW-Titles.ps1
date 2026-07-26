@@ -842,4 +842,4 @@ if($env:CYBERPW_AUTOSCAN-eq'1'){
 }
 [void](Add-CyberPWCommunityBar $form)
 [void](Add-CyberPWThemeToggle $form $MyInvocation.MyCommand.Path)
-[void]$form.ShowDialog()
+Apply-CyberPWVisualPolish $form;[void]$form.ShowDialog()
