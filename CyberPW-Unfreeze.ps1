@@ -169,7 +169,7 @@ function Unfreeze-Selected {
 }
 
 $form=New-Object Windows.Forms.Form
-$form.Text='Cyber.pw Asistant — Розморозка вікон'
+$form.Text='CyberPW Assistant — Розморозка вікон'
 $form.Size='820,650';$form.MinimumSize='700,560';$form.StartPosition='CenterScreen'
 $form.BackColor=$jade;$form.ForeColor=$textColor;$form.Font=New-Object Drawing.Font('Segoe UI',9)
 $form.AutoScaleMode='Dpi';$form.AutoScroll=$true;$form.MaximizeBox=$true

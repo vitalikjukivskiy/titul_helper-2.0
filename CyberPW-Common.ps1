@@ -6,7 +6,7 @@ function Open-CyberPWLink([string]$Url){
     $info.FileName=$Url;$info.UseShellExecute=$true
     [Diagnostics.Process]::Start($info)|Out-Null
   }catch{
-    [Windows.Forms.MessageBox]::Show("Не вдалося відкрити посилання.`r`n$Url",'CyberPW-Asistant')|Out-Null
+    [Windows.Forms.MessageBox]::Show("Не вдалося відкрити посилання.`r`n$Url",'CyberPW Assistant')|Out-Null
   }
 }
 

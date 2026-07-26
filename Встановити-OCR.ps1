@@ -2,7 +2,7 @@
 
 if([Environment]::OSVersion.Version.Major-eq6-and[Environment]::OSVersion.Version.Minor-eq1){
     Add-Type -AssemblyName System.Windows.Forms
-    [Windows.Forms.MessageBox]::Show('Windows 7 не містить системного Windows OCR. CyberPW-Asistant працюватиме без автоматичного OCR-сканування; інші функції залишаються доступними.','CyberPW-Asistant')|Out-Null
+    [Windows.Forms.MessageBox]::Show('Windows 7 не містить системного Windows OCR. CyberPW Assistant працюватиме без автоматичного OCR-сканування; інші функції залишаються доступними.','CyberPW Assistant')|Out-Null
     exit 0
 }
 
@@ -26,4 +26,4 @@ foreach ($name in $wanted) {
 $ru = Get-WindowsCapability -Online -Name 'Language.OCR~~~ru-RU~0.0.1.0'
 if ($ru.State -ne 'Installed') { throw 'Не вдалося встановити російський OCR.' }
 Add-Type -AssemblyName PresentationFramework
-[Windows.MessageBox]::Show('OCR установлено. Тепер перезапустіть Cyber.pw Asistant.','Cyber.pw Asistant') | Out-Null
+[Windows.MessageBox]::Show('OCR установлено. Тепер перезапустіть CyberPW Assistant.','CyberPW Assistant') | Out-Null

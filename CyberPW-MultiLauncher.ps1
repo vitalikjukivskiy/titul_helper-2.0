@@ -369,7 +369,7 @@ if($LaunchProfile){
   if(Launch-Character $profile){exit 0}else{exit 1}
 }
 foreach($profile in $script:Characters){Sync-ProfileBat $profile.FileName $profile.Role}
-$form=New-Object Windows.Forms.Form;$form.Text='Cyber.pw Asistant — MultiLauncher';$form.Size='1040,800';$form.MinimumSize='900,690';$form.StartPosition='CenterScreen';$form.BackColor=$jade;$form.ForeColor=$textColor;$form.Font=New-Object Drawing.Font('Segoe UI',9);$form.Icon=$null
+$form=New-Object Windows.Forms.Form;$form.Text='CyberPW Assistant — MultiLauncher';$form.Size='1040,800';$form.MinimumSize='900,690';$form.StartPosition='CenterScreen';$form.BackColor=$jade;$form.ForeColor=$textColor;$form.Font=New-Object Drawing.Font('Segoe UI',9);$form.Icon=$null
 $form.AutoScaleMode='Dpi';$form.AutoScroll=$true;$form.MaximizeBox=$true
 $header=New-Label 'MULTILAUNCHER' 24 16 400 42 24 $goldSoft 'Bold'
 $sub=New-Label 'Створюйте профілі персонажів і запускайте їх без ручного редагування BAT' 27 58 700 24 10 $muted

@@ -3,7 +3,7 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 if($PSVersionTable.PSVersion.Major-lt5){
-  [Windows.Forms.MessageBox]::Show('Для CyberPW-Asistant потрібен Windows PowerShell 5.1. На Windows 7 встановіть Windows Management Framework 5.1 і запустіть програму повторно.','Потрібен PowerShell 5.1')|Out-Null
+  [Windows.Forms.MessageBox]::Show('Для CyberPW Assistant потрібен Windows PowerShell 5.1. На Windows 7 встановіть Windows Management Framework 5.1 і запустіть програму повторно.','Потрібен PowerShell 5.1')|Out-Null
   exit
 }
 
@@ -183,14 +183,14 @@ function Apply-LauncherTheme([string]$mode){
 }
 function Open-Link([string]$url){
   try{$start=New-Object Diagnostics.ProcessStartInfo;$start.FileName=$url;$start.UseShellExecute=$true;[Diagnostics.Process]::Start($start)|Out-Null}
-  catch{[Windows.Forms.MessageBox]::Show("Не вдалося відкрити посилання.`r`n$url",'CyberPW-Asistant')|Out-Null}
+  catch{[Windows.Forms.MessageBox]::Show("Не вдалося відкрити посилання.`r`n$url",'CyberPW Assistant')|Out-Null}
 }
 function Start-Module([string]$path,[string]$name){
-  if(-not(Test-Path -LiteralPath $path)){[Windows.Forms.MessageBox]::Show("Не знайдено $([IO.Path]::GetFileName($path)).",'CyberPW-Asistant')|Out-Null;return}
+  if(-not(Test-Path -LiteralPath $path)){[Windows.Forms.MessageBox]::Show("Не знайдено $([IO.Path]::GetFileName($path)).",'CyberPW Assistant')|Out-Null;return}
   try{
     Start-Process powershell.exe -ArgumentList @('-NoProfile','-STA','-ExecutionPolicy','Bypass','-File',('"'+$path+'"')) -WorkingDirectory $AppDir
     $form.Close()
-  }catch{[Windows.Forms.MessageBox]::Show("Не вдалося запустити $name.`r`n$($_.Exception.Message)",'CyberPW-Asistant')|Out-Null}
+  }catch{[Windows.Forms.MessageBox]::Show("Не вдалося запустити $name.`r`n$($_.Exception.Message)",'CyberPW Assistant')|Out-Null}
 }
 function New-NavButton($caption,$glyph,$y,$action){
   $button=New-Object Windows.Forms.Button;$button.Text="$glyph   $caption";$button.TextAlign='MiddleLeft'
@@ -261,7 +261,7 @@ $dayNames=@('Понеділок','Вівторок','Середа','Четвер
 $dayShort=@('ПН','ВТ','СР','ЧТ','ПТ','СБ','НД')
 
 $form=New-Object ResizableBorderlessForm
-$form.Text='CyberPW-Asistant 0.90 Design Preview';$form.FormBorderStyle='None';$form.Size='1280,800';$form.MinimumSize='1080,720'
+$form.Text='CyberPW Assistant 0.90 Design Preview';$form.FormBorderStyle='None';$form.Size='1280,800';$form.MinimumSize='1080,720'
 $form.StartPosition='CenterScreen';$form.BackColor=$ink;$form.ForeColor=$text;$form.Font=New-Object Drawing.Font('Segoe UI',9)
 $form.AutoScaleMode='Dpi';$form.AutoScroll=$true
 $form.Add_Shown({Set-Rounded $form 16})
@@ -284,7 +284,7 @@ $sidebar.Add_MouseDown($drag)
 $brandLogo=New-Object Windows.Forms.PictureBox;$brandLogo.SetBounds(26,20,178,92);$brandLogo.SizeMode='Zoom';$brandLogo.BackColor=[Drawing.Color]::Transparent
 if(Test-Path $LogoPath){$logoSource=[Drawing.Image]::FromFile($LogoPath);$brandLogo.Image=New-Object Drawing.Bitmap $logoSource;$logoSource.Dispose()}
 $brandLogo.Add_MouseDown($drag)
-$brand=New-Label 'CyberPW-Asistant' 14 113 202 30 15 $goldSoft 'Bold';$brand.TextAlign='MiddleCenter'
+$brand=New-Label 'CyberPW Assistant' 14 113 202 30 15 $goldSoft 'Bold';$brand.TextAlign='MiddleCenter'
 $version=New-Label '0.90 PREVIEW' 64 148 102 26 9 $goldSoft 'Bold';$version.TextAlign='MiddleCenter';$version.BackColor=$jade3;Set-Rounded $version 8
 
 $navHome=New-NavButton 'ГОЛОВНА' '⌂' 194 {$null}
@@ -333,7 +333,7 @@ $hero.Add_Paint({
   $eventArgs.Graphics.FillRectangle($heroBrush,$heroRect);$heroBrush.Dispose()
   $heroPen=New-Object Drawing.Pen $gold,1;$eventArgs.Graphics.DrawRectangle($heroPen,0,0,$sender.Width-1,$sender.Height-1);$heroPen.Dispose()
 })
-$heroTitle=New-Label 'CyberPW-Asistant' 34 26 480 50 27 $goldSoft 'Bold'
+$heroTitle=New-Label 'CyberPW Assistant' 34 26 480 50 27 $goldSoft 'Bold'
 $heroSub=New-Label 'ІНСТРУМЕНТИ ТА ПОМІЧНИКИ ДЛЯ PERFECT WORLD' 37 80 510 26 10 $text 'Bold'
 $heroText=New-Label "Сім модулів в одному лаунчері:`r`nтитули, персонажі, макроси, симуляція, фоновий рендер, боси й карта ТВ." 38 119 500 58 11 $muted
 $heroStats=New-Label "◆  TITULHELPER: $done / $total     ●  ГОТОВО     M  0.90 PREVIEW" 38 204 510 28 9 $cyan 'Bold'
@@ -421,7 +421,7 @@ $card3=New-ModuleCard 'СИМУЛЯТОР' '◈' 'Скриня Тора і ст�
 $card4=New-ModuleCard 'РОЗМОРОЗКА' '❄' 'Фоновий рендер вибраних вікон' 'ДОСТУПНО' $cyan 0 $UnfreezePath 'розморозку'
 $card5=New-ModuleCard 'СВІТОВІ БОСИ' '⚔' 'Координати, хроно та розклад' '24 БОСИ' $gold 0 $WorldBossesPath 'світових босів'
 $card6=New-ModuleCard 'КАРТА ТВ' '⚑' '51 територія, клани та розклад битв' 'НОВЕ' $gold 0 $TerritoryMapPath 'карту ТВ'
-$card7=New-ModuleCard 'MACRO STUDIO' 'M' 'Графічні сценарії клавіатури, миші та пікселів' 'ALPHA' $gold 0 $MacroStudioPath 'Macro Studio'
+$card7=New-ModuleCard 'MACRO STUDIO' 'M' 'Графічні сценарії клавіатури, миші та пікселів' 'BETA' $gold 0 $MacroStudioPath 'Macro Studio'
 $moduleGrid=New-Object Windows.Forms.TableLayoutPanel;$moduleGrid.SetBounds(246,372,1018,312)
 $moduleGrid.Anchor='Top,Bottom,Left,Right';$moduleGrid.BackColor=[Drawing.Color]::Transparent
 $moduleGrid.ColumnCount=4;$moduleGrid.RowCount=2;$moduleGrid.Padding='0,0,0,0'
@@ -431,7 +431,7 @@ $moduleGrid.RowStyles.Add((New-Object Windows.Forms.RowStyle 'Percent',50))|Out-
 $moduleGrid.Controls.Add($card1,0,0);$moduleGrid.Controls.Add($card2,1,0);$moduleGrid.Controls.Add($card3,2,0);$moduleGrid.Controls.Add($card7,3,0)
 $moduleGrid.Controls.Add($card4,0,1);$moduleGrid.Controls.Add($card5,1,1);$moduleGrid.Controls.Add($card6,2,1)
 
-$footer=New-Label 'CYBERPW-ASISTANT  •  WINDOWS 7/10/11  •  PORTABLE  •  OPEN SOURCE' 252 728 1006 28 8 $muted 'Bold'
+$footer=New-Label 'CYBERPW ASSISTANT  •  WINDOWS 7/10/11  •  PORTABLE  •  OPEN SOURCE' 252 728 1006 28 8 $muted 'Bold'
 $footer.Anchor='Bottom,Left,Right'
 $footer.TextAlign='MiddleCenter'
 $form.Controls.AddRange(@($sidebar,$top,$hero,$moduleGrid,$footer))
