@@ -180,7 +180,7 @@ function Inject-Boss {
 }
 
 Load-Calibration
-$form=New-Object Windows.Forms.Form;$form.Text='Cyber.pw Asistant — Світові боси'
+$form=New-Object Windows.Forms.Form;$form.Text='CyberPW Assistant — Світові боси'
 $form.Size='930,760';$form.MinimumSize='820,690';$form.StartPosition='CenterScreen';$form.BackColor=$jade;$form.ForeColor=$textColor
 $form.AutoScaleMode='Dpi';$form.AutoScroll=$true;$form.MaximizeBox=$true
 $header=New-Label 'СВІТОВІ БОСИ' 26 16 420 42 23 $goldSoft 'Bold'

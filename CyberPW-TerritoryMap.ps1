@@ -107,7 +107,7 @@ function Style-Field($control){
 }
 
 $form=New-Object Windows.Forms.Form
-$form.Text='Cyber.pw Asistant — Карта ТВ'
+$form.Text='CyberPW Assistant — Карта ТВ'
 $form.Size='1180,820';$form.MinimumSize='1000,700';$form.StartPosition='CenterScreen'
 $form.BackColor=$jade;$form.ForeColor=$textColor;$form.AutoScaleMode='Dpi'
 

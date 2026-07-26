@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/vitalikjukivskiy/titul_helper/releases"><img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper/total?style=for-the-badge&logo=github&label=Downloads&color=0f9d7a" alt="Завантаження релізів"></a>
-  <a href="https://github.com/vitalikjukivskiy/titul_helper/releases/latest"><img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper?include_prereleases&style=for-the-badge&label=Release&color=d4af37" alt="Остання версія"></a>
+  <a href="https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v0.90-design-preview"><img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper?include_prereleases&style=for-the-badge&label=Release&color=d4af37" alt="Остання версія"></a>
 </p>
 
 <p align="center">
@@ -52,7 +52,7 @@
 - очікування кольору пікселя з координатами, допуском і тайм-аутом;
 - virtual-key рушій для цифр, F-клавіш, Shift/Ctrl/Alt і стрілок;
 - аварійна зупинка `F12` із відпусканням затиснутих клавіш;
-- власний глобальний бінд запуску для кожного макросу, який зберігається у його JSON;
+- проста кнопка запуску та поле `КЛАВІША` (`F10`, `F6`, `G`, `5` тощо); вибір зберігається у JSON макросу;
 - макроси зберігаються локально в `macros/*.json` і не потрапляють до Git.
 
 ### Карта територіальних війн (ГВГ) — Beta
@@ -127,6 +127,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Portable.ps1
 - [Реєстрація з бонусом](https://cabinet.cyberpw.fun/register.php?ref=4550)
 - [YouTube автора](https://www.youtube.com/@Vitalik_Juk)
 - [Релізи Assistant](https://github.com/vitalikjukivskiy/titul_helper/releases)
+- [Новий форумний гайд 0.90](FORUM-GUIDE-0.90.md)
 - [GitHub автора](https://github.com/vitalikjukivskiy)
 - [Підтримати проєкт](https://send.monobank.ua/jar/93N5FBB3zX)
 

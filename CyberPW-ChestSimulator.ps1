@@ -50,7 +50,7 @@ function Refresh-Results {
 }
 function Open-Chests([int]$n){$last=$null;for($i=0;$i-lt$n;$i++){$last=Roll-Drop;if(-not$counts.ContainsKey($last.Name)){$counts[$last.Name]=0};$counts[$last.Name]++};$script:Opened+=$n;if($last){$lastName.Text=$last.Name;$lastChance.Text=('Шанс: {0}%  ·  отримано: {1} шт.' -f $last.Chance,$last.Stack);if($lastIcon.Image){$lastIcon.Image.Dispose()};$lastIcon.Image=LoadIcon $last.Icon};Refresh-Results}
 
-$form=New-Object Windows.Forms.Form;$form.Text='Cyber.pw Asistant — Симулятор скрині [BETA]';$form.Size='1120,800';$form.MinimumSize='980,720';$form.StartPosition='CenterScreen';$form.BackColor=$jade;$form.ForeColor=$text
+$form=New-Object Windows.Forms.Form;$form.Text='CyberPW Assistant — Симулятор скрині [BETA]';$form.Size='1120,800';$form.MinimumSize='980,720';$form.StartPosition='CenterScreen';$form.BackColor=$jade;$form.ForeColor=$text
 $form.AutoScaleMode='Dpi';$form.AutoScroll=$true;$form.MaximizeBox=$true
 $title=Label 'СИМУЛЯТОР СКРИНІ ТОРА · BETA' 24 18 750 44 24 $goldSoft 'Bold';$sub=Label 'Бета-версія · тестуйте шанси без витрат у грі · результати є лише симуляцією' 27 60 800 24 10 $muted
 $controls=New-Object Windows.Forms.Panel;$controls.SetBounds(22,98,1070,100);$controls.Anchor='Top,Left,Right';$controls.BackColor=$panel

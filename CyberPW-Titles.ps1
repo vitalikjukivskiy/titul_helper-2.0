@@ -12,7 +12,7 @@ if(-not$script:IsWindows7){
 $createdNew=$false
 $script:InstanceMutex=[Threading.Mutex]::new($true,'Local\CyberPW-Titles-Assistant-SingleInstance',[ref]$createdNew)
 if(-not$createdNew){
-  [Windows.Forms.MessageBox]::Show('Cyber.pw Asistant уже запущено. Закрийте старе вікно перед запуском нової версії.')|Out-Null
+  [Windows.Forms.MessageBox]::Show('CyberPW Assistant уже запущено. Закрийте старе вікно перед запуском нової версії.')|Out-Null
   $script:InstanceMutex.Dispose();exit
 }
 
@@ -295,7 +295,7 @@ function Install-UkrainianOcr {
     $command="Add-WindowsCapability -Online -Name 'Language.OCR~~~uk-UA~0.0.1.0' | Out-Null"
     $installer=Start-Process powershell.exe -Verb RunAs -Wait -PassThru -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-Command',$command)
     if($installer.ExitCode-ne 0){throw "Код завершення Windows: $($installer.ExitCode)"}
-    [Windows.Forms.MessageBox]::Show("Український OCR встановлено. Якщо автоскан не стартує одразу — перезапустіть Cyber.pw Asistant і натисніть автоскан ще раз.")|Out-Null
+    [Windows.Forms.MessageBox]::Show("Український OCR встановлено. Якщо автоскан не стартує одразу — перезапустіть CyberPW Assistant і натисніть автоскан ще раз.")|Out-Null
     return $true
   }catch{
     [Windows.Forms.MessageBox]::Show("Windows не змогла встановити OCR автоматично.`r`n`r`n$($_.Exception.Message)`r`n`r`nПеревірте інтернет і повторіть запуск від імені адміністратора.")|Out-Null
@@ -778,7 +778,7 @@ $textSoft=$theme.Muted
 function Style-Button($button,$back,$fore=$goldSoft){$button.BackColor=$back;$button.ForeColor=$fore;$button.FlatStyle='Flat';$button.FlatAppearance.BorderColor=$gold;$button.FlatAppearance.BorderSize=1;$button.Cursor='Hand'}
 
 $form=New-Object Windows.Forms.Form; $form.Text='CyberPW — Titles Assistant · OCR R11'; $form.Size='960,830'; $form.MinimumSize='820,660'; $form.StartPosition='CenterScreen'; $form.BackColor=$jadeDark; $form.ForeColor='White'; $form.Font=New-Object Drawing.Font('Segoe UI',10);$form.MaximizeBox=$true;$form.AutoScaleMode='Dpi';$form.AutoScroll=$true
-$form.Text='Cyber.pw Asistant — TitulHelper'
+$form.Text='CyberPW Assistant — TitulHelper'
 $logo=New-Object Windows.Forms.PictureBox;$logo.SetBounds(18,8,365,125);$logo.SizeMode='Zoom';$logo.BackColor=$jadeDark
 $logoPath=Join-Path $AppDir 'cyberpw-logo.png';if(Test-Path $logoPath){
   # Клонуємо зображення в пам'ять, щоб запущена програма не блокувала файл.
