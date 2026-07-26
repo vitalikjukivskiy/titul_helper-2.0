@@ -1,0 +1,61 @@
+name: Validate portable build
+
+on:
+  push:
+    branches: [main, "agent/**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Parse Windows PowerShell scripts
+        shell: powershell
+        run: |
+          $failed = @()
+          Get-ChildItem -File -Filter '*.ps1' | ForEach-Object {
+            $tokens = $null
+            $issues = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$issues) | Out-Null
+            if (@($issues).Count) {
+              $failed += "$($_.Name): $((@($issues) | ForEach-Object Message) -join ' | ')"
+            }
+          }
+          if ($failed.Count) {
+            $failed | ForEach-Object { Write-Error $_ }
+            exit 1
+          }
+
+      - name: Build portable archive
+        shell: powershell
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Portable.ps1
+
+      - name: Verify build output
+        shell: powershell
+        run: |
+          $required = @(
+            'dist\Cyber.pw-Asistant-Portable.zip',
+            'dist\SHA256.txt',
+            'dist\Cyber.pw-Asistant\CyberPW-MacroStudio.ps1',
+            'dist\Cyber.pw-Asistant\CyberPW-TerritoryMap.ps1',
+            'dist\Cyber.pw-Asistant\CyberPW-Design.ps1'
+          )
+          foreach ($path in $required) {
+            if (-not (Test-Path -LiteralPath $path)) { throw "Missing build output: $path" }
+          }
+
+      - name: Upload portable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CyberPW-Assistant-${{ github.sha }}
+          path: |
+            dist/Cyber.pw-Asistant-Portable.zip
+            dist/SHA256.txt
+          if-no-files-found: error

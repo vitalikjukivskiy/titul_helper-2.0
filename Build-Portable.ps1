@@ -17,15 +17,20 @@ New-Item -ItemType Directory -Path $stage | Out-Null
 $files = @(
     'CyberPW-Launcher.ps1',
     'CyberPW-Common.ps1',
+    'CyberPW-Design.ps1',
     'CyberPW-MultiLauncher.ps1',
     'CyberPW-Unfreeze.ps1',
     'CyberPW-WorldBosses.ps1',
     'CyberPW-ChestSimulator.ps1',
+    'CyberPW-TerritoryMap.ps1',
+    'CyberPW-MacroStudio.ps1',
     'VERSION',
     'CyberPW-Titles.ps1',
     'titles.json',
     'ocr-rules.json',
     'cyberpw-logo.png',
+    'gvg-map.png',
+    'territory-polygons.json',
     'Запустити.bat',
     'Встановити-OCR.ps1',
     'Встановити OCR.bat'
@@ -63,6 +68,7 @@ $cleanState = [ordered]@{
 $cleanState | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $stage 'state.json') -Encoding UTF8
 $cleanCharacters = [ordered]@{ GamePath=''; DelaySeconds=4; Characters=[ordered]@{} }
 $cleanCharacters | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $stage 'characters.json') -Encoding UTF8
+New-Item -ItemType Directory -Path (Join-Path $stage 'macros') | Out-Null
 
 if (Test-Path $zip) { Remove-Item -LiteralPath $zip -Force }
 Compress-Archive -LiteralPath $stage -DestinationPath $zip -CompressionLevel Optimal

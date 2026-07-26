@@ -159,7 +159,7 @@ function Set-Account([string]$FileName,[string]$Login,[string]$Password,[bool]$R
   Save-Config
 }
 function Resolve-GamePath([string]$Requested){
-  $candidates=@($Requested,$script:Config.GamePath,'D:\CyberPW')|Where-Object{$_}
+  $candidates=@($Requested,$script:Config.GamePath,$PSScriptRoot,(Split-Path -Parent $PSScriptRoot))|Where-Object{$_}
   foreach($candidate in $candidates){
     try{$full=[IO.Path]::GetFullPath($candidate)}catch{continue}
     if((Test-Path -LiteralPath $full -PathType Container) -and
@@ -295,7 +295,7 @@ function Show-AccountDialog($item,$button){
   $remember=New-Object Windows.Forms.CheckBox;$remember.Text="Запам'ятати на цьому комп'ютері";$remember.SetBounds(28,153,330,26);$remember.Checked=$account.Remember;$remember.ForeColor=$textColor;$remember.BackColor=[Drawing.Color]::Transparent
   $save=New-Object Windows.Forms.Button;$save.Text='ЗБЕРЕГТИ';$save.SetBounds(228,193,160,38);Style-Button $save ([Drawing.Color]::FromArgb(18,126,98));$save.DialogResult='OK'
   $dlg.AcceptButton=$save;$dlg.Controls.AddRange(@($loginLabel,$login,$passLabel,$pass,$show,$remember,$save))
-  if($dlg.ShowDialog($form)-eq'OK'){
+  Apply-CyberPWVisualPolish $dlg;if($dlg.ShowDialog($form)-eq'OK'){
     Set-Account $item.FileName $login.Text $pass.Text $remember.Checked
     $button.Text=if($login.Text){'✓ АКАУНТ'}else{'АКАУНТ'}
   }
@@ -318,7 +318,7 @@ function Show-CreateProfileDialog {
     Set-Account $id $login.Text $pass.Text $remember.Checked;Sync-ProfileBat $id $nick.Text.Trim();$dlg.DialogResult='OK';$dlg.Close()
   })
   $dlg.Controls.AddRange(@($nickLabel,$nick,$classLabel,$classBox,$loginLabel,$login,$passLabel,$pass,$show,$remember,$hint,$create))
-  if($dlg.ShowDialog($form)-eq'OK'){$script:Characters=Get-Profiles;Render-Cards;$status.Text='Профіль створено. BAT-ярлик лежить у папці profiles.'}
+  Apply-CyberPWVisualPolish $dlg;if($dlg.ShowDialog($form)-eq'OK'){$script:Characters=Get-Profiles;Render-Cards;$status.Text='Профіль створено. BAT-ярлик лежить у папці profiles.'}
   $dlg.Dispose()
 }
 function Launch-Many($items){
@@ -402,4 +402,4 @@ Render-Cards
 if(-not $script:GamePath){$status.Text='Папку CyberPW не знайдено автоматично. Оберіть її вручну.'}elseif(-not $script:Characters.Count){$status.Text='Папку гри знайдено. Натисніть «+ ПРОФІЛЬ».'}else{$status.Text='Готово. Запускайте одного або кілька персонажів.'}
 [void](Add-CyberPWCommunityBar $form)
 [void](Add-CyberPWThemeToggle $form $MyInvocation.MyCommand.Path)
-[void]$form.ShowDialog()
+Apply-CyberPWVisualPolish $form;[void]$form.ShowDialog()

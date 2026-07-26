@@ -4,3 +4,6 @@ characters.json
 scan-report.json
 scan-pages/
 dist/
+macros/
+territories.json
+launcher-theme.json

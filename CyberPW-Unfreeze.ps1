@@ -203,4 +203,4 @@ $form.Controls.AddRange(@($header,$description,$summary,$refresh,$windowList,$se
 Refresh-Windows
 [void](Add-CyberPWCommunityBar $form)
 [void](Add-CyberPWThemeToggle $form $MyInvocation.MyCommand.Path)
-[void]$form.ShowDialog()
+Apply-CyberPWVisualPolish $form;[void]$form.ShowDialog()

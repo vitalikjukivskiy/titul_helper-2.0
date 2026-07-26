@@ -218,4 +218,4 @@ $form.Controls.AddRange(@($header,$sub,$gameLabel,$gameBox,$refresh,$windowCount
 Refresh-GameWindows
 [void](Add-CyberPWCommunityBar $form)
 [void](Add-CyberPWThemeToggle $form $MyInvocation.MyCommand.Path)
-[void]$form.ShowDialog()
+Apply-CyberPWVisualPolish $form;[void]$form.ShowDialog()
