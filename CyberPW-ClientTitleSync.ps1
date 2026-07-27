@@ -21,12 +21,32 @@ function Read-CyberPWClientValue($handle,[UInt64]$address,[int]$size){
   throw 'Непідтримуваний розмір читання.'
 }
 
+function Get-CyberPWClientPath($process){
+  $path=$null
+  try{$path=[string]$process.MainModule.FileName}catch{}
+  if([string]::IsNullOrWhiteSpace($path)){
+    try{
+      $info=Get-CimInstance -ClassName Win32_Process -Filter "ProcessId = $($process.Id)" -ErrorAction Stop
+      $path=[string]$info.ExecutablePath
+    }catch{}
+  }
+  if([string]::IsNullOrWhiteSpace($path)){
+    try{
+      $info=Get-WmiObject -Class Win32_Process -Filter "ProcessId = $($process.Id)" -ErrorAction Stop
+      $path=[string]$info.ExecutablePath
+    }catch{}
+  }
+  if([string]::IsNullOrWhiteSpace($path)-or-not(Test-Path -LiteralPath $path -PathType Leaf)){
+    throw 'Не вдалося визначити шлях до ElementClient.exe. Запустіть CyberPW Assistant з такими самими правами, що й гра (якщо гра запущена від адміністратора — помічник теж).'
+  }
+  return $path
+}
 function Get-CyberPWOwnedTitleIds {
   $clients=@(Get-Process -Name $script:Config.Process -ErrorAction SilentlyContinue|Where-Object{$_.MainWindowHandle-ne[IntPtr]::Zero}|Sort-Object StartTime)
   if($clients.Count-eq 0){throw 'ElementClient не знайдено. Запустіть гру та зайдіть персонажем.'}
   $process=$clients[-1]
   $supportedHash='ADF8444231C9B86BAB64359FA3E4980D4E9BF2A759E3314180771CEE30ED3D49'
-  $clientPath=$process.MainModule.FileName
+  $clientPath=Get-CyberPWClientPath $process
   $clientFile=Get-Item -LiteralPath $clientPath
   if($clientFile.Length-ne 16274944){
     throw "Ця версія ElementClient ще не підтримується (інший розмір файлу). Оновіть TitulHelper."
