@@ -1,93 +1,63 @@
-<p align="center">
-  <img src="github-header-kitmikhailo.png" width="100%" alt="CyberPW Assistant — інструментарій гравця">
-</p>
-
+﻿<p align="center"><img src="github-header-kitmikhailo.png" width="100%" alt="CyberPW Assistant — інструментарій гравця"></p>
 <h1 align="center">CyberPW Assistant</h1>
-
-<p align="center">
-  Неофіційний відкритий інструментарій для гравців CyberPW<br>
-  <strong>0.90 Design Preview · Windows 7/10/11 · Portable · PowerShell 5.1</strong>
-</p>
-
-<p align="center">
-  <a href="https://github.com/vitalikjukivskiy/titul_helper/releases"><img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper/total?style=for-the-badge&logo=github&label=Downloads&color=0f9d7a" alt="Завантаження релізів"></a>
-  <a href="https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v0.90-design-preview"><img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper?include_prereleases&style=for-the-badge&label=Release&color=d4af37" alt="Остання версія"></a>
-</p>
-
-<p align="center">
-  <a href="https://cyberpw.fun/">Сайт CyberPW</a> ·
-  <a href="https://forum.cyberpw.fun/">Форум</a> ·
-  <a href="https://cabinet.cyberpw.fun/">Кабінет</a> ·
-  <a href="https://cabinet.cyberpw.fun/register.php?ref=4550">Реєстрація з бонусом</a> ·
-  <a href="https://www.youtube.com/@Vitalik_Juk">YouTube</a> ·
-  <a href="https://send.monobank.ua/jar/93N5FBB3zX">Підтримати проєкт</a>
-</p>
+<p align="center">Неофіційний відкритий інструментарій для гравців CyberPW<br><strong>1.0 · Windows 7/10/11 x64 · Portable · PowerShell 5.1</strong></p>
+<p align="center"><a href="https://github.com/vitalikjukivskiy/titul_helper/releases"><img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper/total?style=for-the-badge&logo=github&label=Downloads&color=0f9d7a" alt="Завантаження"></a> <a href="https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0"><img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper?style=for-the-badge&label=Release&color=d4af37" alt="Версія 1.0"></a></p>
+<p align="center"><a href="https://cyberpw.fun/">Сайт</a> · <a href="https://forum.cyberpw.fun/">Форум</a> · <a href="https://cabinet.cyberpw.fun/">Кабінет</a> · <a href="https://cabinet.cyberpw.fun/register.php?ref=4550">Реєстрація з бонусом</a> · <a href="https://www.youtube.com/@Vitalik_Juk">YouTube</a> · <a href="https://send.monobank.ua/jar/93N5FBB3zX">Підтримати</a></p>
 
 > [!IMPORTANT]
-> Це неофіційний фанатський проєкт. Перед використанням макросів перевірте правила сервера. Проєкт не містить обходу античита, прихованого драйвера або читання пам’яті гри.
+> Це неофіційний фанатський проєкт. Перед використанням макросів перевірте правила сервера. Синхронізація TitulHelper лише читає ID отриманих титулів із підтримуваної збірки клієнта та нічого в грі не змінює.
 
 ## Що входить
 
 ### TitulHelper
 
 - база 259 точок запуску титулів у 37 ланцюжках;
-- пошук, прогрес, калібрування та автоматичне встановлення міток;
-- OCR-сканування отриманих титулів із прокручуванням списку;
-- підтримка кількох моніторів.
+- пошук, прогрес, відкриття списку титулів і введення координат мітки;
+- синхронізація отриманих титулів одним натисканням без OCR;
+- перевірка SHA256 клієнта: невідома збірка безпечно відхиляється;
+- уточнення ланцюжка для титулів з однаковою назвою.
 
 ### MultiLauncher
 
 - профілі персонажів, запуск одного, вибраних або всіх клієнтів;
-- 10 класів Perfect World 1.4.6 з окремими ілюстраціями;
-- облікові дані шифруються Windows для поточного користувача;
+- 10 класів Perfect World 1.4.6 з ілюстраціями;
+- паролі шифруються Windows для поточного користувача;
 - BAT-ярлики не містять логінів і паролів.
 
 ### Macro Studio (клікер) — Beta
 
 > [!WARNING]
-> Клікер перебуває у статусі **Beta**. Перед грою перевірте сценарій у безпечному вікні та переконайтеся, що аварійна зупинка `F12` працює.
+> Клікер перебуває у статусі **Beta**. Спочатку перевірте сценарій у безпечному вікні та переконайтеся, що аварійна зупинка `F12` працює.
 
-- графічний конструктор без необхідності писати PowerShell;
-- екранна клавіатура, клавіші миші, затискання, паузи, текст і цикли;
-- очікування кольору пікселя з координатами, допуском і тайм-аутом;
-- virtual-key рушій для цифр, F-клавіш, Shift/Ctrl/Alt і стрілок;
-- аварійна зупинка `F12` із відпусканням затиснутих клавіш;
-- проста кнопка запуску та поле `КЛАВІША` (`F10`, `F6`, `G`, `5` тощо); вибір зберігається у JSON макросу;
-- макроси зберігаються локально в `macros/*.json` і не потрапляють до Git.
+- графічний конструктор клавіатури й миші без написання коду;
+- паузи, текст, цикли та очікування кольору пікселя;
+- кнопка запуску й власна клавіша (`F10`, `F6`, `G`, `5` тощо) для кожного макросу;
+- макроси зберігаються локально в `macros/*.json`.
 
 ### Карта територіальних війн (ГВГ) — Beta
 
 > [!WARNING]
-> Розділ ГВГ перебуває у статусі **Beta**: дані власників і боїв вводяться локально та поки не синхронізуються із сервером автоматично.
+> Розділ ГВГ перебуває у статусі **Beta**: власники та бої вводяться локально й поки не синхронізуються із сервером.
 
 - 51 інтерактивна територія з точними полігонами;
-- назва, рівень, нагорода, власник, атакуючий, захисник і час бою;
-- локальний стан у `territories.json` не потрапляє до Git;
-- актуальні власники та бої поки не синхронізуються з сервером автоматично.
+- власник, атакуючий, захисник, час бою, рівень і нагорода;
+- локальний стан не потрапляє до Git.
 
 ### Інші модулі
 
-- симулятор Скрині Тора зі статистикою випадінь;
+- симулятор Скрині Тора;
 - розморозка вибраних вікон `ElementClient`;
-- 16 світових і 8 хроно-босів із координатами та розкладом;
-- календар івентів у головному лаунчері.
-
-## Дизайн 0.90
-
-- спільна дизайн-система для всіх модулів;
-- округлені кнопки, картки, панелі, списки й таблиці;
-- DPI-масштабування та подвійна буферизація;
-- системні округлені кути на Windows 11;
-- безпечний fallback для Windows 7 і Windows 10;
-- світла й темна теми зі збереженням вибору.
+- 16 світових і 8 хроно-босів;
+- календар івентів у лаунчері;
+- світла й темна теми, округлений інтерфейс і DPI-масштабування.
 
 ## Швидкий запуск
 
-1. Відкрийте [Releases](https://github.com/vitalikjukivskiy/titul_helper/releases).
+1. Відкрийте [реліз 1.0](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0).
 2. Завантажте `Cyber.pw-Asistant-Portable.zip`.
-3. Повністю розпакуйте архів у звичайну папку.
+3. Повністю розпакуйте архів.
 4. Запустіть `Запустити.bat`.
-5. Для OCR за потреби запустіть `Встановити OCR.bat` від адміністратора.
+5. Для синхронізації увійдіть на персонажа й натисніть **СИНХРОНІЗУВАТИ** у TitulHelper.
 
 Python, npm та сторонні бібліотеки не потрібні.
 
@@ -95,44 +65,34 @@ Python, npm та сторонні бібліотеки не потрібні.
 
 | Система | Статус | Примітки |
 |---|---:|---|
-| Windows 11 | ✅ | Повна підтримка, системні округлені кути |
-| Windows 10 | ✅ | Повна підтримка |
-| Windows 7 SP1 | ✅ | Потрібні .NET Framework 4.8 та Windows Management Framework 5.1; системний OCR недоступний |
+| Windows 11 x64 | ✅ | Повна підтримка, системні округлені кути |
+| Windows 10 x64 | ✅ | Повна підтримка |
+| Windows 7 SP1 x64 | ✅ | Потрібні .NET Framework 4.8 і Windows Management Framework 5.1 |
+
+Синхронізація титулів підтримує перевірену збірку `ElementClient.exe` із SHA256 `ADF8444231C9B86BAB64359FA3E4980D4E9BF2A759E3314180771CEE30ED3D49`. Інші збірки не читаються до додавання окремого перевіреного профілю.
 
 ## Безпека й приватність
 
-- код не читає пам’ять `ElementClient` і не змінює файли гри;
+- TitulHelper виконує тільки читання ID титулів; запис у процес відсутній;
+- програма не змінює файли гри та не встановлює драйвери;
 - паролі MultiLauncher не зберігаються відкритим текстом;
-- `state.json`, `characters.json`, `territories.json`, `launcher-theme.json`, `macros/` і OCR-звіти виключені з Git;
-- Macro Studio активує лише вказаний процес і має аварійну клавішу `F12`;
-- перед використанням автоматизації користувач самостійно перевіряє правила сервера.
+- користувацькі `state.json`, `characters.json`, `territories.json`, `launcher-theme.json` і `macros/` виключені з Git;
+- Macro Studio має аварійну клавішу `F12`.
 
-## Збірка з вихідного коду
+## Збірка
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Portable.ps1
 ```
 
-Результат:
-
-- `dist/Cyber.pw-Asistant/`;
-- `dist/Cyber.pw-Asistant-Portable.zip`;
-- `dist/SHA256.txt`.
+Архів і контрольна сума з’являться у `dist/`.
 
 ## Посилання
 
-- [Сайт CyberPW](https://cyberpw.fun/)
-- [Форум CyberPW](https://forum.cyberpw.fun/)
-- [Особистий кабінет](https://cabinet.cyberpw.fun/)
-- [Реєстрація з бонусом](https://cabinet.cyberpw.fun/register.php?ref=4550)
-- [YouTube автора](https://www.youtube.com/@Vitalik_Juk)
-- [Релізи Assistant](https://github.com/vitalikjukivskiy/titul_helper/releases)
-- [Новий форумний гайд 0.90](FORUM-GUIDE-0.90.md)
+- [Релізи](https://github.com/vitalikjukivskiy/titul_helper/releases)
+- [Форумний гайд 1.0](FORUM-GUIDE-1.0.md)
+- [Відеогайд](https://www.youtube.com/watch?v=5VVpL4CUb5k&t=1s)
 - [GitHub автора](https://github.com/vitalikjukivskiy)
-- [Підтримати проєкт](https://send.monobank.ua/jar/93N5FBB3zX)
+- [Повідомити про помилку](https://github.com/vitalikjukivskiy/titul_helper/issues)
 
-## Автор
-
-Створив [**Кіт Михайло**](https://github.com/vitalikjukivskiy) для гравців CyberPW, клан **DarkSide**.
-
-Автор не належить до адміністрації CyberPW. Назви, іконки та графічні матеріали гри належать їхнім правовласникам.
+Створив [**Кіт Михайло**](https://github.com/vitalikjukivskiy) для гравців CyberPW, клан **DarkSide**. Автор не належить до адміністрації CyberPW.

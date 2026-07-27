@@ -26,14 +26,12 @@ $files = @(
     'CyberPW-MacroStudio.ps1',
     'VERSION',
     'CyberPW-Titles.ps1',
+    'CyberPW-ClientTitleSync.ps1',
     'titles.json',
-    'ocr-rules.json',
     'cyberpw-logo.png',
     'gvg-map.png',
     'territory-polygons.json',
-    'Запустити.bat',
-    'Встановити-OCR.ps1',
-    'Встановити OCR.bat'
+    'Запустити.bat'
 )
 foreach ($name in $files) {
     $source = Join-Path $root $name
@@ -57,11 +55,11 @@ Copy-Item -LiteralPath (Join-Path $root 'README-PORTABLE.md') -Destination (Join
 $cleanState = [ordered]@{
     done = [ordered]@{}
     config = [ordered]@{
-        ProcessName = 'ElementClient'
-        OffsetX = 0
-        OffsetY = 0
-        TitleOffsetX = 0
-        TitleOffsetY = 0
+        Process = 'ElementClient'
+        OpenOffsetX = 0
+        OpenOffsetY = 0
+        CoordOffsetX = 0
+        CoordOffsetY = 0
         DelayMs = 650
     }
 }
