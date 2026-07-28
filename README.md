@@ -1,8 +1,8 @@
 ﻿<p align="center"><img src="github-header-kitmikhailo.png" width="100%" alt="CyberPW Assistant — інструментарій гравця"></p>
 <h1 align="center">CyberPW Assistant</h1>
-<p align="center">Неофіційний відкритий інструментарій для гравців CyberPW<br><strong>1.0 · Windows 7/10/11 x64 · Portable · PowerShell 5.1</strong></p>
-<p align="center"><a href="https://github.com/vitalikjukivskiy/titul_helper/releases"><img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper/total?style=for-the-badge&logo=github&label=Downloads&color=0f9d7a" alt="Завантаження"></a> <a href="https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0"><img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper?style=for-the-badge&label=Release&color=d4af37" alt="Версія 1.0"></a></p>
-<p align="center"><a href="https://cyberpw.fun/">Сайт</a> · <a href="https://forum.cyberpw.fun/">Форум</a> · <a href="https://cabinet.cyberpw.fun/">Кабінет</a> · <a href="https://cabinet.cyberpw.fun/register.php?ref=4550">Реєстрація з бонусом</a> · <a href="https://www.youtube.com/@Vitalik_Juk">YouTube</a> · <a href="https://send.monobank.ua/jar/93N5FBB3zX">Підтримати</a></p>
+<p align="center">Неофіційний відкритий інструментарій для гравців CyberPW<br><strong>1.05 Beta · Windows 7/10/11 x64 · Portable · PowerShell 5.1</strong></p>
+<p align="center"><a href="https://github.com/vitalikjukivskiy/titul_helper/releases"><img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper/total?style=for-the-badge&logo=github&label=Downloads&color=0f9d7a" alt="Завантаження"></a> <a href="https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0"><img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper?style=for-the-badge&label=Release&color=d4af37" alt="Версія 1.05 Beta"></a></p>
+<p align="center"><a href="https://cyberpw.fun/">Сайт</a> · <a href="https://forum.cyberpw.fun/index.php?threads/titulhelper-1-0.271/">Тема на форумі</a> · <a href="https://cabinet.cyberpw.fun/">Кабінет</a> · <a href="https://cabinet.cyberpw.fun/register.php?ref=4550">Реєстрація з бонусом</a> · <a href="https://www.youtube.com/@Vitalik_Juk">YouTube</a> · <a href="https://send.monobank.ua/jar/93N5FBB3zX">Підтримати</a></p>
 
 > [!IMPORTANT]
 > Це неофіційний фанатський проєкт. Перед використанням макросів перевірте правила сервера. Синхронізація TitulHelper лише читає ID отриманих титулів із підтримуваної збірки клієнта та нічого в грі не змінює.
@@ -11,7 +11,7 @@
 
 ### TitulHelper
 
-- база 259 точок запуску титулів у 37 ланцюжках;
+- база 260 точок запуску титулів у 37 ланцюжках;
 - пошук, прогрес, відкриття списку титулів і введення координат мітки;
 - синхронізація отриманих титулів одним натисканням без OCR;
 - перевірка SHA256 клієнта: невідома збірка безпечно відхиляється;
@@ -27,7 +27,7 @@
 ### Macro Studio (клікер) — Beta
 
 > [!WARNING]
-> Клікер перебуває у статусі **Beta**. Спочатку перевірте сценарій у безпечному вікні та переконайтеся, що аварійна зупинка `F12` працює.
+> Клікер перебуває у статусі **Beta**. Спочатку перевірте сценарій у безпечному вікні та переконайтеся, що призначена клавіша аварійної зупинки працює.
 
 - графічний конструктор клавіатури й миші без написання коду;
 - паузи, текст, цикли та очікування кольору пікселя;
@@ -49,11 +49,11 @@
 - розморозка вибраних вікон `ElementClient`;
 - 16 світових і 8 хроно-босів;
 - календар івентів у лаунчері;
-- світла й темна теми, округлений інтерфейс і DPI-масштабування.
+- літній темний дизайн, округлений інтерфейс і DPI-масштабування.
 
 ## Швидкий запуск
 
-1. Відкрийте [реліз 1.0](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0).
+1. Відкрийте [реліз 1.05 Beta](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0).
 2. Завантажте `Cyber.pw-Asistant-Portable.zip`.
 3. Повністю розпакуйте архів.
 4. Запустіть `Запустити.bat`.
@@ -77,7 +77,7 @@ Python, npm та сторонні бібліотеки не потрібні.
 - програма не змінює файли гри та не встановлює драйвери;
 - паролі MultiLauncher не зберігаються відкритим текстом;
 - користувацькі `state.json`, `characters.json`, `territories.json`, `launcher-theme.json` і `macros/` виключені з Git;
-- Macro Studio має аварійну клавішу `F12`.
+- Для кожного макросу окремо зберігаються власні клавіші старту та аварійної зупинки.
 
 ## Збірка
 
@@ -90,8 +90,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Portable.ps1
 ## Посилання
 
 - [Релізи](https://github.com/vitalikjukivskiy/titul_helper/releases)
-- [Форумний гайд 1.0](FORUM-GUIDE-1.0.md)
-- [Відеогайд](https://www.youtube.com/watch?v=5VVpL4CUb5k&t=1s)
+- [Форумний гайд 1.05 Beta](FORUM-GUIDE-1.0.md)
+- [Відеогайд](https://youtu.be/--JevuwyL7s)
 - [GitHub автора](https://github.com/vitalikjukivskiy)
 - [Повідомити про помилку](https://github.com/vitalikjukivskiy/titul_helper/issues)
 

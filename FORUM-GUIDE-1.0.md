@@ -1,22 +1,21 @@
-﻿# 🚀 CyberPW Assistant 1.0 — TitulHelper без OCR та новий лаунчер
+﻿# 🚀 CyberPW Assistant 1.05 Beta — TitulHelper без OCR та новий лаунчер
 
-> Готовий текст для нової теми. Стару тему [TitulHelper 0.82](https://forum.cyberpw.fun/index.php?threads/titulhelper.266/) можна залишити як архів.
 
 ## ✨ Що це таке
 
 **CyberPW Assistant** — безкоштовний portable-набір інструментів для гравців CyberPW: TitulHelper, MultiLauncher, Macro Studio, карта ГВГ, боси, календар івентів та інші помічники в одному красивому лаунчері.
 
-- 🟢 **Версія:** 1.0
+- 🟢 **Версія:** 1.05 Beta
 - 🖥️ **Windows:** 7 SP1 / 10 / 11 x64
 - 📦 **Формат:** portable, без інсталятора
 - ⬇️ **Завантаження:** [GitHub Releases](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0)
-- 🎬 **Відеогайд:** [YouTube](https://www.youtube.com/watch?v=5VVpL4CUb5k&t=1s)
+- 🎬 **Відеогайд:** [YouTube](https://youtu.be/--JevuwyL7s)
 
 > ⚠️ Macro Studio (клікер) і розділ ГВГ поки мають статус **Beta**.
 
 ## 🏆 TitulHelper
 
-- 259 точок запуску титулів у 37 ланцюжках;
+- 260 титулів у базі: 259 координатних точок у 37 ланцюжках і системний титул «Новачок»;
 - пошук, ручні позначки й прогрес;
 - синхронізація отриманих титулів одним натисканням — **без OCR і скриншотів**;
 - автоматичне введення координат мітки;
@@ -46,7 +45,7 @@
 - очікування кольору пікселя;
 - кнопка **ЗАПУСТИТИ**;
 - власна клавіша запуску (`F10`, `F6`, `G`, `5` тощо);
-- `F12` — аварійна зупинка.
+- власна клавіша аварійної зупинки для кожного макросу (`F12` за замовчуванням).
 
 Спочатку перевіряйте сценарій у безпечному вікні та дотримуйтеся правил сервера.
 
@@ -61,7 +60,7 @@
 
 ## 📦 Встановлення
 
-1. Відкрийте [реліз 1.0](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0).
+1. Відкрийте [реліз 1.05 Beta](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0).
 2. Завантажте `Cyber.pw-Asistant-Portable.zip`.
 3. Повністю розпакуйте ZIP у звичайну папку.
 4. Запустіть `Запустити.bat`.
@@ -74,11 +73,11 @@ TitulHelper лише читає ID отриманих титулів із пер
 
 ## 🔗 Корисні посилання
 
-- [Завантажити CyberPW Assistant 1.0](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0)
+- [Завантажити CyberPW Assistant 1.05 Beta](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0)
 - [Вихідний код та інструкція](https://github.com/vitalikjukivskiy/titul_helper)
-- [Відеогайд](https://www.youtube.com/watch?v=5VVpL4CUb5k&t=1s)
+- [Відеогайд](https://youtu.be/--JevuwyL7s)
 - [Повідомити про помилку](https://github.com/vitalikjukivskiy/titul_helper/issues)
 - [Сайт CyberPW](https://cyberpw.fun/)
-- [Форум CyberPW](https://forum.cyberpw.fun/)
+- [Тема CyberPW Assistant на форумі](https://forum.cyberpw.fun/index.php?threads/titulhelper-1-0.271/)
 
 *Неофіційний фанатський проєкт гравця CyberPW, клан DarkSide.*

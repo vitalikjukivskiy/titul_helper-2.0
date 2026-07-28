@@ -1,4 +1,4 @@
-﻿# CyberPW Assistant 1.0
+﻿# CyberPW Assistant 1.05 Beta
 
 ## Запуск
 
@@ -23,7 +23,7 @@
 
 ## Macro Studio — Beta
 
-Макрос створюється графічно: клавіші, миша, паузи, текст, цикли й очікування кольору пікселя. У полі `КЛАВІША` задайте кнопку запуску, наприклад `F10`, `F6`, `G` або `5`. `F12` аварійно зупиняє сценарій.
+Макрос створюється графічно: клавіші, миша, паузи, текст, цикли й очікування кольору пікселя. У полях `СТАРТ` і `СТОП` задайте власні кнопки для кожного макросу, наприклад `F10` та `F12`. Обидві клавіші зберігаються разом зі сценарієм.
 
 ## ГВГ — Beta
 
@@ -41,8 +41,8 @@
 
 - Релізи: https://github.com/vitalikjukivskiy/titul_helper/releases
 - Сайт: https://cyberpw.fun/
-- Форум: https://forum.cyberpw.fun/
+- Тема на форумі: https://forum.cyberpw.fun/index.php?threads/titulhelper-1-0.271/
 - Кабінет: https://cabinet.cyberpw.fun/
-- Відео: https://www.youtube.com/watch?v=5VVpL4CUb5k&t=1s
+- Відео: https://youtu.be/--JevuwyL7s
 
 Автор: Кіт Михайло, клан DarkSide. Неофіційний фанатський проєкт.

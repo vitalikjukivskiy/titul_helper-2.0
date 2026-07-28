@@ -42,9 +42,13 @@ function Get-CyberPWClientPath($process){
   return $path
 }
 function Get-CyberPWOwnedTitleIds {
-  $clients=@(Get-Process -Name $script:Config.Process -ErrorAction SilentlyContinue|Where-Object{$_.MainWindowHandle-ne[IntPtr]::Zero}|Sort-Object StartTime)
-  if($clients.Count-eq 0){throw 'ElementClient не знайдено. Запустіть гру та зайдіть персонажем.'}
-  $process=$clients[-1]
+  $process=$null
+  if(Get-Command Get-GameProcess -ErrorAction SilentlyContinue){$process=Get-GameProcess}
+  if(-not$process){
+    $clients=@(Get-Process -Name $script:Config.Process -ErrorAction SilentlyContinue|Where-Object{$_.MainWindowHandle-ne[IntPtr]::Zero}|Sort-Object StartTime)
+    if($clients.Count-gt0){$process=$clients[-1]}
+  }
+  if(-not$process){throw 'ElementClient не знайдено. Запустіть гру та зайдіть персонажем.'}
   $supportedHash='ADF8444231C9B86BAB64359FA3E4980D4E9BF2A759E3314180771CEE30ED3D49'
   $clientPath=Get-CyberPWClientPath $process
   $clientFile=Get-Item -LiteralPath $clientPath
@@ -90,9 +94,9 @@ function Sync-CyberPWOwnedTitles {
     foreach($title in $script:Titles){if($title.clientTitleId-gt 0){[void]$knownIds.Add([int]$title.clientTitleId)}}
     $matchedIds=0
     foreach($id in $result.Ids){if($knownIds.Contains([int]$id)){$matchedIds++}}
-    if($result.RawCount-lt 1-or$matchedIds-lt 5-or($matchedIds/[double]$result.RawCount)-lt 0.25){
-      throw "Перевірка структури не пройдена: лише $matchedIds із $($result.RawCount) ID відомі програмі. Прогрес не змінено."
-    }
+    # Новий персонаж може мати 0–4 титули або лише серверні ID, яких немає у довіднику.
+    # Структуру захищають точний хеш клієнта, фіксовані вказівники та перевірені межі вектора.
+    if($result.RawCount-lt 0-or$result.RawCount-gt 4096){throw "Некоректна кількість титулів: $($result.RawCount)."}
     $matched=0
     foreach($title in $script:Titles){
       if($title.clientTitleId-gt 0){

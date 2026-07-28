@@ -69,6 +69,10 @@ $HeaderPath=Join-Path $AppDir 'github-header-kitmikhailo.png'
 $TitlesPath=Join-Path $AppDir 'titles.json'
 $StatePath=Join-Path $AppDir 'state.json'
 $ThemePath=Join-Path $AppDir 'launcher-theme.json'
+$SummerAssetPath=Join-Path $AppDir 'ui-assets\summer'
+$IconAssetPath=Join-Path $AppDir 'ui-assets\icons'
+$MainBackgroundPath=Join-Path $AppDir 'ui-assets\main-summer.jpg'
+$script:cardImages=@()
 
 function Set-ThemePalette([string]$mode){
   if($mode-eq'Light'){
@@ -109,7 +113,6 @@ function Set-ThemePalette([string]$mode){
   $script:CalendarText=$script:text
 }
 $script:ThemeMode='Dark'
-try{$savedTheme=Get-Content -Raw -Encoding UTF8 -LiteralPath $ThemePath|ConvertFrom-Json;if($savedTheme.Mode-eq'Light'){$script:ThemeMode='Light'}}catch{}
 Set-ThemePalette $script:ThemeMode
 
 function Set-Rounded($control,[int]$radius){
@@ -173,10 +176,6 @@ function Apply-LauncherTheme([string]$mode){
   $eventList.BackColor=$script:CalendarRowA
   $calendarAccent.BackColor=$script:gold
   $script:ThemeMode=$mode
-  if($themeToggle){
-    if($mode-eq'Light'){$themeToggle.Text='☾'}else{$themeToggle.Text='☀'}
-    $themeToggle.Tag.Back=$script:jade;$themeToggle.Tag.Fore=$script:goldSoft
-  }
   try{[pscustomobject]@{Mode=$mode}|ConvertTo-Json|Set-Content -Encoding UTF8 -LiteralPath $ThemePath}catch{}
   Update-EventCalendar
   $form.Invalidate($true)
@@ -192,31 +191,25 @@ function Start-Module([string]$path,[string]$name){
     $form.Close()
   }catch{[Windows.Forms.MessageBox]::Show("Не вдалося запустити $name.`r`n$($_.Exception.Message)",'CyberPW Assistant')|Out-Null}
 }
-function New-NavButton($caption,$glyph,$y,$action){
-  $button=New-Object Windows.Forms.Button;$button.Text="$glyph   $caption";$button.TextAlign='MiddleLeft'
-  $button.SetBounds(18,$y,194,44);$button.Padding='14,0,0,0';Style-Button $button $jade2 $goldSoft 9;Set-Rounded $button 10
-  $button.Add_Click($action);$button
+function Get-LauncherImage([string]$file,[int]$width=0,[int]$height=0){
+  if(-not$file-or-not(Test-Path -LiteralPath $file)){return $null};$source=[Drawing.Image]::FromFile($file)
+  try{if($width-gt0-and$height-gt0){$copy=New-Object Drawing.Bitmap $width,$height;$graphics=[Drawing.Graphics]::FromImage($copy);try{$graphics.InterpolationMode='HighQualityBicubic';$graphics.DrawImage($source,0,0,$width,$height)}finally{$graphics.Dispose()};return $copy};return (New-Object Drawing.Bitmap $source)}finally{$source.Dispose()}
 }
-function New-ModuleCard($title,$glyph,$description,$statusText,$statusColor,$x,$path,$moduleName){
+function New-NavButton($caption,$imageFile,$y,$action){
+  $button=New-Object Windows.Forms.Button;$button.Text=$caption;$button.TextAlign='MiddleLeft';$button.ImageAlign='MiddleLeft';$button.TextImageRelation='ImageBeforeText';$button.SetBounds(18,$y,194,44);$button.Padding='10,0,8,0';Style-Button $button $jade2 $goldSoft 9;Set-Rounded $button 10
+  $button.Image=Get-LauncherImage $imageFile 26 26;if($button.Image){$script:cardImages+=,$button.Image};$button.Add_Click($action);$button
+}
+function New-ModuleCard($title,$description,$statusText,$statusColor,$backgroundFile,$path,$moduleName){
   $card=New-Object Windows.Forms.Panel;$card.Size='190,150';$card.Dock='Fill';$card.Margin='6,0,6,0';$card.BackColor=$panelSoft
-  $card.Add_Paint({
-    param($sender,$eventArgs)
-    $pen=New-Object Drawing.Pen $gold,1
-    $eventArgs.Graphics.DrawRectangle($pen,0,0,$sender.Width-1,$sender.Height-1);$pen.Dispose()
-  })
-  $heading=New-Label $title 10 4 170 24 9 $goldSoft 'Bold';$heading.TextAlign='MiddleCenter';$heading.Anchor='Top,Left,Right'
-  $icon=New-Label $glyph 10 29 44 38 20 $goldSoft 'Regular';$icon.TextAlign='MiddleCenter';$icon.Anchor='Top,Left,Right'
-  $desc=New-Label $description 54 31 124 42 8 $muted;$desc.TextAlign='TopCenter';$desc.Anchor='Top,Left,Right'
-  $dot=New-Label '●' 14 83 17 20 9 $statusColor 'Bold'
-  $state=New-Label $statusText 32 83 146 22 8 $text;$state.Anchor='Bottom,Left,Right'
-  $dot.Anchor='Bottom,Left'
-  $open=New-Object Windows.Forms.Button;$open.Text='ВІДКРИТИ';$open.SetBounds(12,109,166,30);$open.Anchor='Bottom,Left,Right';Style-Button $open $jade2 $goldSoft 8;Set-Rounded $open 8
-  $open.Tag=[pscustomobject]@{Back=$jade2;Fore=$goldSoft;Path=$path;Name=$moduleName}
-  $open.Add_Click({Start-Module $this.Tag.Path $this.Tag.Name})
-  $card.Controls.AddRange(@($heading,$icon,$desc,$dot,$state,$open));$card
+  $card.BackgroundImage=Get-LauncherImage $backgroundFile;if($card.BackgroundImage){$script:cardImages+=,$card.BackgroundImage;$card.BackgroundImageLayout='Stretch'}
+  $card.Add_Paint({param($sender,$eventArgs);$rect=New-Object Drawing.Rectangle 0,0,$sender.Width,$sender.Height;$from=[Drawing.Color]::FromArgb(225,4,31,27);$to=[Drawing.Color]::FromArgb(145,7,62,51);$shade=New-Object Drawing.Drawing2D.LinearGradientBrush $rect,$from,$to,14;$eventArgs.Graphics.FillRectangle($shade,$rect);$shade.Dispose();$pen=New-Object Drawing.Pen $gold,1;$eventArgs.Graphics.DrawRectangle($pen,0,0,$sender.Width-1,$sender.Height-1);$pen.Dispose()})
+  $heading=New-Label $title 10 5 170 24 9 $goldSoft 'Bold';$heading.TextAlign='MiddleCenter';$heading.Anchor='Top,Left,Right';$desc=New-Label $description 20 33 150 38 8 $text;$desc.TextAlign='TopCenter';$desc.Anchor='Top,Left,Right'
+  $iconFile=Join-Path $IconAssetPath ([IO.Path]::GetFileName($backgroundFile));$cardIcon=New-Object Windows.Forms.PictureBox;$cardIcon.Size='86,86';$cardIcon.SizeMode='Zoom';$cardIcon.BackColor=[Drawing.Color]::Transparent;$cardIcon.Image=Get-LauncherImage $iconFile 86 86;if($cardIcon.Image){$script:cardImages+=,$cardIcon.Image};$card.Tag=[pscustomobject]@{Icon=$cardIcon};$card.Add_Resize({$picture=$this.Tag.Icon;$space=$this.ClientSize.Height-147;if($space-ge64){$size=[Math]::Min(86,$space-10);$picture.Size=New-Object Drawing.Size $size,$size;$picture.Left=[int](($this.ClientSize.Width-$size)/2);$picture.Top=72+[int](($space-$size)/2);$picture.Visible=$true}else{$picture.Visible=$false}})
+  $dot=New-Label '●' 14 83 17 20 9 $statusColor 'Bold';$state=New-Label $statusText 32 83 146 22 8 $text;$state.Anchor='Bottom,Left,Right';$dot.Anchor='Bottom,Left'
+  $open=New-Object Windows.Forms.Button;$open.Text='ВІДКРИТИ';$open.SetBounds(12,109,166,30);$open.Anchor='Bottom,Left,Right';$buttonBack=[Drawing.Color]::FromArgb(190,5,45,38);Style-Button $open $buttonBack $goldSoft 8;Set-Rounded $open 8;$open.Tag=[pscustomobject]@{Back=$buttonBack;Fore=$goldSoft;Path=$path;Name=$moduleName};$open.Add_Click({Start-Module $this.Tag.Path $this.Tag.Name})
+  $card.Controls.AddRange(@($heading,$desc,$cardIcon,$dot,$state,$open));$card
 }
-
-$total=259;$done=0
+$total=260;$done=0
 try{
   $titleData=Get-Content -Raw -Encoding UTF8 -LiteralPath $TitlesPath|ConvertFrom-Json
   if($null-ne$titleData-and[int]$titleData.Count-gt0){$total=[int]$titleData.Count}
@@ -261,8 +254,9 @@ $dayNames=@('Понеділок','Вівторок','Середа','Четвер
 $dayShort=@('ПН','ВТ','СР','ЧТ','ПТ','СБ','НД')
 
 $form=New-Object ResizableBorderlessForm
-$form.Text='CyberPW Assistant 1.0';$form.FormBorderStyle='None';$form.Size='1280,800';$form.MinimumSize='1080,720'
+$form.Text='CyberPW Assistant 1.05 Beta';$form.FormBorderStyle='None';$form.Size='1280,800';$form.MinimumSize='1080,720'
 $form.StartPosition='CenterScreen';$form.BackColor=$ink;$form.ForeColor=$text;$form.Font=New-Object Drawing.Font('Segoe UI',9)
+$form.BackgroundImage=Get-LauncherImage $MainBackgroundPath;if($form.BackgroundImage){$script:cardImages+=,$form.BackgroundImage;$form.BackgroundImageLayout='Stretch'}
 $form.AutoScaleMode='Dpi';$form.AutoScroll=$true
 $form.Add_Shown({Set-Rounded $form 16})
 $form.Add_SizeChanged({
@@ -274,7 +268,7 @@ $form.Add_MouseDown($drag)
 $form.Add_Paint({
   param($sender,$eventArgs)
   $rect=New-Object Drawing.Rectangle 0,0,$form.Width,$form.Height
-  $brush=New-Object Drawing.Drawing2D.LinearGradientBrush $rect,$ink,$jade2,15
+  $brush=New-Object Drawing.Drawing2D.LinearGradientBrush $rect,([Drawing.Color]::FromArgb(210,$ink)),([Drawing.Color]::FromArgb(195,$jade2)),15
   $eventArgs.Graphics.FillRectangle($brush,$rect);$brush.Dispose()
   $pen=New-Object Drawing.Pen $gold,2;$eventArgs.Graphics.DrawRectangle($pen,1,1,$form.Width-3,$form.Height-3);$pen.Dispose()
 })
@@ -285,19 +279,19 @@ $brandLogo=New-Object Windows.Forms.PictureBox;$brandLogo.SetBounds(26,20,178,92
 if(Test-Path $LogoPath){$logoSource=[Drawing.Image]::FromFile($LogoPath);$brandLogo.Image=New-Object Drawing.Bitmap $logoSource;$logoSource.Dispose()}
 $brandLogo.Add_MouseDown($drag)
 $brand=New-Label 'CyberPW Assistant' 14 113 202 30 15 $goldSoft 'Bold';$brand.TextAlign='MiddleCenter'
-$version=New-Label '1.0' 64 148 102 26 9 $goldSoft 'Bold';$version.TextAlign='MiddleCenter';$version.BackColor=$jade3;Set-Rounded $version 8
+$version=New-Label '1.05 β' 64 148 102 26 9 $goldSoft 'Bold';$version.TextAlign='MiddleCenter';$version.BackColor=$jade3;Set-Rounded $version 8
 
-$navHome=New-NavButton 'ГОЛОВНА' '⌂' 194 {$null}
-$navTitles=New-NavButton 'TITULHELPER' '◆' 246 {Start-Module $AssistantPath 'TitulHelper'}
-$navMulti=New-NavButton 'MULTILAUNCHER' '▣' 298 {Start-Module $MultiLauncherPath 'MultiLauncher'}
-$navChest=New-NavButton 'СИМУЛЯТОР' '◈' 350 {Start-Module $ChestSimulatorPath 'симулятор'}
-$navFreeze=New-NavButton 'РОЗМОРОЗКА' '❄' 402 {Start-Module $UnfreezePath 'розморозку вікон'}
-$navBosses=New-NavButton 'СВІТОВІ БОСИ' '⚔' 454 {Start-Module $WorldBossesPath 'світових босів'}
-$navMacros=New-NavButton 'МАКРОСИ' 'M' 506 {Start-Module $MacroStudioPath 'Macro Studio'}
-$navTerritories=New-NavButton 'КАРТА ТВ' '⚑' 558 {Start-Module $TerritoryMapPath 'карту ТВ'}
+$navHome=New-NavButton 'ГОЛОВНА' (Join-Path $IconAssetPath 'home.jpg') 194 {$null}
+$navTitles=New-NavButton 'TITULHELPER' (Join-Path $IconAssetPath 'titles.jpg') 246 {Start-Module $AssistantPath 'TitulHelper'}
+$navMulti=New-NavButton 'MULTILAUNCHER' (Join-Path $IconAssetPath 'multilauncher.jpg') 298 {Start-Module $MultiLauncherPath 'MultiLauncher'}
+$navChest=New-NavButton 'СИМУЛЯТОР' (Join-Path $IconAssetPath 'simulator.jpg') 350 {Start-Module $ChestSimulatorPath 'симулятор'}
+$navFreeze=New-NavButton 'РОЗМОРОЗКА' (Join-Path $IconAssetPath 'unfreeze.jpg') 402 {Start-Module $UnfreezePath 'розморозку вікон'}
+$navBosses=New-NavButton 'СВІТОВІ БОСИ' (Join-Path $IconAssetPath 'bosses.jpg') 454 {Start-Module $WorldBossesPath 'світових босів'}
+$navMacros=New-NavButton 'МАКРОСИ' (Join-Path $IconAssetPath 'macros.jpg') 506 {Start-Module $MacroStudioPath 'Macro Studio'}
+$navTerritories=New-NavButton 'КАРТА ТВ' (Join-Path $IconAssetPath 'territories.jpg') 558 {Start-Module $TerritoryMapPath 'карту ТВ'}
 $navHome.BackColor=$jade3;$navHome.Tag.Back=$jade3
 
-$support=New-Object Windows.Forms.Button;$support.Text='💛  ПІДТРИМАТИ ПРОЄКТ';$support.SetBounds(18,615,194,42);Style-Button $support ([Drawing.Color]::FromArgb(105,70,13)) $goldSoft 8;Set-Rounded $support 10
+$support=New-Object Windows.Forms.Button;$support.Text='ПІДТРИМАТИ ПРОЄКТ';$support.SetBounds(18,615,194,42);Style-Button $support ([Drawing.Color]::FromArgb(105,70,13)) $goldSoft 8;Set-Rounded $support 10
 $support.Anchor='Bottom,Left'
 $support.Add_Click({Open-Link 'https://send.monobank.ua/jar/93N5FBB3zX'})
 $site=New-Object Windows.Forms.Button;$site.Text='САЙТ CYBERPW';$site.SetBounds(18,665,194,36);Style-Button $site $jade2 $muted 8;Set-Rounded $site 9
@@ -310,41 +304,38 @@ $top=New-Object Windows.Forms.Panel;$top.SetBounds(232,2,1046,64);$top.Anchor='T
 $onlineDot=New-Label '●' 24 20 20 24 10 $cyan 'Bold'
 $online=New-Label 'CYBERPW · ІНСТРУМЕНТИ ГОТОВІ' 46 18 360 28 10 $text 'Bold'
 $profile=New-Label "Титули: $done / $total" 668 19 158 25 9 $goldSoft 'Bold';$profile.TextAlign='MiddleRight';$profile.Anchor='Top,Right'
-$themeToggle=New-Object Windows.Forms.Button;if($script:ThemeMode-eq'Light'){$themeToggle.Text='☾'}else{$themeToggle.Text='☀'}
-$themeToggle.SetBounds(832,14,42,34);$themeToggle.Anchor='Top,Right';Style-Button $themeToggle $jade $goldSoft 11;Set-Rounded $themeToggle 8
-$themeToggle.Add_Click({if($script:ThemeMode-eq'Dark'){Apply-LauncherTheme 'Light'}else{Apply-LauncherTheme 'Dark'}})
-$themeTip=New-Object Windows.Forms.ToolTip;$themeTip.SetToolTip($themeToggle,'Темна / світла тема')
-$minimize=New-Object Windows.Forms.Button;$minimize.Text='—';$minimize.SetBounds(880,14,42,34);$minimize.Anchor='Top,Right';Style-Button $minimize $jade $goldSoft 10;Set-Rounded $minimize 8
+$minimize=New-Object Windows.Forms.Button;$minimize.Text='—';$minimize.SetBounds(832,14,42,34);$minimize.Anchor='Top,Right';Style-Button $minimize $jade $goldSoft 10;Set-Rounded $minimize 8
 $minimize.Add_Click({$form.WindowState='Minimized'})
-$maximize=New-Object Windows.Forms.Button;$maximize.Text='□';$maximize.SetBounds(930,14,42,34);$maximize.Anchor='Top,Right';Style-Button $maximize $jade $goldSoft 11;Set-Rounded $maximize 8
+$maximize=New-Object Windows.Forms.Button;$maximize.Text='□';$maximize.SetBounds(882,14,42,34);$maximize.Anchor='Top,Right';Style-Button $maximize $jade $goldSoft 11;Set-Rounded $maximize 8
 $maximize.Add_Click({
   if($form.WindowState-eq[Windows.Forms.FormWindowState]::Maximized){$form.WindowState='Normal'}
   else{$form.WindowState='Maximized'}
 })
-$close=New-Object Windows.Forms.Button;$close.Text='×';$close.SetBounds(980,14,42,34);$close.Anchor='Top,Right';Style-Button $close ([Drawing.Color]::FromArgb(70,23,22)) $goldSoft 13;Set-Rounded $close 8
+$close=New-Object Windows.Forms.Button;$close.Text='×';$close.SetBounds(932,14,42,34);$close.Anchor='Top,Right';Style-Button $close ([Drawing.Color]::FromArgb(70,23,22)) $goldSoft 13;Set-Rounded $close 8
 $close.Add_Click({$form.Close()})
-$top.Controls.AddRange(@($onlineDot,$online,$profile,$themeToggle,$minimize,$maximize,$close))
+$top.Controls.AddRange(@($onlineDot,$online,$profile,$minimize,$maximize,$close))
 
-$hero=New-Object Windows.Forms.Panel;$hero.SetBounds(252,84,1006,264);$hero.Anchor='Top,Left,Right';$hero.BackColor=$panel
+$hero=New-Object Windows.Forms.Panel;$hero.SetBounds(252,84,1006,264);$hero.Anchor='Top,Left,Right';$hero.BackColor=$panel;$hero.BackgroundImage=Get-LauncherImage $MainBackgroundPath;if($hero.BackgroundImage){$script:cardImages+=,$hero.BackgroundImage;$hero.BackgroundImageLayout='Stretch'}
 $hero.Add_Paint({
   param($sender,$eventArgs)
   $heroRect=New-Object Drawing.Rectangle 0,0,$sender.Width,$sender.Height
-  $heroBrush=New-Object Drawing.Drawing2D.LinearGradientBrush $heroRect,$jade,$jade3,10
+  $heroBrush=New-Object Drawing.Drawing2D.LinearGradientBrush $heroRect,([Drawing.Color]::FromArgb(235,$jade)),([Drawing.Color]::FromArgb(125,$jade3)),10
   $eventArgs.Graphics.FillRectangle($heroBrush,$heroRect);$heroBrush.Dispose()
   $heroPen=New-Object Drawing.Pen $gold,1;$eventArgs.Graphics.DrawRectangle($heroPen,0,0,$sender.Width-1,$sender.Height-1);$heroPen.Dispose()
 })
 $heroTitle=New-Label 'CyberPW Assistant' 34 26 480 50 27 $goldSoft 'Bold'
 $heroSub=New-Label 'ІНСТРУМЕНТИ ТА ПОМІЧНИКИ ДЛЯ PERFECT WORLD' 37 80 510 26 10 $text 'Bold'
 $heroText=New-Label "Сім модулів в одному лаунчері:`r`nтитули, персонажі, макроси, симуляція, фоновий рендер, боси й карта ТВ." 38 119 500 58 11 $muted
-$heroStats=New-Label "◆  TITULHELPER: $done / $total     ●  ГОТОВО     M  1.0" 38 204 510 28 9 $cyan 'Bold'
+$heroStats=New-Label "TITULHELPER: $done / $total     ●  ГОТОВО     VERSION 1.05 BETA" 38 204 510 28 9 $cyan 'Bold'
 
-$calendar=New-Object Windows.Forms.Panel;$calendar.SetBounds(570,17,408,230);$calendar.Anchor='Top,Right';$calendar.BackColor=$panelSoft;Set-Rounded $calendar 12
-$calendarAccent=New-Object Windows.Forms.Panel;$calendarAccent.SetBounds(14,11,3,21);$calendarAccent.BackColor=$gold
-$calendarTitle=New-Label 'КАЛЕНДАР ІВЕНТІВ' 25 10 181 23 10 $goldSoft 'Bold'
+$calendar=New-Object Windows.Forms.Panel;$calendar.SetBounds(562,11,424,242);$calendar.Anchor='Top,Right';$calendar.BackColor=[Drawing.Color]::FromArgb(7,31,27);Set-Rounded $calendar 14
+$calendar.Add_Paint({param($sender,$eventArgs);$pen=New-Object Drawing.Pen $gold,2;$eventArgs.Graphics.DrawRectangle($pen,1,1,$sender.Width-3,$sender.Height-3);$pen.Dispose()})
+$calendarAccent=New-Object Windows.Forms.Panel;$calendarAccent.SetBounds(14,12,5,23);$calendarAccent.BackColor=$gold
+$calendarTitle=New-Label 'КАЛЕНДАР ІВЕНТІВ' 28 10 190 27 11 $goldSoft 'Bold'
 $calendarDay=New-Label '' 210 10 180 23 9 $muted 'Bold';$calendarDay.TextAlign='MiddleRight'
-$nextEvent=New-Label '' 16 38 374 24 8.5 $cyan 'Bold'
-$dayBar=New-Object Windows.Forms.FlowLayoutPanel;$dayBar.SetBounds(13,67,382,34);$dayBar.WrapContents=$false;$dayBar.BackColor=[Drawing.Color]::Transparent;$dayBar.Margin=0;$dayBar.Padding=0
-$eventList=New-Object Windows.Forms.ListBox;$eventList.SetBounds(14,105,380,111);$eventList.Anchor='Top,Left,Right'
+$nextEvent=New-Label '' 14 40 396 28 9 $cyan 'Bold';$nextEvent.BackColor=[Drawing.Color]::FromArgb(8,54,45);$nextEvent.Padding='8,0,6,0';Set-Rounded $nextEvent 7
+$dayBar=New-Object Windows.Forms.FlowLayoutPanel;$dayBar.SetBounds(17,74,390,34);$dayBar.WrapContents=$false;$dayBar.BackColor=[Drawing.Color]::Transparent;$dayBar.Margin=0;$dayBar.Padding=0
+$eventList=New-Object Windows.Forms.ListBox;$eventList.SetBounds(17,112,390,113);$eventList.Anchor='Top,Left,Right'
 $eventList.BackColor=$script:CalendarRowA;$eventList.ForeColor=$text;$eventList.BorderStyle='None';$eventList.Font=New-Object Drawing.Font('Segoe UI',8.5)
 $eventList.IntegralHeight=$false;$eventList.SelectionMode='None';$eventList.ItemHeight=21;$eventList.DrawMode='OwnerDrawFixed'
 $eventList.Add_DrawItem({
@@ -415,13 +406,13 @@ function Update-EventCalendar{
 $script:selectedEventDay=0;Update-EventCalendar
 $eventTimer=New-Object Windows.Forms.Timer;$eventTimer.Interval=30000;$eventTimer.Add_Tick({try{Update-EventCalendar}catch{}});$eventTimer.Start()
 
-$card1=New-ModuleCard 'TITULHELPER' '◆' 'Титули, синхронізація та мітки' 'ГОТОВО' $cyan 0 $AssistantPath 'TitulHelper'
-$card2=New-ModuleCard 'MULTILAUNCHER' '▣' 'Профілі та запуск кількох клієнтів' 'ГОТОВО' $cyan 0 $MultiLauncherPath 'MultiLauncher'
-$card3=New-ModuleCard 'СИМУЛЯТОР' '◈' 'Скриня Тора і статистика дропу' 'BETA' $gold 0 $ChestSimulatorPath 'симулятор'
-$card4=New-ModuleCard 'РОЗМОРОЗКА' '❄' 'Фоновий рендер вибраних вікон' 'ДОСТУПНО' $cyan 0 $UnfreezePath 'розморозку'
-$card5=New-ModuleCard 'СВІТОВІ БОСИ' '⚔' 'Координати, хроно та розклад' '24 БОСИ' $gold 0 $WorldBossesPath 'світових босів'
-$card6=New-ModuleCard 'КАРТА ТВ' '⚑' '51 територія, клани та розклад битв' 'НОВЕ' $gold 0 $TerritoryMapPath 'карту ТВ'
-$card7=New-ModuleCard 'MACRO STUDIO' 'M' 'Графічні сценарії клавіатури, миші та пікселів' 'BETA' $gold 0 $MacroStudioPath 'Macro Studio'
+$card1=New-ModuleCard 'TITULHELPER' 'Титули, синхронізація та мітки' 'ГОТОВО' $cyan (Join-Path $SummerAssetPath 'titles.jpg') $AssistantPath 'TitulHelper'
+$card2=New-ModuleCard 'MULTILAUNCHER' 'Профілі та запуск кількох клієнтів' 'ГОТОВО' $cyan (Join-Path $SummerAssetPath 'multilauncher.jpg') $MultiLauncherPath 'MultiLauncher'
+$card3=New-ModuleCard 'СИМУЛЯТОР' 'Скриня Тора і статистика дропу' 'BETA' $gold (Join-Path $SummerAssetPath 'simulator.jpg') $ChestSimulatorPath 'симулятор'
+$card4=New-ModuleCard 'РОЗМОРОЗКА' 'Фоновий рендер вибраних вікон' 'ДОСТУПНО' $cyan (Join-Path $SummerAssetPath 'unfreeze.jpg') $UnfreezePath 'розморозку'
+$card5=New-ModuleCard 'СВІТОВІ БОСИ' 'Координати, хроно та розклад' '24 БОСИ' $gold (Join-Path $SummerAssetPath 'bosses.jpg') $WorldBossesPath 'світових босів'
+$card6=New-ModuleCard 'КАРТА ТВ' '51 територія, клани та розклад битв' 'НОВЕ' $gold (Join-Path $SummerAssetPath 'territories.jpg') $TerritoryMapPath 'карту ТВ'
+$card7=New-ModuleCard 'MACRO STUDIO' 'Графічні сценарії клавіатури, миші та пікселів' 'BETA' $gold (Join-Path $SummerAssetPath 'macros.jpg') $MacroStudioPath 'Macro Studio'
 $moduleGrid=New-Object Windows.Forms.TableLayoutPanel;$moduleGrid.SetBounds(246,372,1018,312)
 $moduleGrid.Anchor='Top,Bottom,Left,Right';$moduleGrid.BackColor=[Drawing.Color]::Transparent
 $moduleGrid.ColumnCount=4;$moduleGrid.RowCount=2;$moduleGrid.Padding='0,0,0,0'
@@ -436,5 +427,5 @@ $footer.Anchor='Bottom,Left,Right'
 $footer.TextAlign='MiddleCenter'
 $form.Controls.AddRange(@($sidebar,$top,$hero,$moduleGrid,$footer))
 $communityBar=Add-CyberPWCommunityBar $form
-$form.Add_FormClosed({if($brandLogo.Image){$brandLogo.Image.Dispose()}})
+$form.Add_FormClosed({if($brandLogo.Image){$brandLogo.Image.Dispose()};foreach($image in @($script:cardImages)){if($image){$image.Dispose()}}})
 Apply-CyberPWVisualPolish $form;[void]$form.ShowDialog()

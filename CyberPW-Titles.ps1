@@ -114,8 +114,8 @@ function Refresh-List {
 }
 function Selected-Title { if($list.SelectedIndex -lt 0){return $null}; return $script:Filtered[$list.SelectedIndex] }
 function Update-Selected {
-  $t=Selected-Title; if(-not $t){$coord.Text='—';$note.Text='';return}
-  $coord.Text="$($t.x) $($t.y)"; $note.Text=$t.note
+  $t=Selected-Title; if(-not $t){$coord.Text='—';$note.Text='';$inject.Enabled=$false;return}
+  $hasCoordinates=([int]$t.x-ne0-or[int]$t.y-ne0);$coord.Text=if($hasCoordinates){"$($t.x) $($t.y)"}else{'БЕЗ КООРДИНАТ'};$note.Text=$t.note;$inject.Enabled=$hasCoordinates
   $script:UpdatingSelection=$true
   try{$doneBox.Checked=[bool]$script:Done[$t.id]}finally{$script:UpdatingSelection=$false}
 }
@@ -199,6 +199,7 @@ function Open-CoordinateWindow {
 }
 function Inject-Title {
   $t=Selected-Title; if(-not $t){[Windows.Forms.MessageBox]::Show('Спочатку виберіть титул.')|Out-Null;return}
+  if([int]$t.x-eq0-and[int]$t.y-eq0){[Windows.Forms.MessageBox]::Show('Це системний титул без координатної точки запуску.')|Out-Null;return}
   $form.WindowState='Minimized'
   if(-not (Focus-Game)){$form.WindowState='Normal';return}
   $coordPoint=Get-CoordPoint;if($null-eq$coordPoint){$form.WindowState='Normal';$form.Activate();[Windows.Forms.MessageBox]::Show("Спочатку прив’яжіть поле введення координат. Відкрийте його в CyberPW, натисніть кнопку №2 і за 3 секунди наведіть курсор у середину поля.")|Out-Null;return}
