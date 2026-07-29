@@ -15,7 +15,7 @@ namespace CyberPW.Assistant2
         public string Title { get { return "Розморозка"; } }
         public UnfreezePage()
         {
-            BackColor = Theme.Ink;
+            BackColor = Theme.Ink; BackgroundImage = AssetImages.Load("main-summer.jpg"); BackgroundImageLayout = ImageLayout.Stretch;
             var title = Theme.Label("РОЗМОРОЗКА ВІКОН", 24F, Theme.GoldSoft, FontStyle.Bold); title.Location = new Point(24, 22); Controls.Add(title);
             _status = Theme.Label("", 10F, Theme.Muted, FontStyle.Regular); _status.Location = new Point(27, 70); Controls.Add(_status);
             _windows.SetBounds(26, 110, 720, 390); _windows.BackColor = Theme.Panel; _windows.ForeColor = Theme.Text; _windows.CheckOnClick = true; _windows.Font = new Font("Segoe UI", 10F); Controls.Add(_windows);

@@ -14,7 +14,7 @@ namespace CyberPW.Assistant2
         public string Title { get { return "Симулятор"; } }
         public SimulatorPage()
         {
-            BackColor=Theme.Ink; drops=JsonFiles.Read<List<Drop>>(System.IO.Path.Combine(AppPaths.Data,"chest-drops.json"));
+            BackColor = Theme.Ink; BackgroundImage = AssetImages.Load("main-summer.jpg"); BackgroundImageLayout = ImageLayout.Stretch; drops=JsonFiles.Read<List<Drop>>(System.IO.Path.Combine(AppPaths.Data,"chest-drops.json"));
             var title=Theme.Label("СИМУЛЯТОР СКРИНІ ТОРА · BETA",24,Theme.GoldSoft,FontStyle.Bold);title.Location=new Point(24,20);Controls.Add(title);
             amount.SetBounds(26,85,170,38);amount.Minimum=1;amount.Maximum=1000000;amount.Value=10;Controls.Add(amount);
             var open=Theme.Button("ВІДКРИТИ");open.SetBounds(215,83,170,42);open.Click+=delegate{Open((int)amount.Value);};Controls.Add(open);

@@ -13,7 +13,7 @@ namespace CyberPW.Assistant2
         public string Title{get{return"Macro Studio";}}
         public MacroStudioPage()
         {
-            BackColor=Theme.Ink;var h=Theme.Label("MACRO STUDIO · C#",24,Theme.GoldSoft,FontStyle.Bold);h.Location=new Point(22,18);Controls.Add(h);
+            BackColor = Theme.Ink; BackgroundImage = AssetImages.Load("main-summer.jpg"); BackgroundImageLayout = ImageLayout.Stretch;var h=Theme.Label("MACRO STUDIO · C#",24,Theme.GoldSoft,FontStyle.Bold);h.Location=new Point(22,18);Controls.Add(h);
             name.SetBounds(24,70,220,30);name.Text="Новий макрос";target.SetBounds(260,70,150,30);target.Text="ElementClient";startKey.SetBounds(425,70,65,30);startKey.Text="F10";stopKey.SetBounds(505,70,65,30);stopKey.Text="F12";Controls.AddRange(new Control[]{name,target,startKey,stopKey});
             grid.SetBounds(24,115,820,390);grid.AllowUserToAddRows=false;grid.BackgroundColor=Theme.Panel;grid.ForeColor=Color.Black;grid.Columns.Add("command","КОМАНДА");grid.Columns.Add("argument","АРГУМЕНТ");grid.Columns.Add("description","ОПИС");grid.Columns[0].Width=150;grid.Columns[1].Width=250;grid.Columns[2].Width=390;Controls.Add(grid);
             var add=Theme.Button("+ ДІЯ");add.SetBounds(24,520,100,40);add.Click+=delegate{grid.Rows.Add("WAIT","100","Пауза, мс");};Controls.Add(add);

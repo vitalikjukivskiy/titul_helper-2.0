@@ -14,7 +14,7 @@ namespace CyberPW.Assistant2
         public string Title{get{return"MultiLauncher";}}
         public MultiLauncherPage()
         {
-            BackColor=Theme.Ink;config=MultiLauncherStore.Load();
+            BackColor = Theme.Ink; BackgroundImage = AssetImages.Load("main-summer.jpg"); BackgroundImageLayout = ImageLayout.Stretch;config=MultiLauncherStore.Load();
             var h=Theme.Label("MULTILAUNCHER",24,Theme.GoldSoft,FontStyle.Bold);h.Location=new Point(24,20);Controls.Add(h);
             path.SetBounds(26,75,600,32);path.Text=MultiLauncherStore.ResolveGamePath(config.GamePath);path.ReadOnly=true;Controls.Add(path);
             var browse=Theme.Button("ОБРАТИ ПАПКУ");browse.SetBounds(645,70,170,42);browse.Click+=delegate{using(var d=new FolderBrowserDialog()){if(d.ShowDialog()==DialogResult.OK){string p=MultiLauncherStore.ResolveGamePath(d.SelectedPath);if(p=="")MessageBox.Show("ElementClient.exe не знайдено.");else{path.Text=config.GamePath=p;Save();}}}};Controls.Add(browse);

@@ -10,7 +10,7 @@ namespace CyberPW.Assistant2
         public PlaceholderPage(string title, string message)
         {
             Title = title;
-            BackColor = Theme.Ink;
+            BackColor = Theme.Ink; BackgroundImage = AssetImages.Load("main-summer.jpg"); BackgroundImageLayout = ImageLayout.Stretch;
             var heading = Theme.Label(title + " · 2.0 Alpha", 24F, Theme.GoldSoft, FontStyle.Bold);
             heading.Location = new Point(24, 25);
             Controls.Add(heading);
