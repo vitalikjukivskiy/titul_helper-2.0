@@ -254,7 +254,7 @@ $dayNames=@('Понеділок','Вівторок','Середа','Четвер
 $dayShort=@('ПН','ВТ','СР','ЧТ','ПТ','СБ','НД')
 
 $form=New-Object ResizableBorderlessForm
-$form.Text='CyberPW Assistant 1.06 Beta';$form.FormBorderStyle='None';$form.Size='1280,800';$form.MinimumSize='1080,720'
+$form.Text='CyberPW Assistant 1.07 Beta';$form.FormBorderStyle='None';$form.Size='1280,800';$form.MinimumSize='1080,720'
 $form.StartPosition='CenterScreen';$form.BackColor=$ink;$form.ForeColor=$text;$form.Font=New-Object Drawing.Font('Segoe UI',9)
 $form.BackgroundImage=Get-LauncherImage $MainBackgroundPath;if($form.BackgroundImage){$script:cardImages+=,$form.BackgroundImage;$form.BackgroundImageLayout='Stretch'}
 $form.AutoScaleMode='Dpi';$form.AutoScroll=$true
@@ -279,7 +279,7 @@ $brandLogo=New-Object Windows.Forms.PictureBox;$brandLogo.SetBounds(26,20,178,92
 if(Test-Path $LogoPath){$logoSource=[Drawing.Image]::FromFile($LogoPath);$brandLogo.Image=New-Object Drawing.Bitmap $logoSource;$logoSource.Dispose()}
 $brandLogo.Add_MouseDown($drag)
 $brand=New-Label 'CyberPW Assistant' 14 113 202 30 15 $goldSoft 'Bold';$brand.TextAlign='MiddleCenter'
-$version=New-Label '1.06 β' 64 148 102 26 9 $goldSoft 'Bold';$version.TextAlign='MiddleCenter';$version.BackColor=$jade3;Set-Rounded $version 8
+$version=New-Label '1.07 β' 64 148 102 26 9 $goldSoft 'Bold';$version.TextAlign='MiddleCenter';$version.BackColor=$jade3;Set-Rounded $version 8
 
 $navHome=New-NavButton 'ГОЛОВНА' (Join-Path $IconAssetPath 'home.jpg') 194 {$null}
 $navTitles=New-NavButton 'TITULHELPER' (Join-Path $IconAssetPath 'titles.jpg') 246 {Start-Module $AssistantPath 'TitulHelper'}
@@ -326,7 +326,7 @@ $hero.Add_Paint({
 $heroTitle=New-Label 'CyberPW Assistant' 34 26 480 50 27 $goldSoft 'Bold'
 $heroSub=New-Label 'ІНСТРУМЕНТИ ТА ПОМІЧНИКИ ДЛЯ PERFECT WORLD' 37 80 510 26 10 $text 'Bold'
 $heroText=New-Label "Сім модулів в одному лаунчері:`r`nтитули, персонажі, макроси, симуляція, фоновий рендер, боси й карта ТВ." 38 119 500 58 11 $muted
-$heroStats=New-Label "TITULHELPER: $done / $total     ●  ГОТОВО     VERSION 1.06 BETA" 38 204 510 28 9 $cyan 'Bold'
+$heroStats=New-Label "TITULHELPER: $done / $total     ●  ГОТОВО     VERSION 1.07 BETA" 38 204 510 28 9 $cyan 'Bold'
 
 $calendar=New-Object Windows.Forms.Panel;$calendar.SetBounds(562,11,424,242);$calendar.Anchor='Top,Right';$calendar.BackColor=[Drawing.Color]::FromArgb(7,31,27);Set-Rounded $calendar 14
 $calendar.Add_Paint({param($sender,$eventArgs);$pen=New-Object Drawing.Pen $gold,2;$eventArgs.Graphics.DrawRectangle($pen,1,1,$sender.Width-3,$sender.Height-3);$pen.Dispose()})

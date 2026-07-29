@@ -250,6 +250,34 @@ $gold=$theme.Gold
 $goldSoft=$theme.GoldSoft
 $textSoft=$theme.Muted
 function Style-Button($button,$back,$fore=$goldSoft){$button.BackColor=$back;$button.ForeColor=$fore;$button.FlatStyle='Flat';$button.FlatAppearance.BorderColor=$gold;$button.FlatAppearance.BorderSize=1;$button.Cursor='Hand'}
+function Show-CoordinateSetupWizard {
+  $wizard=New-Object Windows.Forms.Form
+  $wizard.Text='TitulHelper — налаштування координат';$wizard.ClientSize='720,510';$wizard.MinimumSize='720,510';$wizard.MaximumSize='720,510';$wizard.StartPosition='CenterParent';$wizard.FormBorderStyle='FixedDialog';$wizard.MaximizeBox=$false;$wizard.MinimizeBox=$false;$wizard.ShowInTaskbar=$false;$wizard.BackColor=$jadeDark;$wizard.ForeColor='White';$wizard.Font=New-Object Drawing.Font('Segoe UI',10)
+  $heading=New-Object Windows.Forms.Label;$heading.Text='НАЛАШТУВАННЯ У ДВА КРОКИ';$heading.SetBounds(24,18,670,32);$heading.Font=New-Object Drawing.Font('Segoe UI Semibold',16,[Drawing.FontStyle]::Bold);$heading.ForeColor=$goldSoft
+  $intro=New-Object Windows.Forms.Label;$intro.Text='Натисніть кнопку кроку — майстер сховається на 3 секунди. За цей час наведіть курсор точно на показане місце у грі.';$intro.SetBounds(24,55,670,46);$intro.ForeColor=$textSoft
+  function Add-GuideImage($parent,[string]$file,[int]$x,[int]$y,[int]$w,[int]$h){$box=New-Object Windows.Forms.PictureBox;$box.SetBounds($x,$y,$w,$h);$box.SizeMode='Zoom';$box.BackColor=[Drawing.Color]::FromArgb(3,22,19);$box.BorderStyle='FixedSingle';$path=Join-Path $AppDir ('ui-assets\help\'+$file);if(Test-Path -LiteralPath $path){$source=[Drawing.Image]::FromFile($path);try{$box.Image=New-Object Drawing.Bitmap($source)}finally{$source.Dispose()}};$parent.Controls.Add($box);$box}
+  $step1=New-Object Windows.Forms.GroupBox;$step1.Text='КРОК 1 · КНОПКА ВІДКРИТТЯ';$step1.SetBounds(24,112,320,300);$step1.ForeColor=$goldSoft
+  $step1Text=New-Object Windows.Forms.Label;$step1Text.Text="Наведіть курсор на маленьку круглу стрілку праворуч у вікні гри.`r`nНе натискайте — просто тримайте курсор.";$step1Text.SetBounds(16,28,286,62);$step1Text.ForeColor='White'
+  $image1=Add-GuideImage $step1 'coordinate-toggle.png' 16 96 286 120
+  $step1Button=New-Object Windows.Forms.Button;$step1Button.Text='1 · ЗАПАМЯТАТИ КНОПКУ';$step1Button.SetBounds(16,238,286,44);Style-Button $step1Button $jade
+  $step1.Controls.AddRange(@($step1Text,$step1Button))
+  $step2=New-Object Windows.Forms.GroupBox;$step2.Text='КРОК 2 · ПОЛЕ КООРДИНАТ';$step2.SetBounds(376,112,320,300);$step2.ForeColor=$goldSoft
+  $step2Text=New-Object Windows.Forms.Label;$step2Text.Text="Спочатку відкрийте панель координат у грі.`r`nПотім наведіть курсор усередину чорного поля з цифрами.";$step2Text.SetBounds(16,28,286,62);$step2Text.ForeColor='White'
+  $image2=Add-GuideImage $step2 'coordinate-field.png' 16 96 286 120
+  $step2Button=New-Object Windows.Forms.Button;$step2Button.Text='2 · ЗАПАМЯТАТИ ПОЛЕ';$step2Button.SetBounds(16,238,286,44);Style-Button $step2Button $jade
+  $step2.Controls.AddRange(@($step2Text,$step2Button))
+  $status=New-Object Windows.Forms.Label;$status.SetBounds(24,425,500,48);$status.ForeColor=$jadeBright
+  $close=New-Object Windows.Forms.Button;$close.Text='ГОТОВО';$close.SetBounds(560,430,136,42);Style-Button $close $jadePanel
+  $refreshStatus={
+    $openReady=([int]$script:Config.OpenOffsetX-gt0-and[int]$script:Config.OpenOffsetY-gt0);$fieldReady=([int]$script:Config.CoordOffsetX-gt0-and[int]$script:Config.CoordOffsetY-gt0)
+    $status.Text="Кнопка: $(if($openReady){'ГОТОВО ✓'}else{'НЕ НАЛАШТОВАНО'})     Поле: $(if($fieldReady){'ГОТОВО ✓'}else{'НЕ НАЛАШТОВАНО'})"
+  }
+  $step1Button.Add_Click({$wizard.Hide();try{Capture-OpenPoint}finally{$wizard.Show();$wizard.Activate();&$refreshStatus}})
+  $step2Button.Add_Click({$wizard.Hide();try{Capture-CoordPoint}finally{$wizard.Show();$wizard.Activate();&$refreshStatus}})
+  $close.Add_Click({$wizard.Close()});$wizard.Controls.AddRange(@($heading,$intro,$step1,$step2,$status,$close));&$refreshStatus
+  $wizard.Add_FormClosed({if($image1.Image){$image1.Image.Dispose()};if($image2.Image){$image2.Image.Dispose()}})
+  [void]$wizard.ShowDialog($form)
+}
 
 $form=New-Object Windows.Forms.Form; $form.Text='CyberPW — Titles Assistant'; $form.Size='960,890'; $form.MinimumSize='820,720'; $form.StartPosition='CenterScreen'; $form.BackColor=$jadeDark; $form.ForeColor='White'; $form.Font=New-Object Drawing.Font('Segoe UI',10);$form.MaximizeBox=$true;$form.AutoScaleMode='Dpi';$form.AutoScroll=$true
 $form.Text='Cyber.pw Asistant — TitulHelper'
@@ -281,21 +309,20 @@ $note=New-Object Windows.Forms.Label; $note.SetBounds(450,226,455,52);$note.Fore
 $doneBox=New-Object Windows.Forms.CheckBox; $doneBox.Text='Титул уже отримано'; $doneBox.SetBounds(450,276,190,30);$doneBox.ForeColor=$textSoft
 $coordOpenBox=New-Object Windows.Forms.CheckBox; $coordOpenBox.Text='Панель координат відкрита'; $coordOpenBox.SetBounds(665,276,240,30);$coordOpenBox.ForeColor=$textSoft
 $inject=New-Object Windows.Forms.Button; $inject.Text='ПОСТАВИТИ МІТКУ В CYBERPW'; $inject.SetBounds(450,312,455,50);Style-Button $inject $jade
-$settingsLbl=New-Object Windows.Forms.Label;$settingsLbl.Text='НАЛАШТУВАННЯ ВВЕДЕННЯ';$settingsLbl.ForeColor=$goldSoft;$settingsLbl.SetBounds(450,378,300,24)
-$cal0=New-Object Windows.Forms.Button; $cal0.Text="1 · Кнопка відкриття координат (3 с)"; $cal0.SetBounds(450,405,455,34);Style-Button $cal0 $jadePanel $textSoft
-$calCoord=New-Object Windows.Forms.Button; $calCoord.Text="2 · Поле введення координат (3 с)"; $calCoord.SetBounds(450,445,455,34);Style-Button $calCoord $jadePanel $textSoft
-$sync=New-Object Windows.Forms.Button; $sync.Text='⚡ СИНХРОНІЗУВАТИ З КЛІЄНТОМ'; $sync.SetBounds(450,500,455,50);Style-Button $sync $jade $goldSoft
-$resetDone=New-Object Windows.Forms.Button; $resetDone.Text='Скинути збережений прогрес'; $resetDone.SetBounds(450,562,455,34);Style-Button $resetDone $jadeDark $textSoft
+$settingsLbl=New-Object Windows.Forms.Label;$settingsLbl.Text='ШВИДКЕ НАЛАШТУВАННЯ';$settingsLbl.ForeColor=$goldSoft;$settingsLbl.SetBounds(450,378,300,24)
+$setup=New-Object Windows.Forms.Button;$setup.Text='⚙ НАЛАШТУВАТИ КООРДИНАТИ';$setup.SetBounds(450,405,455,48);Style-Button $setup $jadePanel $goldSoft
+$sync=New-Object Windows.Forms.Button;$sync.Text='⚡ СИНХРОНІЗУВАТИ З КЛІЄНТОМ';$sync.SetBounds(450,470,455,50);Style-Button $sync $jade $goldSoft
+$resetDone=New-Object Windows.Forms.Button; $resetDone.Text='Скинути збережений прогрес'; $resetDone.SetBounds(450,535,455,34);Style-Button $resetDone $jadeDark $textSoft
 $credit=New-Object Windows.Forms.Label;$credit.Text='Створив Кіт Михайло для сервера Cyber.pw · клан DarkSide';$credit.ForeColor=$textSoft;$credit.SetBounds(20,730,620,23)
 $serverLink=New-Object Windows.Forms.LinkLabel;$serverLink.Text='Сайт CyberPW';$serverLink.LinkColor=$gold;$serverLink.ActiveLinkColor=$goldSoft;$serverLink.VisitedLinkColor=$gold;$serverLink.SetBounds(20,758,120,23);$serverLink.Cursor='Hand'
 $refLink=New-Object Windows.Forms.LinkLabel;$refLink.Text='Реєстрація з бонусом';$refLink.LinkColor=$gold;$refLink.ActiveLinkColor=$goldSoft;$refLink.VisitedLinkColor=$gold;$refLink.SetBounds(165,758,180,23);$refLink.Cursor='Hand'
 $youtube=New-Object Windows.Forms.LinkLabel;$youtube.Text='YouTube · Vitalik_Juk';$youtube.LinkColor=$gold;$youtube.ActiveLinkColor=$goldSoft;$youtube.VisitedLinkColor=$gold;$youtube.SetBounds(735,758,190,23);$youtube.TextAlign='MiddleRight';$youtube.Cursor='Hand'
-$form.Controls.AddRange(@($logo,$brand,$brandSub,$divider,$searchLbl,$search,$list,$progress,$titleLbl,$coord,$note,$doneBox,$coordOpenBox,$inject,$settingsLbl,$cal0,$calCoord,$sync,$resetDone,$credit,$serverLink,$refLink,$youtube))
+$form.Controls.AddRange(@($logo,$brand,$brandSub,$divider,$searchLbl,$search,$list,$progress,$titleLbl,$coord,$note,$doneBox,$coordOpenBox,$inject,$settingsLbl,$setup,$sync,$resetDone,$credit,$serverLink,$refLink,$youtube))
 $search.Add_TextChanged({Refresh-List}); $list.Add_SelectedIndexChanged({Update-Selected})
 $doneBox.Add_CheckedChanged({if($script:UpdatingSelection){return};$t=Selected-Title;if($t){$script:Done[$t.id]=$doneBox.Checked;Save-State;$list.Invalidate();Refresh-List}})
 $coordOpenBox.Add_CheckedChanged({$script:CoordWindowOpen=$coordOpenBox.Checked})
 $resetDone.Add_Click({if([Windows.Forms.MessageBox]::Show('Скинути всі зелені позначки й очистити збережений прогрес?','Підтвердження',[Windows.Forms.MessageBoxButtons]::YesNo)-eq[Windows.Forms.DialogResult]::Yes){$script:Done=@{};Save-State;Refresh-List;$list.Invalidate()}})
-$inject.Add_Click({Inject-Title}); $cal0.Add_Click({Capture-OpenPoint}); $calCoord.Add_Click({Capture-CoordPoint}); $sync.Add_Click({Sync-CyberPWOwnedTitles})
+$inject.Add_Click({Inject-Title});$setup.Add_Click({Show-CoordinateSetupWizard});$sync.Add_Click({Sync-CyberPWOwnedTitles})
 $serverLink.Add_LinkClicked({try{$psi=New-Object Diagnostics.ProcessStartInfo;$psi.FileName='https://cyberpw.fun/';$psi.UseShellExecute=$true;[Diagnostics.Process]::Start($psi)|Out-Null}catch{[Windows.Forms.MessageBox]::Show('Не вдалося відкрити сайт CyberPW.')|Out-Null}})
 $refLink.Add_LinkClicked({try{$psi=New-Object Diagnostics.ProcessStartInfo;$psi.FileName='https://cabinet.cyberpw.fun/register.php?ref=4550';$psi.UseShellExecute=$true;[Diagnostics.Process]::Start($psi)|Out-Null}catch{[Windows.Forms.MessageBox]::Show('Не вдалося відкрити реєстрацію.')|Out-Null}})
 $youtube.Add_LinkClicked({try{$psi=New-Object Diagnostics.ProcessStartInfo;$psi.FileName='https://www.youtube.com/@Vitalik_Juk';$psi.UseShellExecute=$true;[Diagnostics.Process]::Start($psi)|Out-Null}catch{[Windows.Forms.MessageBox]::Show('Не вдалося відкрити YouTube.')|Out-Null}})

@@ -43,7 +43,7 @@ $uiAssetsSource = Join-Path $root 'ui-assets'
 if (-not (Test-Path -LiteralPath $uiAssetsSource -PathType Container)) { throw 'Не знайдено папку ui-assets.' }
 $uiAssetsStage=Join-Path $stage 'ui-assets';New-Item -ItemType Directory -Path $uiAssetsStage -Force|Out-Null
 Copy-Item -LiteralPath (Join-Path $uiAssetsSource 'main-summer.jpg') -Destination (Join-Path $uiAssetsStage 'main-summer.jpg')
-foreach($folder in @('summer','icons')){$sourceFolder=Join-Path $uiAssetsSource $folder;$stageFolder=Join-Path $uiAssetsStage $folder;New-Item -ItemType Directory -Path $stageFolder -Force|Out-Null;foreach($asset in Get-ChildItem -LiteralPath $sourceFolder -Filter '*.jpg'){Copy-Item -LiteralPath $asset.FullName -Destination (Join-Path $stageFolder $asset.Name)}}
+foreach($folder in @('summer','icons','help')){$sourceFolder=Join-Path $uiAssetsSource $folder;$stageFolder=Join-Path $uiAssetsStage $folder;New-Item -ItemType Directory -Path $stageFolder -Force|Out-Null;foreach($asset in @(Get-ChildItem -LiteralPath $sourceFolder -File|Where-Object{$_.Extension-in@('.jpg','.png')})){Copy-Item -LiteralPath $asset.FullName -Destination (Join-Path $stageFolder $asset.Name)}}
 $iconSource = Join-Path $root 'class-icons'
 if (-not (Test-Path -LiteralPath $iconSource -PathType Container)) { throw 'Не знайдено папку class-icons.' }
 $iconStage = Join-Path $stage 'class-icons'

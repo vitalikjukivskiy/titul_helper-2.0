@@ -1,7 +1,7 @@
 ﻿<p align="center"><img src="github-header-kitmikhailo.png" width="100%" alt="CyberPW Assistant — інструментарій гравця"></p>
 <h1 align="center">CyberPW Assistant</h1>
-<p align="center">Неофіційний відкритий інструментарій для гравців CyberPW<br><strong>1.06 Beta · Windows 7/10/11 x64 · Portable · PowerShell 5.1</strong></p>
-<p align="center"><a href="https://github.com/vitalikjukivskiy/titul_helper/releases"><img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper/total?style=for-the-badge&logo=github&label=Downloads&color=0f9d7a" alt="Завантаження"></a> <a href="https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.06.0-beta"><img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper?style=for-the-badge&label=Release&color=d4af37" alt="Версія 1.06 Beta"></a></p>
+<p align="center">Неофіційний відкритий інструментарій для гравців CyberPW<br><strong>1.07 Beta · Windows 7/10/11 x64 · Portable · PowerShell 5.1</strong></p>
+<p align="center"><a href="https://github.com/vitalikjukivskiy/titul_helper/releases"><img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper/total?style=for-the-badge&logo=github&label=Downloads&color=0f9d7a" alt="Завантаження"></a> <a href="https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0"><img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper?style=for-the-badge&label=Release&color=d4af37" alt="Версія 1.07 Beta"></a></p>
 <p align="center"><a href="https://cyberpw.fun/">Сайт</a> · <a href="https://forum.cyberpw.fun/index.php?threads/titulhelper-1-0.271/">Тема на форумі</a> · <a href="https://cabinet.cyberpw.fun/">Кабінет</a> · <a href="https://cabinet.cyberpw.fun/register.php?ref=4550">Реєстрація з бонусом</a> · <a href="https://www.youtube.com/@Vitalik_Juk">YouTube</a> · <a href="https://send.monobank.ua/jar/93N5FBB3zX">Підтримати</a></p>
 
 > [!IMPORTANT]
@@ -53,7 +53,7 @@
 
 ## Швидкий запуск
 
-1. Відкрийте [реліз 1.06 Beta](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.06.0-beta).
+1. Відкрийте [реліз 1.07 Beta](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0).
 2. Завантажте `Cyber.pw-Asistant-Portable.zip`.
 3. Повністю розпакуйте архів.
 4. Запустіть `Запустити.bat`.
@@ -78,6 +78,7 @@ Python, npm та сторонні бібліотеки не потрібні.
 - паролі MultiLauncher не зберігаються відкритим текстом;
 - користувацькі `state.json`, `characters.json`, `territories.json`, `launcher-theme.json` і `macros/` виключені з Git;
 - Для кожного макросу окремо зберігаються власні клавіші старту та аварійної зупинки.
+- Додано умови кольору `IF`, `IF NOT`, вкладені блоки й надійне захоплення пікселя.
 
 ## Збірка
 
@@ -90,7 +91,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Portable.ps1
 ## Посилання
 
 - [Релізи](https://github.com/vitalikjukivskiy/titul_helper/releases)
-- [Форумний гайд 1.06 Beta](FORUM-GUIDE-1.0.md)
+- [Форумний гайд 1.07 Beta](FORUM-GUIDE-1.0.md)
 - [Відеогайд](https://youtu.be/--JevuwyL7s)
 - [GitHub автора](https://github.com/vitalikjukivskiy)
 - [Повідомити про помилку](https://github.com/vitalikjukivskiy/titul_helper/issues)

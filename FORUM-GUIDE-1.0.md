@@ -1,11 +1,11 @@
-﻿# 🚀 CyberPW Assistant 1.05 Beta — TitulHelper без OCR та новий лаунчер
+﻿# 🚀 CyberPW Assistant 1.07 Beta — TitulHelper без OCR та новий лаунчер
 
 
 ## ✨ Що це таке
 
 **CyberPW Assistant** — безкоштовний portable-набір інструментів для гравців CyberPW: TitulHelper, MultiLauncher, Macro Studio, карта ГВГ, боси, календар івентів та інші помічники в одному красивому лаунчері.
 
-- 🟢 **Версія:** 1.05 Beta
+- 🟢 **Версія:** 1.07 Beta
 - 🖥️ **Windows:** 7 SP1 / 10 / 11 x64
 - 📦 **Формат:** portable, без інсталятора
 - ⬇️ **Завантаження:** [GitHub Releases](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0)
@@ -60,7 +60,7 @@
 
 ## 📦 Встановлення
 
-1. Відкрийте [реліз 1.05 Beta](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0).
+1. Відкрийте [реліз 1.07 Beta](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0).
 2. Завантажте `Cyber.pw-Asistant-Portable.zip`.
 3. Повністю розпакуйте ZIP у звичайну папку.
 4. Запустіть `Запустити.bat`.
@@ -73,7 +73,7 @@ TitulHelper лише читає ID отриманих титулів із пер
 
 ## 🔗 Корисні посилання
 
-- [Завантажити CyberPW Assistant 1.05 Beta](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0)
+- [Завантажити CyberPW Assistant 1.07 Beta](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0)
 - [Вихідний код та інструкція](https://github.com/vitalikjukivskiy/titul_helper)
 - [Відеогайд](https://youtu.be/--JevuwyL7s)
 - [Повідомити про помилку](https://github.com/vitalikjukivskiy/titul_helper/issues)
