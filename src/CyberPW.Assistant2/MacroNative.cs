@@ -40,6 +40,10 @@ namespace CyberPW.Assistant2
         {
             var input=new INPUT();input.type=0;input.data.mouse.flags=right?(up?0x10u:0x8u):(up?0x4u:0x2u);Send(new[]{input});
         }
+        public static void MiddleButton(bool up)
+        {
+            var input=new INPUT();input.type=0;input.data.mouse.flags=up?0x40u:0x20u;Send(new[]{input});
+        }
         public static void Wheel(int delta)
         {
             var input=new INPUT();input.type=0;input.data.mouse.flags=0x800;input.data.mouse.mouseData=unchecked((uint)delta);Send(new[]{input});

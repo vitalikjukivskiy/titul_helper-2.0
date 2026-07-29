@@ -28,7 +28,7 @@ namespace CyberPW.Assistant2
                     case "KEY": Tap((ushort)Enum.Parse(typeof(Keys),step.Argument,true)); break;
                     case "KEYDOWN": {ushort k=(ushort)Enum.Parse(typeof(Keys),step.Argument,true);MacroNative.Key(k,false);held.Add(k);break;}
                     case "KEYUP": {ushort k=(ushort)Enum.Parse(typeof(Keys),step.Argument,true);MacroNative.Key(k,true);held.Remove(k);break;}
-                    case "CLICK": if(parts.Length>0&&parts[0].Equals("RIGHT",StringComparison.OrdinalIgnoreCase)){MacroNative.MouseButton(true,false);MacroNative.MouseButton(true,true);}else{MacroNative.MouseButton(false,false);MacroNative.MouseButton(false,true);}break;
+                    case "CLICK": if(parts.Length>0&&parts[0].Equals("RIGHT",StringComparison.OrdinalIgnoreCase)){MacroNative.MouseButton(true,false);MacroNative.MouseButton(true,true);}else if(parts.Length>0&&parts[0].Equals("MIDDLE",StringComparison.OrdinalIgnoreCase)){MacroNative.MiddleButton(false);MacroNative.MiddleButton(true);}else{MacroNative.MouseButton(false,false);MacroNative.MouseButton(false,true);}break;
                     case "RCLICK": MacroNative.MouseButton(true,false);MacroNative.MouseButton(true,true);break;
                     case "MOVE": MacroNative.SetCursorPos(ParseInt(parts[0],-100000,100000),ParseInt(parts[1],-100000,100000));break;
                     case "WHEEL": MacroNative.Wheel(ParseInt(step.Argument,-12000,12000));break;
