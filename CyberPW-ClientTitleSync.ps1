@@ -69,14 +69,41 @@ function Get-CyberPWClientPath($process){
   }
   return $path
 }
-function Get-CyberPWOwnedTitleIds {
-  $process=$null
-  if(Get-Command Get-GameProcess -ErrorAction SilentlyContinue){$process=Get-GameProcess}
-  if(-not$process){
-    $clients=@(Get-Process -Name $script:Config.Process -ErrorAction SilentlyContinue|Where-Object{$_.MainWindowHandle-ne[IntPtr]::Zero}|Sort-Object StartTime)
-    if($clients.Count-gt0){$process=$clients[-1]}
+function Get-CyberPWClientCandidates {
+  @(Get-Process -Name $script:Config.Process -ErrorAction SilentlyContinue|Where-Object{$_.MainWindowHandle-ne[IntPtr]::Zero}|Sort-Object StartTime)
+}
+function Select-CyberPWClientProcess($candidates){
+  $items=@($candidates)
+  if($items.Count-eq0){return $null}
+  if($items.Count-eq1){return $items[0]}
+  $dialog=New-Object Windows.Forms.Form
+  $dialog.Text='TitulHelper — вибір персонажа';$dialog.ClientSize='560,340';$dialog.StartPosition='CenterParent';$dialog.FormBorderStyle='FixedDialog';$dialog.MaximizeBox=$false;$dialog.MinimizeBox=$false;$dialog.ShowInTaskbar=$false
+  $theme=Get-CyberPWTheme;$dialog.BackColor=$theme.Base;$dialog.ForeColor=$theme.Text;$dialog.Font=New-Object Drawing.Font('Segoe UI',10)
+  $title=New-Object Windows.Forms.Label;$title.Text="ВІДКРИТО КІЛЬКА КЛІЄНТІВ`r`nОберіть вікно персонажа для синхронізації титулів.";$title.SetBounds(22,18,515,50);$title.ForeColor=$theme.GoldSoft;$title.Font=New-Object Drawing.Font('Segoe UI Semibold',11)
+  $listBox=New-Object Windows.Forms.ListBox;$listBox.SetBounds(22,78,515,170);$listBox.BackColor=$theme.Field;$listBox.ForeColor=$theme.Text;$listBox.BorderStyle='FixedSingle';$listBox.DisplayMember='Label'
+  $number=0
+  foreach($process in $items){
+    $number++;$windowTitle=[string]$process.MainWindowTitle;if([string]::IsNullOrWhiteSpace($windowTitle)){$windowTitle='ElementClient'}
+    $started=try{$process.StartTime.ToString('HH:mm:ss')}catch{'—'}
+    $location='';try{$rect=New-Object NativePw+RECT;if([NativePw]::GetWindowRect($process.MainWindowHandle,[ref]$rect)){$location=" · екран $($rect.Left),$($rect.Top)"}}catch{}
+    [void]$listBox.Items.Add([pscustomobject]@{Label="Вікно $number · $windowTitle · PID $($process.Id) · $started$location";Process=$process})
   }
-  if(-not$process){throw 'ElementClient не знайдено. Запустіть гру та зайдіть персонажем.'}
+  $listBox.SelectedIndex=0
+  $show=New-Object Windows.Forms.Button;$show.Text='ПОКАЗАТИ ВІКНО';$show.SetBounds(22,270,165,42);$show.FlatStyle='Flat';$show.BackColor=$theme.Button;$show.ForeColor=$theme.GoldSoft;$show.FlatAppearance.BorderColor=$theme.Gold
+  $choose=New-Object Windows.Forms.Button;$choose.Text='ВИБРАТИ';$choose.SetBounds(282,270,120,42);$choose.DialogResult=[Windows.Forms.DialogResult]::OK;$choose.FlatStyle='Flat';$choose.BackColor=$theme.Accent;$choose.ForeColor=$theme.Text
+  $cancel=New-Object Windows.Forms.Button;$cancel.Text='СКАСУВАТИ';$cancel.SetBounds(412,270,125,42);$cancel.DialogResult=[Windows.Forms.DialogResult]::Cancel;$cancel.FlatStyle='Flat';$cancel.BackColor=$theme.Button;$cancel.ForeColor=$theme.Text
+  $show.Add_Click({if($listBox.SelectedItem){$selected=$listBox.SelectedItem.Process;[NativePw]::ShowWindowAsync($selected.MainWindowHandle,9)|Out-Null;[NativePw]::SetForegroundWindow($selected.MainWindowHandle)|Out-Null}})
+  $listBox.Add_DoubleClick({if($listBox.SelectedItem){$dialog.DialogResult=[Windows.Forms.DialogResult]::OK;$dialog.Close()}})
+  $dialog.AcceptButton=$choose;$dialog.CancelButton=$cancel;$dialog.Controls.AddRange(@($title,$listBox,$show,$choose,$cancel))
+  $result=if($form-and-not$form.IsDisposed){$dialog.ShowDialog($form)}else{$dialog.ShowDialog()}
+  try{if($result-eq[Windows.Forms.DialogResult]::OK-and$listBox.SelectedItem){return $listBox.SelectedItem.Process};return $null}finally{$dialog.Dispose()}
+}
+
+function Get-CyberPWOwnedTitleIds([Nullable[int]]$ProcessId=$null) {
+  $clients=@(Get-CyberPWClientCandidates)
+  if($clients.Count-eq0){throw 'ElementClient не знайдено. Запустіть гру та зайдіть персонажем.'}
+  if($null-ne$ProcessId){$process=@($clients|Where-Object{$_.Id-eq[int]$ProcessId})|Select-Object -First 1;if(-not$process){throw "ElementClient PID $ProcessId не знайдено."}}
+  else{$process=Select-CyberPWClientProcess $clients;if(-not$process){throw [OperationCanceledException]::new('Вибір вікна скасовано.')}}
   $clientPath=Get-CyberPWClientPath $process
   $profile=Get-CyberPWMemoryProfile $clientPath
   $handle=[CyberPWTitleMemory]::OpenProcess(0x1010,$false,$process.Id)
@@ -124,6 +151,7 @@ function Sync-CyberPWOwnedTitles {
     Save-State;Refresh-List;$list.Invalidate();Update-Selected
     [Windows.Forms.MessageBox]::Show("Синхронізацію завершено.`r`n`r`nЗнайдено у базі: $matched`r`nID у клієнті: $($result.RawCount)`r`nElementClient PID: $($result.ProcessId)",'TitulHelper — готово',[Windows.Forms.MessageBoxButtons]::OK,[Windows.Forms.MessageBoxIcon]::Information)|Out-Null
   }catch{
+    if($_.Exception -is [OperationCanceledException]){return}
     [Windows.Forms.MessageBox]::Show("Не вдалося синхронізувати титули.`r`n`r`n$($_.Exception.Message)`r`n`r`nПереконайтеся, що персонаж уже зайшов у світ.",'TitulHelper',[Windows.Forms.MessageBoxButtons]::OK,[Windows.Forms.MessageBoxIcon]::Warning)|Out-Null
   }finally{$sync.Enabled=$true}
 }
