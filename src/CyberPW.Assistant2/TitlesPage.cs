@@ -28,6 +28,8 @@ namespace CyberPW.Assistant2
         public TitlesPage()
         {
             BackColor = Theme.Ink;
+            BackgroundImage = AssetImages.Load("main-summer.jpg");
+            BackgroundImageLayout = ImageLayout.Stretch;
 
             var left = new Panel { Dock = DockStyle.Left, Width = 410, Padding = new Padding(12), BackColor = Theme.Panel };
             var right = new Panel { Dock = DockStyle.Fill, Padding = new Padding(24), BackColor = Theme.Ink };
@@ -107,7 +109,7 @@ namespace CyberPW.Assistant2
             right.Controls.Add(_details);
 
             var copy = Theme.Button("СКОПІЮВАТИ КООРДИНАТИ");
-            copy.SetBounds(27, 458, 290, 46);
+            copy.SetBounds(27, 458, 190, 46);
             copy.Click += delegate
             {
                 TitleRecord selected = Selected;
@@ -115,13 +117,22 @@ namespace CyberPW.Assistant2
             };
             right.Controls.Add(copy);
 
+            var inject = Theme.Button("ПОСТАВИТИ МІТКУ В CYBERPW");
+            inject.SetBounds(230, 458, 407, 46);
+            inject.Click += delegate { try { TitleCoordinateService.Inject(FindForm(), Selected, _state.config); } catch (Exception exception) { MessageBox.Show(exception.Message, "TitulHelper"); } finally { FindForm().WindowState=FormWindowState.Normal;FindForm().Activate(); } };
+            right.Controls.Add(inject);
+            var setup = Theme.Button("⚙ НАЛАШТУВАТИ КООРДИНАТИ");
+            setup.SetBounds(27, 518, 610, 46);
+            setup.Click += delegate { using(var dialog=new CoordinateSetupDialog(_state.config)) if(dialog.ShowDialog(FindForm())==DialogResult.OK) JsonFiles.Write(AppPaths.State,_state); };
+            right.Controls.Add(setup);
+
             _sync = Theme.Button("СИНХРОНІЗУВАТИ З КЛІЄНТОМ");
-            _sync.SetBounds(335, 458, 302, 46);
+            _sync.SetBounds(27, 578, 610, 46);
             _sync.Click += delegate { SynchronizeWithClient(); };
             right.Controls.Add(_sync);
 
             var status = Theme.Label("C# МОДУЛЬ · JSON СУМІСНИЙ З 1.07 BETA", 9F, Theme.Muted, FontStyle.Bold);
-            status.Location = new Point(29, 530);
+            status.Location = new Point(29, 642);
             right.Controls.Add(status);
 
             LoadData();
