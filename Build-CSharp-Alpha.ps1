@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $source = Join-Path $root 'src\CyberPW.Assistant2'
@@ -43,7 +43,7 @@ if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $exe -PathType Leaf)) {
     throw 'Не вдалося зібрати CyberPW Assistant 2.0 Alpha.'
 }
 
-foreach ($name in @('titles.json', 'memory-offsets.json', 'state.json', 'chest-drops.json')) {
+foreach ($name in @('titles.json', 'memory-offsets.json', 'state.json', 'chest-drops.json', 'bosses.json')) {
     Copy-Item -LiteralPath (Join-Path $root $name) -Destination (Join-Path (Join-Path $output 'data') $name)
 }
 Copy-Item -LiteralPath (Join-Path $root 'cyberpw-logo.ico') -Destination (Join-Path $output 'cyberpw-logo.ico')

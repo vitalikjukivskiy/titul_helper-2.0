@@ -43,7 +43,7 @@ namespace CyberPW.Assistant2
             RegisterPage("МАКРОСИ", new MacroStudioPage());
             RegisterPage("СИМУЛЯТОР", new SimulatorPage());
             RegisterPage("РОЗМОРОЗКА", new UnfreezePage());
-            RegisterPage("СВІТОВІ БОСИ", new PlaceholderPage("Світові боси", "Модуль переноситься в один процес."));
+            RegisterPage("СВІТОВІ БОСИ", new BossesPage());
 
             ShowPage("ГОЛОВНА");
         }
