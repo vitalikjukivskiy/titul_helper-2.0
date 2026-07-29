@@ -18,12 +18,12 @@ namespace CyberPW.Assistant2
 
         public static Button Button(string text)
         {
-            var button = new Button();
+            var button = new CyberButton();
             button.Text = text;
             button.Height = 42;
             button.FlatStyle = FlatStyle.Flat;
             button.FlatAppearance.BorderColor = Gold;
-            button.FlatAppearance.BorderSize = 2;
+            button.FlatAppearance.BorderSize = 0;
             button.BackColor = Panel2;
             button.ForeColor = GoldSoft;
             button.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
