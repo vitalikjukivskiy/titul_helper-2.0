@@ -47,5 +47,7 @@ foreach ($name in @('titles.json', 'memory-offsets.json', 'state.json')) {
     Copy-Item -LiteralPath (Join-Path $root $name) -Destination (Join-Path (Join-Path $output 'data') $name)
 }
 Copy-Item -LiteralPath (Join-Path $root 'cyberpw-logo.ico') -Destination (Join-Path $output 'cyberpw-logo.ico')
+Copy-Item -LiteralPath (Join-Path $root 'ui-assets') -Destination (Join-Path $output 'ui-assets') -Recurse
+Copy-Item -LiteralPath (Join-Path $root 'cyberpw-logo.png') -Destination (Join-Path $output 'cyberpw-logo.png')
 
 Write-Output "C# Alpha готова: $exe"

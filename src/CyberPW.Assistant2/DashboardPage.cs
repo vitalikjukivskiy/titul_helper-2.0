@@ -13,6 +13,8 @@ namespace CyberPW.Assistant2
         {
             _navigate = navigate;
             BackColor = Theme.Ink;
+            BackgroundImage = AssetImages.Load("main-summer.jpg");
+            BackgroundImageLayout = ImageLayout.Stretch;
             AutoScroll = true;
 
             var title = Theme.Label("CyberPW Assistant 2.0 Alpha", 27F, Theme.GoldSoft, FontStyle.Bold);
@@ -24,13 +26,12 @@ namespace CyberPW.Assistant2
 
             string[,] cards =
             {
-                { "TITULHELPER", "260 титулів · пошук · прогрес" },
-                { "MULTILAUNCHER", "Профілі та запуск клієнтів" },
-                { "МАКРОСИ", "Клавіатура · миша · пікселі · умови" },
-                { "СИМУЛЯТОР", "Скриня Тора" },
-                { "РОЗМОРОЗКА", "Фоновий рендер вікон" },
-                { "СВІТОВІ БОСИ", "Координати та розклад" },
-                { "КАРТА ТВ", "51 територія" }
+                { "TITULHELPER", "260 титулів · пошук · прогрес", "titles.jpg" },
+                { "MULTILAUNCHER", "Профілі та запуск клієнтів", "multilauncher.jpg" },
+                { "МАКРОСИ", "Клавіатура · миша · пікселі · умови", "macros.jpg" },
+                { "СИМУЛЯТОР", "Скриня Тора", "simulator.jpg" },
+                { "РОЗМОРОЗКА", "Фоновий рендер вікон", "unfreeze.jpg" },
+                { "СВІТОВІ БОСИ", "Координати та розклад", "bosses.jpg" }
             };
 
             for (int i = 0; i < cards.GetLength(0); i++)
@@ -40,6 +41,8 @@ namespace CyberPW.Assistant2
                 var card = new Panel
                 {
                     BackColor = Theme.Panel,
+                    BackgroundImage = AssetImages.Load("summer", cards[i, 2]),
+                    BackgroundImageLayout = ImageLayout.Stretch,
                     Location = new Point(22 + column * 290, 125 + row * 160),
                     Size = new Size(270, 140)
                 };

@@ -44,7 +44,7 @@ namespace CyberPW.Assistant2
             RegisterPage("СИМУЛЯТОР", new PlaceholderPage("Симулятор", "Модуль переноситься в один процес."));
             RegisterPage("РОЗМОРОЗКА", new PlaceholderPage("Розморозка", "Модуль переноситься в один процес."));
             RegisterPage("СВІТОВІ БОСИ", new PlaceholderPage("Світові боси", "Модуль переноситься в один процес."));
-            RegisterPage("КАРТА ТВ", new PlaceholderPage("Карта ТВ", "Модуль переноситься в один процес."));
+
             ShowPage("ГОЛОВНА");
         }
 
@@ -64,7 +64,7 @@ namespace CyberPW.Assistant2
             version.Location = new Point(23, 54);
             _navigation.Controls.Add(version);
 
-            string[] names = { "ГОЛОВНА", "TITULHELPER", "MULTILAUNCHER", "МАКРОСИ", "СИМУЛЯТОР", "РОЗМОРОЗКА", "СВІТОВІ БОСИ", "КАРТА ТВ" };
+            string[] names = { "ГОЛОВНА", "TITULHELPER", "MULTILAUNCHER", "МАКРОСИ", "СИМУЛЯТОР", "РОЗМОРОЗКА", "СВІТОВІ БОСИ" };
             int top = 96;
             foreach (string name in names)
             {
