@@ -1,4 +1,4 @@
-﻿# CyberPW Assistant 1.05 Beta
+﻿# CyberPW Assistant 1.06 Beta
 
 ## Запуск
 

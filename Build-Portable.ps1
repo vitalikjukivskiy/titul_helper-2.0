@@ -27,6 +27,7 @@ $files = @(
     'VERSION',
     'CyberPW-Titles.ps1',
     'CyberPW-ClientTitleSync.ps1',
+    'memory-offsets.json',
     'titles.json',
     'cyberpw-logo.png',
     'gvg-map.png',

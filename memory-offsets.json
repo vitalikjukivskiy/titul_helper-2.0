@@ -1,0 +1,20 @@
+﻿{
+  "schemaVersion": 1,
+  "profiles": [
+    {
+      "name": "CyberPW ElementClient 2026-07-27",
+      "fileSize": 16274944,
+      "sha256": "ADF8444231C9B86BAB64359FA3E4980D4E9BF2A759E3314180771CEE30ED3D49",
+      "pointerSize": 8,
+      "rootOffset": "0xF0CD08",
+      "characterPointerChain": ["0x38", "0x68"],
+      "titles": {
+        "beginOffset": "0x2CB8",
+        "endOffset": "0x2CC0",
+        "entryStride": 8,
+        "idSize": 2,
+        "maxCount": 4096
+      }
+    }
+  ]
+}

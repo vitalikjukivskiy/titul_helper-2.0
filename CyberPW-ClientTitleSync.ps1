@@ -21,6 +21,34 @@ function Read-CyberPWClientValue($handle,[UInt64]$address,[int]$size){
   throw 'Непідтримуваний розмір читання.'
 }
 
+function ConvertFrom-CyberPWHexOffset([string]$value){
+  if([string]::IsNullOrWhiteSpace($value)-or$value-notmatch'^0x[0-9A-Fa-f]+$'){throw "Некоректний offset у профілі клієнта: $value"}
+  [Convert]::ToUInt64($value.Substring(2),16)
+}
+function Get-CyberPWMemoryProfile([string]$clientPath){
+  $profilesPath=Join-Path $PSScriptRoot 'memory-offsets.json'
+  if(-not(Test-Path -LiteralPath $profilesPath -PathType Leaf)){throw 'Не знайдено memory-offsets.json. Повторно розпакуйте CyberPW Assistant.'}
+  try{$config=Get-Content -LiteralPath $profilesPath -Raw -Encoding UTF8|ConvertFrom-Json}catch{throw "Не вдалося прочитати memory-offsets.json: $($_.Exception.Message)"}
+  if([int]$config.schemaVersion-ne1){throw 'Непідтримувана версія memory-offsets.json.'}
+  $file=Get-Item -LiteralPath $clientPath
+  $sameSize=@($config.profiles|Where-Object{[Int64]$_.fileSize-eq$file.Length})
+  if($sameSize.Count-eq0){throw 'Ця версія ElementClient ще не підтримується (інший розмір файлу). Оновіть TitulHelper.'}
+  $hash=(Get-FileHash -LiteralPath $clientPath -Algorithm SHA256).Hash
+  $profile=@($sameSize|Where-Object{([string]$_.sha256).ToUpperInvariant()-eq$hash})|Select-Object -First 1
+  if(-not$profile){throw 'Ця версія ElementClient ще не підтримується (контрольна сума не збігається). Оновіть TitulHelper.'}
+  if([int]$profile.pointerSize-ne8){throw 'Профіль клієнта має непідтримуваний розмір вказівника.'}
+  $profile
+}
+function Resolve-CyberPWPointerChain($handle,[UInt64]$moduleBase,$profile){
+  $address=$moduleBase+(ConvertFrom-CyberPWHexOffset ([string]$profile.rootOffset))
+  $pointer=Read-CyberPWClientValue $handle $address ([int]$profile.pointerSize)
+  if($pointer-eq0){throw 'Персонаж ще не завантажений.'}
+  foreach($offsetText in @($profile.characterPointerChain)){
+    $pointer=Read-CyberPWClientValue $handle ($pointer+(ConvertFrom-CyberPWHexOffset ([string]$offsetText))) ([int]$profile.pointerSize)
+    if($pointer-eq0){throw "Ланцюжок структури персонажа ще не готовий (offset $offsetText)."}
+  }
+  [UInt64]$pointer
+}
 function Get-CyberPWClientPath($process){
   $path=$null
   try{$path=[string]$process.MainModule.FileName}catch{}
@@ -49,16 +77,8 @@ function Get-CyberPWOwnedTitleIds {
     if($clients.Count-gt0){$process=$clients[-1]}
   }
   if(-not$process){throw 'ElementClient не знайдено. Запустіть гру та зайдіть персонажем.'}
-  $supportedHash='ADF8444231C9B86BAB64359FA3E4980D4E9BF2A759E3314180771CEE30ED3D49'
   $clientPath=Get-CyberPWClientPath $process
-  $clientFile=Get-Item -LiteralPath $clientPath
-  if($clientFile.Length-ne 16274944){
-    throw "Ця версія ElementClient ще не підтримується (інший розмір файлу). Оновіть TitulHelper."
-  }
-  $clientHash=(Get-FileHash -LiteralPath $clientPath -Algorithm SHA256).Hash
-  if($clientHash-ne$supportedHash){
-    throw "Ця версія ElementClient ще не підтримується (контрольна сума не збігається). Оновіть TitulHelper."
-  }
+  $profile=Get-CyberPWMemoryProfile $clientPath
   $handle=[CyberPWTitleMemory]::OpenProcess(0x1010,$false,$process.Id)
   if($handle-eq[IntPtr]::Zero){
     $code=[Runtime.InteropServices.Marshal]::GetLastWin32Error()
@@ -66,23 +86,19 @@ function Get-CyberPWOwnedTitleIds {
   }
   try{
     $moduleBase=[UInt64]$process.MainModule.BaseAddress.ToInt64()
-    $root=Read-CyberPWClientValue $handle ($moduleBase+0xF0CD08) 8
-    if($root-eq 0){throw 'Персонаж ще не завантажений.'}
-    $layer=Read-CyberPWClientValue $handle ($root+0x38) 8
-    if($layer-eq 0){throw 'Контекст гри ще не готовий.'}
-    $context=Read-CyberPWClientValue $handle ($layer+0x68) 8
-    if($context-eq 0){throw 'Контекст персонажа ще не готовий.'}
-    $begin=Read-CyberPWClientValue $handle ($context+0x2CB8) 8
-    $end=Read-CyberPWClientValue $handle ($context+0x2CC0) 8
-    if($end-lt$begin-or(($end-$begin)%8)-ne 0){throw 'Клієнт повернув пошкоджену структуру титулів.'}
-    $count=[int](($end-$begin)/8)
-    if($count-lt 0-or$count-gt 4096){throw "Некоректна кількість титулів: $count."}
+    $context=Resolve-CyberPWPointerChain $handle $moduleBase $profile
+    $begin=Read-CyberPWClientValue $handle ($context+(ConvertFrom-CyberPWHexOffset ([string]$profile.titles.beginOffset))) ([int]$profile.pointerSize)
+    $end=Read-CyberPWClientValue $handle ($context+(ConvertFrom-CyberPWHexOffset ([string]$profile.titles.endOffset))) ([int]$profile.pointerSize)
+    $stride=[int]$profile.titles.entryStride
+    if($stride-lt1-or$end-lt$begin-or(($end-$begin)%$stride)-ne0){throw 'Клієнт повернув пошкоджену структуру титулів.'}
+    $count=[int](($end-$begin)/$stride)
+    if($count-lt0-or$count-gt[int]$profile.titles.maxCount){throw "Некоректна кількість титулів: $count."}
     $ids=New-Object 'System.Collections.Generic.HashSet[int]'
     for($i=0;$i-lt$count;$i++){
-      $titleId=[int](Read-CyberPWClientValue $handle ($begin+[UInt64]($i*8)) 2)
+      $titleId=[int](Read-CyberPWClientValue $handle ($begin+[UInt64]($i*$stride)) ([int]$profile.titles.idSize))
       if($titleId-gt 0){[void]$ids.Add($titleId)}
     }
-    [pscustomobject]@{ProcessId=$process.Id;Ids=$ids;RawCount=$count}
+    [pscustomobject]@{ProcessId=$process.Id;Profile=[string]$profile.name;Ids=$ids;RawCount=$count}
   }finally{[void][CyberPWTitleMemory]::CloseHandle($handle)}
 }
 
