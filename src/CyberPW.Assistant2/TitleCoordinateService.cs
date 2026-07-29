@@ -63,8 +63,8 @@ namespace CyberPW.Assistant2
         {
             config=state;Text="TitulHelper — налаштування координат";ClientSize=new Size(720,510);StartPosition=FormStartPosition.CenterParent;FormBorderStyle=FormBorderStyle.FixedDialog;MaximizeBox=false;MinimizeBox=false;BackColor=Theme.Ink;ForeColor=Theme.Text;
             var heading=Theme.Label("НАЛАШТУВАННЯ У ДВА КРОКИ",16,Theme.GoldSoft,FontStyle.Bold);heading.Location=new Point(24,18);Controls.Add(heading);
-            AddStep("КРОК 1 · КНОПКА ВІДКРИТТЯ","coordinate-toggle.png",24,delegate{Capture("OpenOffsetX","OpenOffsetY");});
-            AddStep("КРОК 2 · ПОЛЕ КООРДИНАТ","coordinate-field.png",376,delegate{Capture("CoordOffsetX","CoordOffsetY");});
+            AddStep("КРОК 1 · КНОПКА ВІДКРИТТЯ","coordinate-toggle.png",24,delegate{CaptureStep("OpenOffsetX","OpenOffsetY");});
+            AddStep("КРОК 2 · ПОЛЕ КООРДИНАТ","coordinate-field.png",376,delegate{CaptureStep("CoordOffsetX","CoordOffsetY");});
             status.SetBounds(24,430,520,40);status.ForeColor=Theme.Cyan;Controls.Add(status);var close=Theme.Button("ГОТОВО");close.SetBounds(560,430,136,42);close.Click+=delegate{DialogResult=DialogResult.OK;};Controls.Add(close);RefreshStatus();
         }
         void AddStep(string title,string image,int x,EventHandler action)
@@ -73,7 +73,7 @@ namespace CyberPW.Assistant2
             var box=new PictureBox{Image=AssetImages.Load("help",image),SizeMode=PictureBoxSizeMode.Zoom,BackColor=Theme.Panel};box.SetBounds(16,35,286,180);group.Controls.Add(box);
             var button=Theme.Button(title.StartsWith("КРОК 1")?"1 · ЗАПАМ’ЯТАТИ КНОПКУ":"2 · ЗАПАМ’ЯТАТИ ПОЛЕ");button.SetBounds(16,245,286,44);button.Click+=action;group.Controls.Add(button);Controls.Add(group);
         }
-        void Capture(string x,string y){try{Hide();Point p=TitleCoordinateService.CaptureRelative(Owner);config[x]=p.X;config[y]=p.Y;}catch(Exception e){MessageBox.Show(e.Message,"TitulHelper");}finally{Show();Activate();RefreshStatus();}}
+        void CaptureStep(string x,string y){try{Hide();Point p=TitleCoordinateService.CaptureRelative(Owner);config[x]=p.X;config[y]=p.Y;}catch(Exception e){MessageBox.Show(e.Message,"TitulHelper");}finally{Show();Activate();RefreshStatus();}}
         void RefreshStatus(){status.Text="Кнопка: "+(TitleCoordinateService.Get(config,"OpenOffsetX")>0?"ГОТОВО ✓":"НЕ НАЛАШТОВАНО")+"     Поле: "+(TitleCoordinateService.Get(config,"CoordOffsetX")>0?"ГОТОВО ✓":"НЕ НАЛАШТОВАНО");}
     }
 }
