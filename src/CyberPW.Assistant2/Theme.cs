@@ -23,10 +23,10 @@ namespace CyberPW.Assistant2
             button.Height = 42;
             button.FlatStyle = FlatStyle.Flat;
             button.FlatAppearance.BorderColor = Gold;
-            button.FlatAppearance.BorderSize = 1;
+            button.FlatAppearance.BorderSize = 2;
             button.BackColor = Panel2;
             button.ForeColor = GoldSoft;
-            button.Font = new Font("Segoe UI Semibold", 9F);
+            button.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             button.Cursor = Cursors.Hand;
             button.Resize += delegate { Round(button, 9); };
             return button;
