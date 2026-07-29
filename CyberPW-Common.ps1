@@ -57,7 +57,9 @@ function Add-CyberPWThemeToggle($Form,[string]$ScriptPath){
     try{
       $Form.Close()
       Start-Sleep -Milliseconds 150
-      Start-Process powershell.exe -ArgumentList @('-NoProfile','-STA','-ExecutionPolicy','Bypass','-File',('"'+$ScriptPath+'"')) -WorkingDirectory (Split-Path -Parent $ScriptPath)
+      $scriptDir=Split-Path -Parent $ScriptPath
+      $starter=Join-Path $scriptDir 'CyberPW Assistant.exe'
+      Start-Process $starter -ArgumentList @(('"'+$ScriptPath+'"')) -WorkingDirectory $scriptDir
     }catch{}
   })
   $Form.Controls.Add($button);$button.BringToFront();$button

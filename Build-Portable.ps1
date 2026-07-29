@@ -14,6 +14,22 @@ if (-not $resolvedStage.StartsWith($resolvedDist + [IO.Path]::DirectorySeparator
 if (Test-Path $stage) { Remove-Item -LiteralPath $stage -Recurse -Force }
 New-Item -ItemType Directory -Path $stage | Out-Null
 
+$cscCandidates = @(
+    (Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe'),
+    (Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe')
+)
+$csc = $cscCandidates | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
+if (-not $csc) { throw 'Не знайдено системний компілятор .NET Framework 4 для складання CyberPW Assistant.exe.' }
+$starterSource = Join-Path $root 'CyberPW-Start.cs'
+$starterIcon = Join-Path $root 'cyberpw-logo.ico'
+$starterExe = Join-Path $root 'CyberPW Assistant.exe'
+foreach ($required in @($starterSource, $starterIcon)) {
+    if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { throw "Не знайдено файл запускальника: $required" }
+}
+& $csc /nologo /target:winexe /platform:anycpu /optimize+ "/win32icon:$starterIcon" "/out:$starterExe" $starterSource
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $starterExe -PathType Leaf)) {
+    throw 'Не вдалося зібрати CyberPW Assistant.exe.'
+}
 $files = @(
     'CyberPW-Launcher.ps1',
     'CyberPW-Common.ps1',
@@ -32,7 +48,9 @@ $files = @(
     'cyberpw-logo.png',
     'gvg-map.png',
     'territory-polygons.json',
-    'Запустити.bat'
+    'Запустити.bat',
+    'Запустити.vbs',
+    'CyberPW Assistant.exe'
 )
 foreach ($name in $files) {
     $source = Join-Path $root $name

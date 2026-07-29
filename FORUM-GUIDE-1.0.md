@@ -63,7 +63,9 @@
 1. Відкрийте [реліз 1.07 Beta](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0).
 2. Завантажте `Cyber.pw-Asistant-Portable.zip`.
 3. Повністю розпакуйте ZIP у звичайну папку.
-4. Запустіть `Запустити.bat`.
+4. Двічі натисніть `CyberPW Assistant.exe` — жодного чорного вікна PowerShell.
+
+> `Запустити.vbs` і `Запустити.bat` залишено лише як запасні способи запуску.
 
 Python, npm та сторонні бібліотеки не потрібні.
 

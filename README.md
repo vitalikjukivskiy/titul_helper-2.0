@@ -1,7 +1,7 @@
 ﻿<p align="center"><img src="github-header-kitmikhailo.png" width="100%" alt="CyberPW Assistant — інструментарій гравця"></p>
 <h1 align="center">CyberPW Assistant</h1>
-<p align="center">Неофіційний відкритий інструментарій для гравців CyberPW<br><strong>1.07 Beta · Windows 7/10/11 x64 · Portable · PowerShell 5.1</strong></p>
-<p align="center"><a href="https://github.com/vitalikjukivskiy/titul_helper/releases"><img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper/total?style=for-the-badge&logo=github&label=Downloads&color=0f9d7a" alt="Завантаження"></a> <a href="https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0"><img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper?style=for-the-badge&label=Release&color=d4af37" alt="Версія 1.07 Beta"></a></p>
+<p align="center">Неофіційний відкритий інструментарій для гравців CyberPW<br><strong>1.07 Beta 2 · Windows 7/10/11 x64 · Portable · PowerShell 5.1</strong></p>
+<p align="center"><a href="https://github.com/vitalikjukivskiy/titul_helper/releases"><img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper/total?style=for-the-badge&logo=github&label=Downloads&color=0f9d7a" alt="Завантаження"></a> <a href="https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.07.0-beta.2"><img src="https://img.shields.io/badge/Beta-1.07%20Beta%202-d4af37?style=for-the-badge&logo=windows&logoColor=white" alt="Версія 1.07 Beta 2"></a></p>
 <p align="center"><a href="https://cyberpw.fun/">Сайт</a> · <a href="https://forum.cyberpw.fun/index.php?threads/titulhelper-1-0.271/">Тема на форумі</a> · <a href="https://cabinet.cyberpw.fun/">Кабінет</a> · <a href="https://cabinet.cyberpw.fun/register.php?ref=4550">Реєстрація з бонусом</a> · <a href="https://www.youtube.com/@Vitalik_Juk">YouTube</a> · <a href="https://send.monobank.ua/jar/93N5FBB3zX">Підтримати</a></p>
 
 > [!IMPORTANT]
@@ -53,10 +53,12 @@
 
 ## Швидкий запуск
 
-1. Відкрийте [реліз 1.07 Beta](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.0.0).
+1. Відкрийте [окремий реліз 1.07 Beta 2](https://github.com/vitalikjukivskiy/titul_helper/releases/tag/v1.07.0-beta.2).
 2. Завантажте `Cyber.pw-Asistant-Portable.zip`.
 3. Повністю розпакуйте архів.
-4. Запустіть `Запустити.bat`.
+4. Двічі натисніть `CyberPW Assistant.exe` — без чорного вікна PowerShell.
+
+`Запустити.vbs` і `Запустити.bat` лишаються запасними способами запуску.
 5. Для синхронізації увійдіть на персонажа й натисніть **СИНХРОНІЗУВАТИ** у TitulHelper.
 
 Python, npm та сторонні бібліотеки не потрібні.
