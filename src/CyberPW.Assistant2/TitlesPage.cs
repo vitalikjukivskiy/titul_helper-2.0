@@ -131,7 +131,7 @@ namespace CyberPW.Assistant2
             _sync.Click += delegate { SynchronizeWithClient(); };
             right.Controls.Add(_sync);
 
-            var status = Theme.Label("C# МОДУЛЬ · JSON СУМІСНИЙ З 1.07 BETA", 9F, Theme.Muted, FontStyle.Bold);
+            var status = Theme.Label("2.0 (BETA) · СУМІСНО З ДАНИМИ 1.07", 9F, Theme.Muted, FontStyle.Bold);
             status.Location = new Point(29, 642);
             right.Controls.Add(status);
 

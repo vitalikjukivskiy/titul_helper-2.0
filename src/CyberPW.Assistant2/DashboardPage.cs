@@ -1,68 +1,7 @@
-using System;
-using System.Drawing;
-using System.Windows.Forms;
-
-namespace CyberPW.Assistant2
-{
-    internal sealed class DashboardPage : UserControl, IModulePage
-    {
-        private readonly Action<string> _navigate;
-        public string Title { get { return "Головна"; } }
-
-        public DashboardPage(Action<string> navigate)
-        {
-            _navigate = navigate;
-            BackColor = Theme.Ink;
-            BackgroundImage = AssetImages.Load("main-summer.jpg");
-            BackgroundImageLayout = ImageLayout.Stretch;
-            AutoScroll = true;
-
-            var title = Theme.Label("CyberPW Assistant 2.0 Alpha", 27F, Theme.GoldSoft, FontStyle.Bold);
-            title.Location = new Point(22, 20);
-            Controls.Add(title);
-            var text = Theme.Label("Один швидкий C# процес · без запуску PowerShell між модулями", 11F, Theme.Muted, FontStyle.Regular);
-            text.Location = new Point(25, 72);
-            Controls.Add(text);
-
-            string[,] cards =
-            {
-                { "TITULHELPER", "260 титулів · пошук · прогрес", "titles.jpg" },
-                { "MULTILAUNCHER", "Профілі та запуск клієнтів", "multilauncher.jpg" },
-                { "МАКРОСИ", "Клавіатура · миша · пікселі · умови", "macros.jpg" },
-                { "СИМУЛЯТОР", "Скриня Тора", "simulator.jpg" },
-                { "РОЗМОРОЗКА", "Фоновий рендер вікон", "unfreeze.jpg" },
-                { "СВІТОВІ БОСИ", "Координати та розклад", "bosses.jpg" }
-            };
-
-            for (int i = 0; i < cards.GetLength(0); i++)
-            {
-                int column = i % 3;
-                int row = i / 3;
-                var card = new Panel
-                {
-                    BackColor = Theme.Panel,
-                    BackgroundImage = AssetImages.Load("summer", cards[i, 2]),
-                    BackgroundImageLayout = ImageLayout.Stretch,
-                    Location = new Point(22 + column * 290, 125 + row * 160),
-                    Size = new Size(270, 140)
-                };
-                string key = cards[i, 0];
-                var cardTitle = Theme.Label(key, 11F, Theme.GoldSoft, FontStyle.Bold);
-                cardTitle.Location = new Point(16, 15);
-                card.Controls.Add(cardTitle);
-                var description = Theme.Label(cards[i, 1], 9F, Theme.Text, FontStyle.Regular);
-                description.Location = new Point(16, 47);
-                card.Controls.Add(description);
-                var open = Theme.Button("ВІДКРИТИ");
-                open.SetBounds(14, 87, 242, 38);
-                open.Click += delegate { _navigate(key); };
-                card.Controls.Add(open);
-                card.Resize += delegate { Theme.Round(card, 12); };
-                Theme.Round(card, 12);
-                Controls.Add(card);
-            }
-        }
-
-        public void OnActivated() { }
-    }
-}
+﻿using System;using System.Collections.Generic;using System.Drawing;using System.Windows.Forms;
+namespace CyberPW.Assistant2{internal sealed class DashboardPage:UserControl,IModulePage{
+ readonly Action<string> nav;readonly List<Panel> cards=new List<Panel>();readonly Label title,subtitle;public string Title{get{return"Головна";}}
+ public DashboardPage(Action<string> navigate){nav=navigate;BackColor=Theme.Ink;BackgroundImage=AssetImages.Load("main-summer.jpg");BackgroundImageLayout=ImageLayout.Stretch;title=Theme.Label("CyberPW Assistant 2.0 (BETA)",27,Theme.GoldSoft,FontStyle.Bold);Controls.Add(title);subtitle=Theme.Label("Один швидкий процес · без запуску PowerShell між модулями",11,Theme.Muted,FontStyle.Regular);Controls.Add(subtitle);string[,] data={{"TITULHELPER","260 титулів · пошук · прогрес","titles.jpg"},{"MULTILAUNCHER","Профілі та запуск клієнтів","multilauncher.jpg"},{"МАКРОСИ","Клавіатура · миша · пікселі · умови","macros.jpg"},{"СИМУЛЯТОР","Скриня Тора","simulator.jpg"},{"РОЗМОРОЗКА","Фоновий рендер вікон","unfreeze.jpg"},{"СВІТОВІ БОСИ","Координати та розклад","bosses.jpg"}};for(int i=0;i<data.GetLength(0);i++){var card=new Panel{BackColor=Theme.Panel,BackgroundImage=AssetImages.Load("summer",data[i,2]),BackgroundImageLayout=ImageLayout.Stretch,Size=new Size(270,140)};string key=data[i,0];var h=Theme.Label(key,11,Theme.GoldSoft,FontStyle.Bold);h.Location=new Point(16,15);card.Controls.Add(h);var d=Theme.Label(data[i,1],9,Theme.Text,FontStyle.Regular);d.Location=new Point(16,47);card.Controls.Add(d);var open=Theme.Button("ВІДКРИТИ");open.SetBounds(14,87,242,38);open.Click+=(s,e)=>nav(key);card.Controls.Add(open);cards.Add(card);Controls.Add(card);Theme.Round(card,12);}Resize+=(s,e)=>LayoutCards();LayoutCards();}
+ void LayoutCards(){int grid=850,left=Math.Max(22,(ClientSize.Width-grid)/2);title.Location=new Point(left,20);subtitle.Location=new Point(left+3,72);for(int i=0;i<cards.Count;i++)cards[i].Location=new Point(left+(i%3)*290,125+(i/3)*160);}
+ public void OnActivated(){LayoutCards();}
+}}

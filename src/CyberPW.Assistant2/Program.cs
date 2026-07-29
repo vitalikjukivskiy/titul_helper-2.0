@@ -14,7 +14,7 @@ namespace CyberPW.Assistant2
             {
                 if (!created)
                 {
-                    MessageBox.Show("CyberPW Assistant 2.0 Alpha уже запущено.", "CyberPW Assistant");
+                    MessageBox.Show("CyberPW Assistant 2.0 (BETA) уже запущено.", "CyberPW Assistant");
                     return;
                 }
 

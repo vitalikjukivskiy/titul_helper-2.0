@@ -1,3 +1,3 @@
-# CyberPW Assistant 2.0 Alpha
+# CyberPW Assistant 2.0 (BETA)
 
-C# WinForms rewrite targeting .NET Framework 4.8.
+Швидка WinForms-версія для .NET Framework 4.8.
