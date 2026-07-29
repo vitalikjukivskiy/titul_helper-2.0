@@ -1,102 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
-
-namespace CyberPW.Assistant2
-{
-    internal sealed class MainForm : Form
-    {
-        private readonly Panel _navigation;
-        private readonly Panel _content;
-        private readonly Label _pageTitle;
-        private readonly Dictionary<string, Control> _pages = new Dictionary<string, Control>();
-
-        public MainForm()
-        {
-            Text = "CyberPW Assistant 2.0 Alpha";
-            StartPosition = FormStartPosition.CenterScreen;
-            MinimumSize = new Size(1080, 720);
-            Size = new Size(1280, 800);
-            BackColor = Theme.Ink;
-            ForeColor = Theme.Text;
-            Font = new Font("Segoe UI", 9F);
-            Icon = LoadIcon();
-
-            _navigation = new Panel { Dock = DockStyle.Left, Width = 230, BackColor = Color.FromArgb(0, 42, 36) };
-            var header = new Panel { Dock = DockStyle.Top, Height = 74, BackColor = Color.FromArgb(0, 25, 22) };
-            _pageTitle = Theme.Label("ГОЛОВНА", 15F, Theme.GoldSoft, FontStyle.Bold);
-            _pageTitle.Location = new Point(22, 23);
-            header.Controls.Add(_pageTitle);
-
-            _content = new Panel { Dock = DockStyle.Fill, Padding = new Padding(18), BackColor = Theme.Ink };
-            Controls.Add(_content);
-            Controls.Add(_navigation);
-            Controls.Add(header);
-            header.BringToFront();
-
-            BuildNavigation();
-            RegisterPage("ГОЛОВНА", new DashboardPage(ShowPage));
-            RegisterPage("TITULHELPER", new TitlesPage());
-            RegisterPage("MULTILAUNCHER", new MultiLauncherPage());
-            RegisterPage("МАКРОСИ", new MacroStudioPage());
-            RegisterPage("СИМУЛЯТОР", new SimulatorPage());
-            RegisterPage("РОЗМОРОЗКА", new UnfreezePage());
-            RegisterPage("СВІТОВІ БОСИ", new BossesPage());
-
-            ShowPage("ГОЛОВНА");
-        }
-
-        private Icon LoadIcon()
-        {
-            string path = Path.Combine(AppPaths.Root, "cyberpw-logo.ico");
-            try { return File.Exists(path) ? new Icon(path) : null; }
-            catch { return null; }
-        }
-
-        private void BuildNavigation()
-        {
-            var brand = Theme.Label("CyberPW Assistant", 14F, Theme.GoldSoft, FontStyle.Bold);
-            brand.Location = new Point(22, 24);
-            _navigation.Controls.Add(brand);
-            var version = Theme.Label("2.0 ALPHA · C#", 9F, Theme.Cyan, FontStyle.Bold);
-            version.Location = new Point(23, 54);
-            _navigation.Controls.Add(version);
-
-            string[] names = { "ГОЛОВНА", "TITULHELPER", "MULTILAUNCHER", "МАКРОСИ", "СИМУЛЯТОР", "РОЗМОРОЗКА", "СВІТОВІ БОСИ" };
-            int top = 96;
-            foreach (string name in names)
-            {
-                var button = Theme.Button(name);
-                button.SetBounds(16, top, 198, 43);
-                button.TextAlign = ContentAlignment.MiddleLeft;
-                button.Padding = new Padding(12, 0, 0, 0);
-                string captured = name;
-                button.Click += delegate { ShowPage(captured); };
-                _navigation.Controls.Add(button);
-                top += 50;
-            }
-        }
-
-        private void RegisterPage(string key, Control page)
-        {
-            page.Dock = DockStyle.Fill;
-            page.Visible = false;
-            _pages[key] = page;
-            _content.Controls.Add(page);
-        }
-
-        private void ShowPage(string key)
-        {
-            Control page;
-            if (!_pages.TryGetValue(key, out page)) return;
-            foreach (Control item in _pages.Values) item.Visible = false;
-            page.Visible = true;
-            page.BringToFront();
-            _pageTitle.Text = key;
-            var module = page as IModulePage;
-            if (module != null) module.OnActivated();
-        }
-    }
+using System;using System.Collections.Generic;using System.Drawing;using System.IO;using System.Windows.Forms;
+namespace CyberPW.Assistant2{
+ internal sealed class MainForm:Form{
+  readonly Panel nav,content;readonly Label pageTitle;readonly Dictionary<string,Control> pages=new Dictionary<string,Control>();
+  public MainForm(){Text="CyberPW Assistant 2.0 Alpha";StartPosition=FormStartPosition.CenterScreen;MinimumSize=new Size(1024,700);Size=new Size(1280,820);BackColor=Theme.Ink;ForeColor=Theme.Text;Font=new Font("Segoe UI",9F);AutoScaleMode=AutoScaleMode.Dpi;Icon=LoadIcon();
+   nav=new Panel{Dock=DockStyle.Left,Width=230,BackColor=Color.FromArgb(0,42,36),AutoScroll=true};var work=new Panel{Dock=DockStyle.Fill,BackColor=Theme.Ink};var header=new Panel{Dock=DockStyle.Top,Height=74,BackColor=Color.FromArgb(0,25,22)};pageTitle=Theme.Label("ГОЛОВНА",15,Theme.GoldSoft,FontStyle.Bold);pageTitle.Location=new Point(22,23);header.Controls.Add(pageTitle);content=new Panel{Dock=DockStyle.Fill,Padding=new Padding(14),BackColor=Theme.Ink,AutoScroll=false};work.Controls.Add(content);work.Controls.Add(header);Controls.Add(work);Controls.Add(nav);nav.BringToFront();BuildNav();
+   Register("ГОЛОВНА",new DashboardPage(ShowPage),new Size(930,650));Register("TITULHELPER",new TitlesPage(),new Size(930,650));Register("MULTILAUNCHER",new MultiLauncherPage(),new Size(850,640));Register("МАКРОСИ",new MacroStudioPage(),new Size(930,650));Register("СИМУЛЯТОР",new SimulatorPage(),new Size(900,650));Register("РОЗМОРОЗКА",new UnfreezePage(),new Size(850,620));Register("СВІТОВІ БОСИ",new BossesPage(),new Size(930,660));ShowPage("ГОЛОВНА");}
+  Icon LoadIcon(){try{string p=Path.Combine(AppPaths.Root,"cyberpw-logo.ico");return File.Exists(p)?new Icon(p):null;}catch{return null;}}
+  void BuildNav(){var logo=new PictureBox{Image=LoadLogo(),SizeMode=PictureBoxSizeMode.Zoom,BackColor=Color.Transparent};logo.SetBounds(24,14,182,76);nav.Controls.Add(logo);var brand=Theme.Label("CyberPW Assistant",14,Theme.GoldSoft,FontStyle.Bold);brand.Location=new Point(24,94);nav.Controls.Add(brand);var ver=Theme.Label("2.0 ALPHA · C#",9,Theme.Cyan,FontStyle.Bold);ver.Location=new Point(25,124);nav.Controls.Add(ver);
+   string[,] items={{"ГОЛОВНА","home.jpg"},{"TITULHELPER","titles.jpg"},{"MULTILAUNCHER","multilauncher.jpg"},{"МАКРОСИ","macros.jpg"},{"СИМУЛЯТОР","simulator.jpg"},{"РОЗМОРОЗКА","unfreeze.jpg"},{"СВІТОВІ БОСИ","bosses.jpg"}};int y=160;for(int i=0;i<items.GetLength(0);i++){string key=items[i,0];var b=Theme.Button(key);b.SetBounds(16,y,198,45);b.TextAlign=ContentAlignment.MiddleLeft;b.Image=AssetImages.LoadSized(32,32,"icons",items[i,1]);b.ImageAlign=ContentAlignment.MiddleLeft;b.Padding=new Padding(48,0,4,0);b.BackgroundImage=AssetImages.Load("summer",items[i,1]);b.BackgroundImageLayout=ImageLayout.Stretch;b.FlatAppearance.MouseOverBackColor=Color.FromArgb(25,105,83);b.Click+=(s,e)=>ShowPage(key);b.Resize+=(s,e)=>Theme.Round((Control)s,10);nav.Controls.Add(b);Theme.Round(b,10);y+=51;}}
+  Image LoadLogo(){try{string p=Path.Combine(AppPaths.Root,"cyberpw-logo.png");if(!File.Exists(p))return null;using(var s=Image.FromFile(p))return new Bitmap(s);}catch{return null;}}
+  void Register(string key,Control page,Size canvas){page.Dock=DockStyle.Fill;page.Visible=false;var host=new Panel{Dock=DockStyle.Fill,AutoScroll=true,BackColor=Theme.Ink,Visible=false};page.MinimumSize=canvas;host.Controls.Add(page);pages[key]=host;host.Tag=page;content.Controls.Add(host);}
+  void ShowPage(string key){Control host;if(!pages.TryGetValue(key,out host))return;foreach(Control x in pages.Values)x.Visible=false;host.Visible=true;host.BringToFront();pageTitle.Text=key;var m=host.Tag as IModulePage;if(m!=null)m.OnActivated();}
+ }
 }

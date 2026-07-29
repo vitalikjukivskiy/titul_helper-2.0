@@ -28,6 +28,7 @@ namespace CyberPW.Assistant2
             button.ForeColor = GoldSoft;
             button.Font = new Font("Segoe UI Semibold", 9F);
             button.Cursor = Cursors.Hand;
+            button.Resize += delegate { Round(button, 9); };
             return button;
         }
 
