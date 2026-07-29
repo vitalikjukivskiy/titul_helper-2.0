@@ -39,7 +39,7 @@ namespace CyberPW.Assistant2
             BuildNavigation();
             RegisterPage("ГОЛОВНА", new DashboardPage(ShowPage));
             RegisterPage("TITULHELPER", new TitlesPage());
-            RegisterPage("MULTILAUNCHER", new PlaceholderPage("MultiLauncher", "Перенесення профілів і DPAPI вже в черзі."));
+            RegisterPage("MULTILAUNCHER", new MultiLauncherPage());
             RegisterPage("МАКРОСИ", new PlaceholderPage("Macro Studio", "Рушій SendInput, пікселі та IF/IF NOT буде перенесено без PowerShell."));
             RegisterPage("СИМУЛЯТОР", new SimulatorPage());
             RegisterPage("РОЗМОРОЗКА", new UnfreezePage());

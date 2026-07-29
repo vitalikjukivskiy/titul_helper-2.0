@@ -50,5 +50,6 @@ Copy-Item -LiteralPath (Join-Path $root 'cyberpw-logo.ico') -Destination (Join-P
 Copy-Item -LiteralPath (Join-Path $root 'ui-assets') -Destination (Join-Path $output 'ui-assets') -Recurse
 Copy-Item -LiteralPath (Join-Path $root 'cyberpw-logo.png') -Destination (Join-Path $output 'cyberpw-logo.png')
 Copy-Item -LiteralPath (Join-Path $root 'loot-icons') -Destination (Join-Path $output 'loot-icons') -Recurse
+Copy-Item -LiteralPath (Join-Path $root 'class-icons') -Destination (Join-Path $output 'class-icons') -Recurse
 
 Write-Output "C# Alpha готова: $exe"
