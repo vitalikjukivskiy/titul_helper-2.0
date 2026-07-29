@@ -42,7 +42,7 @@ namespace CyberPW.Assistant2
             RegisterPage("MULTILAUNCHER", new PlaceholderPage("MultiLauncher", "Перенесення профілів і DPAPI вже в черзі."));
             RegisterPage("МАКРОСИ", new PlaceholderPage("Macro Studio", "Рушій SendInput, пікселі та IF/IF NOT буде перенесено без PowerShell."));
             RegisterPage("СИМУЛЯТОР", new PlaceholderPage("Симулятор", "Модуль переноситься в один процес."));
-            RegisterPage("РОЗМОРОЗКА", new PlaceholderPage("Розморозка", "Модуль переноситься в один процес."));
+            RegisterPage("РОЗМОРОЗКА", new UnfreezePage());
             RegisterPage("СВІТОВІ БОСИ", new PlaceholderPage("Світові боси", "Модуль переноситься в один процес."));
 
             ShowPage("ГОЛОВНА");
