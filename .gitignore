@@ -1,7 +1,8 @@
-﻿state.json
+state.json
 state-confirmed.json
 characters.json
 dist/
 macros/
 territories.json
 launcher-theme.json
+dist-csharp-alpha/
