@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $source = Join-Path $root 'src\CyberPW.Assistant2'
 $output = Join-Path $root 'dist-csharp-alpha'
-$exe = Join-Path $output 'CyberPW Assistant 2 Alpha.exe'
+$exe = Join-Path $output 'CyberPW Assistant 2 Beta.exe'
 
 $cscCandidates = @(
     (Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe'),
@@ -40,7 +40,7 @@ if (-not $sources.Count) { throw 'Не знайдено C# source files.' }
     $sources
 
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $exe -PathType Leaf)) {
-    throw 'Не вдалося зібрати CyberPW Assistant 2.0 Alpha.'
+    throw 'Не вдалося зібрати CyberPW Assistant 2.0 Beta.'
 }
 
 foreach ($name in @('titles.json', 'memory-offsets.json', 'state.json', 'chest-drops.json', 'bosses.json')) {
@@ -52,4 +52,4 @@ Copy-Item -LiteralPath (Join-Path $root 'cyberpw-logo.png') -Destination (Join-P
 Copy-Item -LiteralPath (Join-Path $root 'loot-icons') -Destination (Join-Path $output 'loot-icons') -Recurse
 Copy-Item -LiteralPath (Join-Path $root 'class-icons') -Destination (Join-Path $output 'class-icons') -Recurse
 
-Write-Output "C# Alpha готова: $exe"
+Write-Output "C# Beta готова: $exe"

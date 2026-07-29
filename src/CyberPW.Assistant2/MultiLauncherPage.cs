@@ -14,7 +14,7 @@ namespace CyberPW.Assistant2
         public string Title{get{return"MultiLauncher";}}
         public MultiLauncherPage()
         {
-            BackColor = Theme.Ink; BackgroundImage = AssetImages.Load("main-summer.jpg"); BackgroundImageLayout = ImageLayout.Stretch;config=MultiLauncherStore.Load();
+            BackColor = Theme.Ink; BackgroundImage = AssetImages.Load("summer","multilauncher.jpg"); BackgroundImageLayout = ImageLayout.Stretch;config=MultiLauncherStore.Load();
             var h=Theme.Label("MULTILAUNCHER",24,Theme.GoldSoft,FontStyle.Bold);h.Location=new Point(24,20);Controls.Add(h);
             path.SetBounds(26,75,600,32);path.Text=MultiLauncherStore.ResolveGamePath(config.GamePath);path.ReadOnly=true;Controls.Add(path);
             var browse=Theme.Button("ОБРАТИ ПАПКУ");browse.SetBounds(645,70,170,42);browse.Click+=delegate{using(var d=new FolderBrowserDialog()){if(d.ShowDialog()==DialogResult.OK){string p=MultiLauncherStore.ResolveGamePath(d.SelectedPath);if(p=="")MessageBox.Show("ElementClient.exe не знайдено.");else{path.Text=config.GamePath=p;Save();}}}};Controls.Add(browse);
@@ -35,6 +35,6 @@ namespace CyberPW.Assistant2
     internal sealed class ProfileDialog:Form
     {
         readonly TextBox nick=new TextBox(),login=new TextBox(),pass=new TextBox();readonly ComboBox cls=new ComboBox();public CharacterProfile Profile;
-        public ProfileDialog(){Text="Створити профіль";ClientSize=new Size(420,300);StartPosition=FormStartPosition.CenterParent;nick.SetBounds(25,25,360,30);cls.SetBounds(25,70,360,30);cls.Items.AddRange(new object[]{"Воїн","Маг","Танк","Друїд","Лучник","Жрець","Асасин","Шаман","Страж","Містик"});cls.SelectedIndex=0;login.SetBounds(25,115,360,30);pass.SetBounds(25,160,360,30);pass.UseSystemPasswordChar=true;var save=Theme.Button("СТВОРИТИ");save.SetBounds(225,215,160,40);save.Click+=delegate{if(nick.Text.Trim()==""||login.Text==""||pass.Text=="")return;Profile=new CharacterProfile{Nick=nick.Text.Trim(),Class=cls.Text,Selected=true,LoginProtected=MultiLauncherStore.Protect(login.Text),PasswordProtected=MultiLauncherStore.Protect(pass.Text)};DialogResult=DialogResult.OK;};Controls.AddRange(new Control[]{nick,cls,login,pass,save});}
+        public ProfileDialog(){Text="Створити профіль";ClientSize=new Size(420,300);StartPosition=FormStartPosition.CenterParent;BackColor=Theme.Ink;ForeColor=Theme.Text;BackgroundImage=AssetImages.Load("summer","multilauncher.jpg");BackgroundImageLayout=ImageLayout.Stretch;nick.SetBounds(25,25,360,30);cls.SetBounds(25,70,360,30);cls.Items.AddRange(new object[]{"Воїн","Маг","Танк","Друїд","Лучник","Жрець","Асасин","Шаман","Страж","Містик"});cls.SelectedIndex=0;login.SetBounds(25,115,360,30);pass.SetBounds(25,160,360,30);pass.UseSystemPasswordChar=true;var save=Theme.Button("СТВОРИТИ");save.SetBounds(225,215,160,40);save.Click+=delegate{if(nick.Text.Trim()==""||login.Text==""||pass.Text=="")return;Profile=new CharacterProfile{Nick=nick.Text.Trim(),Class=cls.Text,Selected=true,LoginProtected=MultiLauncherStore.Protect(login.Text),PasswordProtected=MultiLauncherStore.Protect(pass.Text)};DialogResult=DialogResult.OK;};Controls.AddRange(new Control[]{nick,cls,login,pass,save});}
     }
 }

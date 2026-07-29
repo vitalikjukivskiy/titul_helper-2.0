@@ -36,6 +36,8 @@ namespace CyberPW.Assistant2
             ShowInTaskbar = false;
             BackColor = Theme.Ink;
             ForeColor = Theme.Text;
+            BackgroundImage = AssetImages.Load("summer", "titles.jpg");
+            BackgroundImageLayout = ImageLayout.Stretch;
 
             var title = Theme.Label(
                 "ВІДКРИТО КІЛЬКА КЛІЄНТІВ\nОберіть вікно персонажа для синхронізації.",

@@ -61,7 +61,7 @@ namespace CyberPW.Assistant2
         readonly Dictionary<string,object> config;readonly Label status=new Label();
         public CoordinateSetupDialog(Dictionary<string,object> state)
         {
-            config=state;Text="TitulHelper — налаштування координат";ClientSize=new Size(720,510);StartPosition=FormStartPosition.CenterParent;FormBorderStyle=FormBorderStyle.FixedDialog;MaximizeBox=false;MinimizeBox=false;BackColor=Theme.Ink;ForeColor=Theme.Text;
+            config=state;Text="TitulHelper — налаштування координат";ClientSize=new Size(720,510);StartPosition=FormStartPosition.CenterParent;FormBorderStyle=FormBorderStyle.FixedDialog;MaximizeBox=false;MinimizeBox=false;BackColor=Theme.Ink;ForeColor=Theme.Text;BackgroundImage=AssetImages.Load("summer","titles.jpg");BackgroundImageLayout=ImageLayout.Stretch;
             var heading=Theme.Label("НАЛАШТУВАННЯ У ДВА КРОКИ",16,Theme.GoldSoft,FontStyle.Bold);heading.Location=new Point(24,18);Controls.Add(heading);
             AddStep("КРОК 1 · КНОПКА ВІДКРИТТЯ","coordinate-toggle.png",24,delegate{CaptureStep("OpenOffsetX","OpenOffsetY");});
             AddStep("КРОК 2 · ПОЛЕ КООРДИНАТ","coordinate-field.png",376,delegate{CaptureStep("CoordOffsetX","CoordOffsetY");});

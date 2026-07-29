@@ -28,7 +28,7 @@ namespace CyberPW.Assistant2
         public TitlesPage()
         {
             BackColor = Theme.Ink;
-            BackgroundImage = AssetImages.Load("main-summer.jpg");
+            BackgroundImage = AssetImages.Load("summer","titles.jpg");
             BackgroundImageLayout = ImageLayout.Stretch;
 
             var left = new Panel { Dock = DockStyle.Left, Width = 410, Padding = new Padding(12), BackColor = Theme.Panel };
