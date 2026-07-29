@@ -43,11 +43,12 @@ if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $exe -PathType Leaf)) {
     throw 'Не вдалося зібрати CyberPW Assistant 2.0 Alpha.'
 }
 
-foreach ($name in @('titles.json', 'memory-offsets.json', 'state.json')) {
+foreach ($name in @('titles.json', 'memory-offsets.json', 'state.json', 'chest-drops.json')) {
     Copy-Item -LiteralPath (Join-Path $root $name) -Destination (Join-Path (Join-Path $output 'data') $name)
 }
 Copy-Item -LiteralPath (Join-Path $root 'cyberpw-logo.ico') -Destination (Join-Path $output 'cyberpw-logo.ico')
 Copy-Item -LiteralPath (Join-Path $root 'ui-assets') -Destination (Join-Path $output 'ui-assets') -Recurse
 Copy-Item -LiteralPath (Join-Path $root 'cyberpw-logo.png') -Destination (Join-Path $output 'cyberpw-logo.png')
+Copy-Item -LiteralPath (Join-Path $root 'loot-icons') -Destination (Join-Path $output 'loot-icons') -Recurse
 
 Write-Output "C# Alpha готова: $exe"

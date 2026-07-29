@@ -12,6 +12,7 @@ namespace CyberPW.Assistant2
         public static readonly string Offsets = Path.Combine(Data, "memory-offsets.json");
         public static readonly string State = Path.Combine(Data, "state.json");
         public static readonly string Macros = Path.Combine(Root, "macros");
+        public static readonly string LootIcons = Path.Combine(Root, "loot-icons");
 
         public static void EnsureWritableFolders()
         {

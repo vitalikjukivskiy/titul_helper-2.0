@@ -1,0 +1,152 @@
+﻿[
+    {
+        "name":  "Ідеальний приз",
+        "chance":  92,
+        "stack":  15,
+        "icon":  "otlichniy_priz.png"
+    },
+    {
+        "name":  "Чудовий приз",
+        "chance":  2.9,
+        "stack":  1,
+        "icon":  "sertifikat_yuvelira.png"
+    },
+    {
+        "name":  "Нашивка офіцера-примари",
+        "chance":  2.5,
+        "stack":  4,
+        "icon":  "nabor_run_4_ur.png"
+    },
+    {
+        "name":  "Платиновий ідол",
+        "chance":  1,
+        "stack":  1,
+        "icon":  "shkatulka_s_platinovym_idolom.png"
+    },
+    {
+        "name":  "Платиновий амулет",
+        "chance":  1,
+        "stack":  1,
+        "icon":  "shkatulka_s_platinovym_amuletom.png"
+    },
+    {
+        "name":  "Золота монета",
+        "chance":  0.1,
+        "stack":  1,
+        "icon":  "bronzovaya_moneta.png"
+    },
+    {
+        "name":  "Емблема майстра меча · воїн",
+        "chance":  0.1,
+        "stack":  1,
+        "icon":  "vygravirovannoe_lezvie.png"
+    },
+    {
+        "name":  "Душа Меча",
+        "chance":  0.05,
+        "stack":  1,
+        "icon":  "spyashchaya_dusha_polkovodca.png"
+    },
+    {
+        "name":  "Нагорода істинному чемпіону",
+        "chance":  0.05,
+        "stack":  1,
+        "icon":  "vysshiy_kamen_bozhestva.png"
+    },
+    {
+        "name":  "Книга Долі",
+        "chance":  0.05,
+        "stack":  1,
+        "icon":  "svitok_drakona.png"
+    },
+    {
+        "name":  "Камінь Ночі",
+        "chance":  0.05,
+        "stack":  1,
+        "icon":  "kamen_nebosvoda.png"
+    },
+    {
+        "name":  "Камінь Сюань Юань",
+        "chance":  0.05,
+        "stack":  1,
+        "icon":  "mercayushchiy_kamen.png"
+    },
+    {
+        "name":  "Камінь Джунглів",
+        "chance":  0.05,
+        "stack":  1,
+        "icon":  "kamen_dzhungley.png"
+    },
+    {
+        "name":  "Зачіска · Знак місяця",
+        "chance":  0.03,
+        "stack":  1,
+        "icon":  "veer_zari.png"
+    },
+    {
+        "name":  "Зброя · Знак місяця",
+        "chance":  0.03,
+        "stack":  1,
+        "icon":  "drakonya_uprash.png"
+    },
+    {
+        "name":  "Крила бога удачі",
+        "chance":  0.03,
+        "stack":  1,
+        "icon":  "plash_vozn.png"
+    },
+    {
+        "name":  "Крила Пегаса",
+        "chance":  0.02,
+        "stack":  1,
+        "icon":  "lazurnaya_pechat.png"
+    },
+    {
+        "name":  "Знак командира",
+        "chance":  0.02,
+        "stack":  1,
+        "icon":  "znak_komandira.png"
+    },
+    {
+        "name":  "Печатка Куба",
+        "chance":  0.02,
+        "stack":  1,
+        "icon":  "pechat_kuba.png"
+    },
+    {
+        "name":  "Алмазна броня",
+        "chance":  0.025,
+        "stack":  1,
+        "icon":  "almaznaya_bronya.png"
+    },
+    {
+        "name":  "Кам\u0027яна броня",
+        "chance":  0.025,
+        "stack":  1,
+        "icon":  "kamennaya_bronya.png"
+    },
+    {
+        "name":  "★★ Повний контроль ситуації",
+        "chance":  0.01,
+        "stack":  1,
+        "icon":  "shkatulka_s_kartoy_s.png"
+    },
+    {
+        "name":  "★★ Долина під владними хмарами",
+        "chance":  0.01,
+        "stack":  1,
+        "icon":  "dusha_tay_shang.png"
+    },
+    {
+        "name":  "Божественний сувій",
+        "chance":  0.009,
+        "stack":  1,
+        "icon":  "bozhestvenniy_svitok.png"
+    },
+    {
+        "name":  "★★★ Унікальне крило",
+        "chance":  0.008,
+        "stack":  1,
+        "icon":  "siyanie_bogini_sihe.png"
+    }
+]
