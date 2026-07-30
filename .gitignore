@@ -11,3 +11,5 @@ dist-csharp-2.0-beta/
 dist-csharp-*/
 CyberPW-Assistant-2.0-*.zip
 *-audit*.png
+
+.update-check

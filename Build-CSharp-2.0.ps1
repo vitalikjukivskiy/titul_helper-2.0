@@ -42,6 +42,20 @@ if (-not $sources.Count) { throw 'Не знайдено C# source files.' }
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $exe -PathType Leaf)) {
     throw 'Не вдалося зібрати CyberPW Assistant 2.0 Beta.'
 }
+$updaterSource = Join-Path $root 'src\CyberPW.Updater\Program.cs'
+$updaterExe = Join-Path $output 'CyberPW Updater.exe'
+& $csc /nologo /target:winexe /platform:anycpu /optimize+ `
+    /reference:System.dll `
+    /reference:System.Core.dll `
+    /reference:System.IO.Compression.dll `
+    /reference:System.IO.Compression.FileSystem.dll `
+    /reference:System.Windows.Forms.dll `
+    "/win32icon:$(Join-Path $root 'cyberpw-logo.ico')" `
+    "/out:$updaterExe" `
+    $updaterSource
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $updaterExe -PathType Leaf)) {
+    throw 'Не вдалося зібрати CyberPW Updater.'
+}
 
 foreach ($name in @('titles.json', 'memory-offsets.json', 'state.json', 'chest-drops.json', 'bosses.json')) {
     Copy-Item -LiteralPath (Join-Path $root $name) -Destination (Join-Path (Join-Path $output 'data') $name)
