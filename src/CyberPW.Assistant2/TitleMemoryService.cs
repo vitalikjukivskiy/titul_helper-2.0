@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace CyberPW.Assistant2
 {
@@ -23,9 +24,16 @@ namespace CyberPW.Assistant2
         public int pointerSize { get; set; }
         public string rootOffset { get; set; }
         public List<string> characterPointerChain { get; set; }
+        public CharacterIdentityProfile character { get; set; }
         public TitleVectorProfile titles { get; set; }
     }
 
+    internal sealed class CharacterIdentityProfile
+    {
+        public string namePointerOffset { get; set; }
+        public int nameMaxLength { get; set; }
+        public string classIdOffset { get; set; }
+    }
     internal sealed class TitleVectorProfile
     {
         public string beginOffset { get; set; }
@@ -43,6 +51,13 @@ namespace CyberPW.Assistant2
         public int RawCount { get; set; }
     }
 
+    internal sealed class DetectedCharacter
+    {
+        public int ProcessId { get; set; }
+        public string Nick { get; set; }
+        public int ClassId { get; set; }
+        public string ClassName { get; set; }
+    }
     internal static class TitleMemoryService
     {
         private const uint ProcessVmRead = 0x0010;
@@ -123,6 +138,25 @@ namespace CyberPW.Assistant2
             finally { CloseHandle(handle); }
         }
 
+        public static DetectedCharacter ReadCharacter(Process process)
+        {
+            if (process == null) throw new ArgumentNullException("process");
+            MemoryProfile profile = FindProfile(GetClientPath(process));
+            if (profile.character == null) throw new InvalidOperationException("Профіль клієнта не містить даних персонажа.");
+            IntPtr handle = OpenProcess(ProcessVmRead | ProcessQueryInformation, false, process.Id);
+            if (handle == IntPtr.Zero) throw new InvalidOperationException("Windows не дозволила прочитати ElementClient.");
+            try
+            {
+                ulong moduleBase = unchecked((ulong)process.MainModule.BaseAddress.ToInt64());
+                ulong context = ResolvePointerChain(handle, moduleBase, profile);
+                ulong nameAddress = ReadUnsigned(handle, context + ParseOffset(profile.character.namePointerOffset), profile.pointerSize);
+                string nick = ReadUnicodeString(handle, nameAddress, Math.Max(4, profile.character.nameMaxLength));
+                if (string.IsNullOrWhiteSpace(nick)) throw new InvalidOperationException("Персонаж ще не увійшов у світ.");
+                int classId = checked((int)ReadUnsigned(handle, context + ParseOffset(profile.character.classIdOffset), 4));
+                return new DetectedCharacter { ProcessId = process.Id, Nick = nick, ClassId = classId, ClassName = ClassNameFromId(classId) };
+            }
+            finally { CloseHandle(handle); }
+        }
         private static string GetClientPath(Process process)
         {
             try
@@ -177,7 +211,7 @@ namespace CyberPW.Assistant2
 
         private static ulong ReadUnsigned(IntPtr handle, ulong address, int size)
         {
-            if (size != 2 && size != 8)
+            if (size != 2 && size != 4 && size != 8)
                 throw new InvalidOperationException("Непідтримуваний розмір читання.");
             var buffer = new byte[size];
             UIntPtr read;
@@ -185,9 +219,34 @@ namespace CyberPW.Assistant2
                 read.ToUInt64() != (ulong)size)
                 throw new InvalidOperationException(
                     "Не вдалося прочитати дані клієнта (код Windows: " + Marshal.GetLastWin32Error() + ").");
-            return size == 8 ? BitConverter.ToUInt64(buffer, 0) : BitConverter.ToUInt16(buffer, 0);
+            if (size == 8) return BitConverter.ToUInt64(buffer, 0);
+            if (size == 4) return BitConverter.ToUInt32(buffer, 0);
+            return BitConverter.ToUInt16(buffer, 0);
         }
 
+        private static string ReadUnicodeString(IntPtr handle, ulong address, int maxLength)
+        {
+            if (address == 0) return "";
+            int bytes = checked(maxLength * 2);
+            var buffer = new byte[bytes];
+            UIntPtr read;
+            if (!ReadProcessMemory(handle, new IntPtr(unchecked((long)address)), buffer, new UIntPtr((uint)bytes), out read) || read.ToUInt64() < 2) return "";
+            int length = 0, available = checked((int)read.ToUInt64());
+            while (length + 1 < available && (buffer[length] != 0 || buffer[length + 1] != 0)) length += 2;
+            string value = Encoding.Unicode.GetString(buffer, 0, length).Trim();
+            if (value.Length < 2 || value.Any(ch => char.IsControl(ch))) return "";
+            return value;
+        }
+
+        private static string ClassNameFromId(int id)
+        {
+            switch (id)
+            {
+                case 0: return "Воїн"; case 1: return "Маг"; case 2: return "Лучник"; case 3: return "Жрець";
+                case 4: return "Танк"; case 5: return "Друїд"; case 6: return "Асасин"; case 7: return "Шаман";
+                case 8: return "Страж"; case 9: return "Містик"; default: return "Не визначено";
+            }
+        }
         private static ulong ParseOffset(string value)
         {
             if (string.IsNullOrWhiteSpace(value) || !value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))

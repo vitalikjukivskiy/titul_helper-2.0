@@ -13,6 +13,8 @@ namespace CyberPW.Assistant2
         public bool Selected { get; set; }
         public string LoginProtected { get; set; }
         public string PasswordProtected { get; set; }
+        public bool AutoDetected { get; set; }
+        public int LastProcessId { get; set; }
     }
     internal sealed class LauncherConfig
     {

@@ -1,4 +1,4 @@
-﻿{
+{
   "schemaVersion": 1,
   "profiles": [
     {
@@ -8,6 +8,11 @@
       "pointerSize": 8,
       "rootOffset": "0xF0CD08",
       "characterPointerChain": ["0x38", "0x68"],
+      "character": {
+        "namePointerOffset": "0x900",
+        "nameMaxLength": 32,
+        "classIdOffset": "0x9B8"
+      },
       "titles": {
         "beginOffset": "0x2CB8",
         "endOffset": "0x2CC0",
