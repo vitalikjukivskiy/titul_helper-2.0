@@ -1,8 +1,8 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $source = Join-Path $root 'src\CyberPW.Assistant2'
-$output = Join-Path $root 'dist-csharp-alpha'
+$output = Join-Path $root 'dist-csharp-2.0-beta'
 $exe = Join-Path $output 'CyberPW Assistant 2 Beta.exe'
 
 $cscCandidates = @(
@@ -51,5 +51,7 @@ Copy-Item -LiteralPath (Join-Path $root 'ui-assets') -Destination (Join-Path $ou
 Copy-Item -LiteralPath (Join-Path $root 'cyberpw-logo.png') -Destination (Join-Path $output 'cyberpw-logo.png')
 Copy-Item -LiteralPath (Join-Path $root 'loot-icons') -Destination (Join-Path $output 'loot-icons') -Recurse
 Copy-Item -LiteralPath (Join-Path $root 'class-icons') -Destination (Join-Path $output 'class-icons') -Recurse
+Copy-Item -LiteralPath (Join-Path $root 'README-PORTABLE.md') -Destination (Join-Path $output 'README-PORTABLE.md')
+Copy-Item -LiteralPath (Join-Path $root 'VERSION') -Destination (Join-Path $output 'VERSION')
 
 Write-Output "C# Beta готова: $exe"

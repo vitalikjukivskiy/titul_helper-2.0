@@ -6,3 +6,8 @@ macros/
 territories.json
 launcher-theme.json
 dist-csharp-alpha/
+
+dist-csharp-2.0-beta/
+dist-csharp-*/
+CyberPW-Assistant-2.0-*.zip
+*-audit*.png

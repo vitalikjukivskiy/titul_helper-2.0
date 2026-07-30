@@ -27,6 +27,7 @@ namespace CyberPW.Assistant2
 
         public TitlesPage()
         {
+            Size = new Size(1080, 680);
             BackColor = Theme.Ink;
             BackgroundImage = AssetImages.Load("summer","titles.jpg");
             BackgroundImageLayout = ImageLayout.Stretch;
@@ -56,7 +57,7 @@ namespace CyberPW.Assistant2
             {
                 Location = new Point(12, 80),
                 Size = new Size(374, 530),
-                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left,
                 BackColor = Theme.Panel2,
                 ForeColor = Theme.Text,
                 BorderStyle = BorderStyle.FixedSingle,
@@ -68,7 +69,7 @@ namespace CyberPW.Assistant2
 
             _progress = Theme.Label("Отримано: 0 / 0", 10F, Theme.GoldSoft, FontStyle.Bold);
             _progress.Location = new Point(12, 625);
-            _progress.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
+            _progress.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             left.Controls.Add(_progress);
 
             _name = Theme.Label("Оберіть титул", 23F, Theme.GoldSoft, FontStyle.Bold);
@@ -97,7 +98,7 @@ namespace CyberPW.Assistant2
             {
                 Location = new Point(27, 188),
                 Size = new Size(610, 250),
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left,
                 Multiline = true,
                 ReadOnly = true,
                 ScrollBars = ScrollBars.Vertical,

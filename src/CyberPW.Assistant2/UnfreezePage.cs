@@ -53,16 +53,30 @@ namespace CyberPW.Assistant2
     }
     internal static class NativeInput
     {
-        [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr h);
-        [DllImport("user32.dll")] static extern bool ShowWindowAsync(IntPtr h, int c);
-        [DllImport("user32.dll")] static extern void keybd_event(byte k, byte s, uint f, UIntPtr e);
-        [DllImport("user32.dll", SetLastError = true)] static extern uint SendInput(uint c, INPUT[] i, int s);
-        [StructLayout(LayoutKind.Sequential)] struct INPUT { public uint type; public INPUTUNION data; }
-        [StructLayout(LayoutKind.Explicit)] struct INPUTUNION { [FieldOffset(0)] public KEYBDINPUT keyboard; }
-        [StructLayout(LayoutKind.Sequential)] struct KEYBDINPUT { public ushort virtualKey, scanCode; public uint flags, time; public UIntPtr extraInfo; }
-        public static void Activate(IntPtr h) { ShowWindowAsync(h, 9); if (!SetForegroundWindow(h)) throw new Win32Exception(Marshal.GetLastWin32Error()); }
-        public static void OpenConsole() { keybd_event(16, 0, 0, UIntPtr.Zero); keybd_event(192, 0, 0, UIntPtr.Zero); keybd_event(192, 0, 2, UIntPtr.Zero); keybd_event(16, 0, 2, UIntPtr.Zero); }
-        public static void SendUnicodeText(string text) { foreach (char c in text) { var a = new INPUT[2]; a[0].type = a[1].type = 1; a[0].data.keyboard.scanCode = a[1].data.keyboard.scanCode = c; a[0].data.keyboard.flags = 4; a[1].data.keyboard.flags = 6; if (SendInput(2, a, Marshal.SizeOf(typeof(INPUT))) != 2) throw new Win32Exception(); } }
-        public static void PressEnter() { keybd_event(13, 0, 0, UIntPtr.Zero); keybd_event(13, 0, 2, UIntPtr.Zero); }
+        [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr handle);
+        [DllImport("user32.dll")] static extern bool ShowWindowAsync(IntPtr handle, int command);
+
+        public static void Activate(IntPtr handle)
+        {
+            if (handle == IntPtr.Zero) throw new InvalidOperationException("Вікно клієнта вже закрите.");
+            ShowWindowAsync(handle, 9);
+            SetForegroundWindow(handle);
+            Thread.Sleep(120);
+        }
+
+        public static void OpenConsole()
+        {
+            MacroNative.Key((ushort)Keys.ShiftKey, false);
+            MacroNative.Key((ushort)Keys.Oemtilde, false);
+            MacroNative.Key((ushort)Keys.Oemtilde, true);
+            MacroNative.Key((ushort)Keys.ShiftKey, true);
+        }
+
+        public static void SendUnicodeText(string text) { MacroNative.Text(text); }
+        public static void PressEnter()
+        {
+            MacroNative.Key((ushort)Keys.Enter, false);
+            MacroNative.Key((ushort)Keys.Enter, true);
+        }
     }
 }
