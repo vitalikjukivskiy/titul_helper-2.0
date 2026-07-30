@@ -23,7 +23,7 @@ namespace CyberPW.Assistant2
 
     internal static class UpdateService
     {
-        const string ReleasesApi = "https://api.github.com/repos/vitalikjukivskiy/titul_helper/releases?per_page=20";
+        const string ReleasesApi = "https://api.github.com/repos/vitalikjukivskiy/titul_helper-2.0/releases?per_page=20";
         const string AssetName = "CyberPW-Assistant-2.0-Beta-Portable.zip";
 
         sealed class ReleaseDto

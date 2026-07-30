@@ -1,4 +1,4 @@
-# CyberPW Assistant 2.0 Beta
+﻿# CyberPW Assistant 2.0 Beta
 
 > **Увага:** це Beta-версія. Через відмінності Windows, DPI, прав доступу й версій клієнта окремі функції можуть працювати не на всіх ПК.
 
@@ -44,7 +44,7 @@ Assistant перевіряє нові версії на GitHub під час з�
 
 ## Посилання
 
-- Релізи: https://github.com/vitalikjukivskiy/titul_helper/releases
+- Релізи: https://github.com/vitalikjukivskiy/titul_helper-2.0/releases
 - Сайт: https://cyberpw.fun/
 - Тема на форумі: https://forum.cyberpw.fun/index.php?threads/titulhelper-1-0.271/
 - Кабінет: https://cabinet.cyberpw.fun/
