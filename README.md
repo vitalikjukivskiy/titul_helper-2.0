@@ -1,4 +1,4 @@
-﻿<p align="center"><img src="github-header-kitmikhailo.png" width="100%" alt="CyberPW Assistant — інструментарій гравця"></p>
+<p align="center"><img src="github-header-kitmikhailo.png" width="100%" alt="CyberPW Assistant — інструментарій гравця"></p>
 <h1 align="center">CyberPW Assistant</h1>
 <p align="center">Неофіційний відкритий інструментарій для гравців CyberPW<br><strong>2.0 Beta · C# / .NET Framework · Windows 7/10/11 x64 · Portable</strong></p>
 <p align="center"><a href="https://github.com/vitalikjukivskiy/titul_helper-2.0/releases"><img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper-2.0/total?style=for-the-badge&logo=github&label=Downloads&color=0f9d7a" alt="Завантаження"></a> <a href="https://github.com/vitalikjukivskiy/titul_helper-2.0/releases"><img src="https://img.shields.io/badge/Beta-2.0%20Beta-d4af37?style=for-the-badge&logo=windows&logoColor=white" alt="Версія 2.0 Beta"></a></p>
@@ -56,7 +56,7 @@
 ## Швидкий запуск
 
 1. Відкрийте [pre-release CyberPW Assistant 2.0 Beta](https://github.com/vitalikjukivskiy/titul_helper-2.0/releases).
-2. Завантажте `Cyber.pw-Asistant-Portable.zip`.
+2. Завантажте `CyberPW-Assistant-2.0-Beta-Portable.zip`.
 3. Повністю розпакуйте архів.
 4. Двічі натисніть `CyberPW Assistant 2 Beta.exe` — без чорного вікна PowerShell.
 

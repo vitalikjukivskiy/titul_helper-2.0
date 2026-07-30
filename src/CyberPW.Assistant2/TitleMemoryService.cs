@@ -33,6 +33,12 @@ namespace CyberPW.Assistant2
         public string namePointerOffset { get; set; }
         public int nameMaxLength { get; set; }
         public string classIdOffset { get; set; }
+        public string levelOffset { get; set; }
+        public string experienceOffset { get; set; }
+        public string healthOffset { get; set; }
+        public string manaOffset { get; set; }
+        public string maxHealthOffset { get; set; }
+        public string maxManaOffset { get; set; }
     }
     internal sealed class TitleVectorProfile
     {
@@ -57,6 +63,13 @@ namespace CyberPW.Assistant2
         public string Nick { get; set; }
         public int ClassId { get; set; }
         public string ClassName { get; set; }
+        public int Level { get; set; }
+        public long Experience { get; set; }
+        public long ExperienceRequired { get; set; }
+        public int Health { get; set; }
+        public int Mana { get; set; }
+        public int MaxHealth { get; set; }
+        public int MaxMana { get; set; }
     }
     internal static class TitleMemoryService
     {
@@ -153,7 +166,13 @@ namespace CyberPW.Assistant2
                 string nick = ReadUnicodeString(handle, nameAddress, Math.Max(4, profile.character.nameMaxLength));
                 if (string.IsNullOrWhiteSpace(nick)) throw new InvalidOperationException("Персонаж ще не увійшов у світ.");
                 int classId = checked((int)ReadUnsigned(handle, context + ParseOffset(profile.character.classIdOffset), 4));
-                return new DetectedCharacter { ProcessId = process.Id, Nick = nick, ClassId = classId, ClassName = ClassNameFromId(classId) };
+                int level = string.IsNullOrWhiteSpace(profile.character.levelOffset) ? 0 : checked((int)ReadUnsigned(handle, context + ParseOffset(profile.character.levelOffset), 4));
+                long experience = string.IsNullOrWhiteSpace(profile.character.experienceOffset) ? 0 : checked((long)ReadUnsigned(handle, context + ParseOffset(profile.character.experienceOffset), 4));
+                int health = ReadCharacterInt(handle, context, profile.character.healthOffset);
+                int mana = ReadCharacterInt(handle, context, profile.character.manaOffset);
+                int maxHealth = ReadCharacterInt(handle, context, profile.character.maxHealthOffset);
+                int maxMana = ReadCharacterInt(handle, context, profile.character.maxManaOffset);
+                return new DetectedCharacter { ProcessId = process.Id, Nick = nick, ClassId = classId, ClassName = ClassNameFromId(classId), Level = level, Experience = experience, ExperienceRequired = ExperienceRequiredForLevel(level), Health = health, Mana = mana, MaxHealth = maxHealth, MaxMana = maxMana };
             }
             finally { CloseHandle(handle); }
         }
@@ -242,11 +261,26 @@ namespace CyberPW.Assistant2
         {
             switch (id)
             {
-                case 0: return "Воїн"; case 1: return "Маг"; case 2: return "Лучник"; case 3: return "Жрець";
-                case 4: return "Танк"; case 5: return "Друїд"; case 6: return "Асасин"; case 7: return "Шаман";
+                case 0: return "Воїн"; case 1: return "Маг"; case 2: return "Шаман"; case 3: return "Друїд";
+                case 4: return "Танк"; case 5: return "Асасин"; case 6: return "Лучник"; case 7: return "Жрець";
                 case 8: return "Страж"; case 9: return "Містик"; default: return "Не визначено";
             }
         }
+        private static int ReadCharacterInt(IntPtr handle, ulong context, string offset)
+        {
+            return string.IsNullOrWhiteSpace(offset) ? 0 : checked((int)ReadUnsigned(handle, context + ParseOffset(offset), 4));
+        }
+
+        private static long ExperienceRequiredForLevel(int level)
+        {
+            switch (level)
+            {
+                case 102: return 535632000L;
+                case 103: return 1339080000L;
+                default: return 0L;
+            }
+        }
+
         private static ulong ParseOffset(string value)
         {
             if (string.IsNullOrWhiteSpace(value) || !value.StartsWith("0x", StringComparison.OrdinalIgnoreCase))

@@ -106,13 +106,17 @@ namespace CyberPW.Assistant2
                         CharacterProfile profile = existing.Value;
                         if (profile == null)
                         {
-                            profile = new CharacterProfile { Nick = detected.Nick, Class = detected.ClassName, Selected = false, AutoDetected = true, LastProcessId = detected.ProcessId, LoginProtected = "", PasswordProtected = "" };
+                            profile = new CharacterProfile { Nick = detected.Nick, Class = detected.ClassName, Selected = false, AutoDetected = true, LastProcessId = detected.ProcessId, Level = detected.Level, Experience = detected.Experience, ExperienceRequired = detected.ExperienceRequired, Health = detected.Health, Mana = detected.Mana, MaxHealth = detected.MaxHealth, MaxMana = detected.MaxMana, LoginProtected = "", PasswordProtected = "" };
                             config.Characters[Guid.NewGuid().ToString("N")] = profile; added++; changed = true;
                         }
                         else
                         {
                             if (detected.ClassName != "Не визначено" && profile.Class != detected.ClassName) { profile.Class = detected.ClassName; changed = true; }
                             if (profile.LastProcessId != detected.ProcessId || !profile.AutoDetected) { profile.LastProcessId = detected.ProcessId; profile.AutoDetected = true; changed = true; }
+                            if (profile.Level != detected.Level || profile.Experience != detected.Experience || profile.ExperienceRequired != detected.ExperienceRequired || profile.Health != detected.Health || profile.Mana != detected.Mana || profile.MaxHealth != detected.MaxHealth || profile.MaxMana != detected.MaxMana)
+                            {
+                                profile.Level = detected.Level; profile.Experience = detected.Experience; profile.ExperienceRequired = detected.ExperienceRequired; profile.Health = detected.Health; profile.Mana = detected.Mana; profile.MaxHealth = detected.MaxHealth; profile.MaxMana = detected.MaxMana; changed = true;
+                            }
                         }
                     }
                     catch { }

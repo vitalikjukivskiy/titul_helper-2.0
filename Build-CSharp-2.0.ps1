@@ -4,6 +4,7 @@ $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $source = Join-Path $root 'src\CyberPW.Assistant2'
 $output = Join-Path $root 'dist-csharp-2.0-beta'
 $exe = Join-Path $output 'CyberPW Assistant 2 Beta.exe'
+$preserve = Join-Path ([IO.Path]::GetTempPath()) ('CyberPW-build-preserve-' + [Guid]::NewGuid().ToString('N'))
 
 $cscCandidates = @(
     (Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe'),
@@ -18,6 +19,13 @@ if (Test-Path -LiteralPath $output) {
     if (-not $resolvedOutput.StartsWith($resolvedRoot + '\', [StringComparison]::OrdinalIgnoreCase)) {
         throw 'Небезпечний шлях папки C# складання.'
     }
+    New-Item -ItemType Directory -Path $preserve | Out-Null
+    foreach ($name in @('characters.json', 'launcher-theme.json', 'territories.json')) {
+        $sourceFile = Join-Path $output $name
+        if (Test-Path -LiteralPath $sourceFile -PathType Leaf) { Copy-Item -LiteralPath $sourceFile -Destination (Join-Path $preserve $name) }
+    }
+    $sourceMacros = Join-Path $output 'macros'
+    if (Test-Path -LiteralPath $sourceMacros -PathType Container) { Copy-Item -LiteralPath $sourceMacros -Destination (Join-Path $preserve 'macros') -Recurse }
     Remove-Item -LiteralPath $output -Recurse -Force
 }
 
@@ -67,5 +75,10 @@ Copy-Item -LiteralPath (Join-Path $root 'loot-icons') -Destination (Join-Path $o
 Copy-Item -LiteralPath (Join-Path $root 'class-icons') -Destination (Join-Path $output 'class-icons') -Recurse
 Copy-Item -LiteralPath (Join-Path $root 'README-PORTABLE.md') -Destination (Join-Path $output 'README-PORTABLE.md')
 Copy-Item -LiteralPath (Join-Path $root 'VERSION') -Destination (Join-Path $output 'VERSION')
+
+if (Test-Path -LiteralPath $preserve -PathType Container) {
+    Get-ChildItem -LiteralPath $preserve -Force | ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $output $_.Name) -Recurse -Force }
+    Remove-Item -LiteralPath $preserve -Recurse -Force
+}
 
 Write-Output "C# Beta готова: $exe"

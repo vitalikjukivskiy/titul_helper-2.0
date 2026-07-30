@@ -11,7 +11,13 @@
       "character": {
         "namePointerOffset": "0x900",
         "nameMaxLength": 32,
-        "classIdOffset": "0x9B8"
+        "classIdOffset": "0x9B8",
+        "levelOffset": "0x9B4",
+        "experienceOffset": "0x624",
+        "healthOffset": "0x61C",
+        "manaOffset": "0x620",
+        "maxHealthOffset": "0x678",
+        "maxManaOffset": "0x67C"
       },
       "titles": {
         "beginOffset": "0x2CB8",
