@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -16,7 +16,11 @@ namespace CyberPW.Updater
         {
             try
             {
-                if (args.Length != 4) throw new ArgumentException("Некоректні параметри оновлення.");
+                if (args.Length != 4)
+                {
+                    MessageBox.Show("CyberPW Updater запускається автоматично.\n\nВідкрийте CyberPW Assistant 2 Beta.exe і натисніть кнопку «ОНОВЛЕННЯ».", "CyberPW Updater", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
                 int pid = int.Parse(args[0]); string zip = Path.GetFullPath(args[1]); string target = EnsureSlash(Path.GetFullPath(args[2])); string exeName = args[3];
                 WaitForExit(pid);
                 string work = Path.Combine(Path.GetTempPath(), "CyberPW-Stage-" + Guid.NewGuid().ToString("N"));
