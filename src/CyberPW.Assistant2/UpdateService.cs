@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -79,6 +79,7 @@ namespace CyberPW.Assistant2
         static WebClient Client()
         {
             var client = new WebClient();
+            client.Encoding = Encoding.UTF8;
             client.Headers[HttpRequestHeader.UserAgent] = "CyberPW-Assistant-Updater/2.0";
             client.Headers[HttpRequestHeader.Accept] = "application/vnd.github+json";
             client.Headers["X-GitHub-Api-Version"] = "2022-11-28";
