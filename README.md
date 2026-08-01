@@ -103,7 +103,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-CSharp-2.0.ps1
 Створив [**Кіт Михайло**](https://github.com/vitalikjukivskiy) для гравців CyberPW, клан **DarkSide**. Автор не належить до адміністрації CyberPW.
 
 
-### Macro Studio 2.0.7
+### Macro Studio 2.0.8
 
 - вбудований приклад `oracle-farm-loop-v2.macro`: один оракул на цикл, підтвердження `Y`, пошук цілі через `Tab` і атака до зникнення контрольного кольору;
 - перетягування дій мишкою, редактор властивостей, текстові сценарії пілота та безкінечні цикли зі штатною зупинкою;
