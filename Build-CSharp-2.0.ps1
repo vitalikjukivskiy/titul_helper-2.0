@@ -25,7 +25,11 @@ if (Test-Path -LiteralPath $output) {
         if (Test-Path -LiteralPath $sourceFile -PathType Leaf) { Copy-Item -LiteralPath $sourceFile -Destination (Join-Path $preserve $name) }
     }
     $sourceMacros = Join-Path $output 'macros'
-    if (Test-Path -LiteralPath $sourceMacros -PathType Container) { Copy-Item -LiteralPath $sourceMacros -Destination (Join-Path $preserve 'macros') -Recurse }
+    if (Test-Path -LiteralPath $sourceMacros -PathType Container) {
+        $savedMacros = Join-Path $preserve 'macros'
+        New-Item -ItemType Directory -Path $savedMacros | Out-Null
+        Get-ChildItem -LiteralPath $sourceMacros -Force | ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $savedMacros -Recurse -Force }
+    }
     Remove-Item -LiteralPath $output -Recurse -Force
 }
 
@@ -78,7 +82,14 @@ Copy-Item -LiteralPath (Join-Path $root 'README-PORTABLE.md') -Destination (Join
 Copy-Item -LiteralPath (Join-Path $root 'VERSION') -Destination (Join-Path $output 'VERSION')
 
 if (Test-Path -LiteralPath $preserve -PathType Container) {
-    Get-ChildItem -LiteralPath $preserve -Force | ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $output $_.Name) -Recurse -Force }
+    foreach ($name in @('characters.json', 'launcher-theme.json', 'territories.json')) {
+        $savedFile = Join-Path $preserve $name
+        if (Test-Path -LiteralPath $savedFile -PathType Leaf) { Copy-Item -LiteralPath $savedFile -Destination (Join-Path $output $name) -Force }
+    }
+    $savedMacros = Join-Path $preserve 'macros'
+    if (Test-Path -LiteralPath $savedMacros -PathType Container) {
+        Get-ChildItem -LiteralPath $savedMacros -Force | ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $output 'macros') -Recurse -Force }
+    }
     Remove-Item -LiteralPath $preserve -Recurse -Force
 }
 
