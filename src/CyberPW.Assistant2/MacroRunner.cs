@@ -1,47 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Globalization;
-using System.Threading;
-using System.Windows.Forms;
-
-namespace CyberPW.Assistant2
-{
-    internal sealed class MacroRunner
-    {
-        volatile bool stop;
-        readonly HashSet<ushort> held=new HashSet<ushort>();
-        public void Stop(){stop=true;foreach(ushort key in held)MacroNative.Key(key,true);held.Clear();}
-        public void Run(List<MacroInstruction> steps,string processName,bool focus)
-        {
-            stop=false;Process target=null;foreach(Process p in Process.GetProcessesByName(processName))if(p.MainWindowHandle!=IntPtr.Zero){target=p;break;}
-            if(target==null)throw new InvalidOperationException("Не знайдено вікно "+processName+".");
-            if(focus){MacroNative.ShowWindowAsync(target.MainWindowHandle,9);MacroNative.SetForegroundWindow(target.MainWindowHandle);}
-            for(int index=0;index<steps.Count&&!stop;index++)
-            {
-                MacroInstruction step=steps[index];string[] parts=(step.Argument??"").Split(new[]{' ',','},StringSplitOptions.RemoveEmptyEntries);
-                switch(step.Command)
-                {
-                    case "WAIT": Thread.Sleep(ParseInt(step.Argument,1,3600000)); break;
-                    case "TEXT": MacroNative.Text(step.Argument??""); break;
-                    case "KEY": Tap((ushort)(Keys)Enum.Parse(typeof(Keys),step.Argument,true)); break;
-                    case "KEYDOWN": {ushort k=(ushort)(Keys)Enum.Parse(typeof(Keys),step.Argument,true);MacroNative.Key(k,false);held.Add(k);break;}
-                    case "KEYUP": {ushort k=(ushort)(Keys)Enum.Parse(typeof(Keys),step.Argument,true);MacroNative.Key(k,true);held.Remove(k);break;}
-                    case "CLICK": if(parts.Length>0&&parts[0].Equals("RIGHT",StringComparison.OrdinalIgnoreCase)){MacroNative.MouseButton(true,false);MacroNative.MouseButton(true,true);}else if(parts.Length>0&&parts[0].Equals("MIDDLE",StringComparison.OrdinalIgnoreCase)){MacroNative.MiddleButton(false);MacroNative.MiddleButton(true);}else{MacroNative.MouseButton(false,false);MacroNative.MouseButton(false,true);}break;
-                    case "RCLICK": MacroNative.MouseButton(true,false);MacroNative.MouseButton(true,true);break;
-                    case "MOVE": MacroNative.SetCursorPos(ParseInt(parts[0],-100000,100000),ParseInt(parts[1],-100000,100000));break;
-                    case "WHEEL": MacroNative.Wheel(ParseInt(step.Argument,-12000,12000));break;
-                    case "IFCOLOR": if(!PixelMatches(parts))index=step.Jump-1;break;
-                    case "IFNOTCOLOR": if(PixelMatches(parts))index=step.Jump-1;break;
-                    case "WAITCOLOR": WaitColor(parts);break;
-                }
-            }
-            Stop();
-        }
-        void Tap(ushort key){MacroNative.Key(key,false);Thread.Sleep(20);MacroNative.Key(key,true);}
-        void WaitColor(string[] p){if(p.Length<5)throw new InvalidOperationException("WAITCOLOR: X Y #RRGGBB допуск тайм-аут");DateTime until=DateTime.UtcNow.AddMilliseconds(ParseInt(p[4],100,3600000));while(!stop&&!PixelMatches(p)){if(DateTime.UtcNow>=until)throw new TimeoutException("Час очікування кольору вичерпано.");Thread.Sleep(20);}}
-        bool PixelMatches(string[] p){if(p.Length<3)throw new InvalidOperationException("Піксель: X Y #RRGGBB [допуск]");Color actual=MacroNative.Pixel(ParseInt(p[0],-100000,100000),ParseInt(p[1],-100000,100000));Color expected=ColorTranslator.FromHtml(p[2].Trim());int tolerance=p.Length>3?ParseInt(p[3],0,255):0;return Math.Abs(actual.R-expected.R)<=tolerance&&Math.Abs(actual.G-expected.G)<=tolerance&&Math.Abs(actual.B-expected.B)<=tolerance;}
-        static int ParseInt(string value,int min,int max){int n;if(!int.TryParse(value.Trim(),NumberStyles.Integer,CultureInfo.InvariantCulture,out n)||n<min||n>max)throw new InvalidOperationException("Некоректне число: "+value);return n;}
-    }
-}
+using System;using System.Collections.Generic;using System.Diagnostics;using System.Drawing;using System.Globalization;using System.Threading;using System.Windows.Forms;
+namespace CyberPW.Assistant2{internal sealed class MacroRunner{
+ readonly object sync=new object();readonly ManualResetEvent cancel=new ManualResetEvent(false);readonly HashSet<ushort> held=new HashSet<ushort>();bool active;public bool IsRunning{get{lock(sync)return active;}}
+ public void Stop(){cancel.Set();lock(sync)Release();}
+ public void Run(List<MacroInstruction> steps,string processName,bool focus){lock(sync){if(active)throw new InvalidOperationException("Попередній макрос ще зупиняється. Зачекайте.");active=true;cancel.Reset();held.Clear();}try{Process target=Target(processName);if(focus){MacroNative.ShowWindowAsync(target.MainWindowHandle,9);MacroNative.SetForegroundWindow(target.MainWindowHandle);Wait(300);}for(int i=0;i<steps.Count&&!cancel.WaitOne(0);i++){MacroInstruction s=steps[i];string[]p=Parts(s.Argument);switch(s.Command){case"WAIT":Wait(Int(s.Argument,1,3600000));break;case"TEXT":MacroNative.Text(s.Argument??"");break;case"KEY":Tap(Key(s.Argument));break;case"KEYDOWN":{ushort k=Key(s.Argument);MacroNative.Key(k,false);lock(sync)held.Add(k);break;}case"KEYUP":{ushort k=Key(s.Argument);MacroNative.Key(k,true);lock(sync)held.Remove(k);break;}case"CLICK":Click(p.Length==0?"LEFT":p[0]);break;case"RCLICK":Click("RIGHT");break;case"MOVE":MacroNative.SetCursorPos(Int(p[0],-100000,100000),Int(p[1],-100000,100000));break;case"WHEEL":MacroNative.Wheel(Int(s.Argument,-12000,12000));break;case"IFCOLOR":if(!Match(p,s.SourceLine))i=s.Jump-1;break;case"IFNOTCOLOR":if(Match(p,s.SourceLine))i=s.Jump-1;break;case"WHILECOLOR":if(!Match(p,s.SourceLine))i=s.Jump-1;break;case"WHILENOTCOLOR":if(Match(p,s.SourceLine))i=s.Jump-1;break;case"FOREVER":break;case"ENDFOREVER":i=s.Jump-1;break;case"ENDWHILE":i=s.Jump-1;break;case"WAITCOLOR":WaitColor(p,s.SourceLine);break;}}}finally{lock(sync){Release();active=false;}}}
+ static Process Target(string value){string n=(value??"").Trim();if(n.EndsWith(".exe",StringComparison.OrdinalIgnoreCase))n=n.Substring(0,n.Length-4);if(n.Length==0)throw new InvalidOperationException("Вкажіть процес гри.");foreach(Process p in Process.GetProcessesByName(n))if(p.MainWindowHandle!=IntPtr.Zero)return p;throw new InvalidOperationException("Не знайдено вікно "+n+".");}
+ void Wait(int ms){cancel.WaitOne(ms);}void Tap(ushort k){MacroNative.Key(k,false);cancel.WaitOne(20);MacroNative.Key(k,true);}static ushort Key(string s){string k=(s??"").Trim();if(k.Length==1&&char.IsDigit(k[0]))k="D"+k;return(ushort)(Keys)Enum.Parse(typeof(Keys),k,true);}static void Click(string b){if(b.Equals("RIGHT",StringComparison.OrdinalIgnoreCase)){MacroNative.MouseButton(true,false);MacroNative.MouseButton(true,true);}else if(b.Equals("MIDDLE",StringComparison.OrdinalIgnoreCase)){MacroNative.MiddleButton(false);MacroNative.MiddleButton(true);}else{MacroNative.MouseButton(false,false);MacroNative.MouseButton(false,true);}}
+ void WaitColor(string[]p,int line){DateTime end=DateTime.UtcNow.AddMilliseconds(Int(p[4],100,3600000));while(!cancel.WaitOne(0)&&!Match(p,line)){if(DateTime.UtcNow>=end)throw new TimeoutException("Рядок "+line+": час очікування кольору вичерпано.");cancel.WaitOne(20);}}static bool Match(string[]p,int line){Color a=MacroNative.Pixel(Int(p[0],-100000,100000),Int(p[1],-100000,100000)),e=MacroCompiler.ParseColor(p[2],line);int t=p.Length>3?Int(p[3],0,255):0;return Math.Abs(a.R-e.R)<=t&&Math.Abs(a.G-e.G)<=t&&Math.Abs(a.B-e.B)<=t;}void Release(){foreach(ushort k in held)try{MacroNative.Key(k,true);}catch{}held.Clear();}static string[]Parts(string s){return(s??"").Split(new[]{' ',','},StringSplitOptions.RemoveEmptyEntries);}static int Int(string s,int min,int max){int n;if(!int.TryParse(s.Trim(),NumberStyles.Integer,CultureInfo.InvariantCulture,out n)||n<min||n>max)throw new InvalidOperationException("Некоректне число: "+s);return n;}
+}}
