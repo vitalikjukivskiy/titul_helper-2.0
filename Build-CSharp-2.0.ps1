@@ -73,6 +73,7 @@ Copy-Item -LiteralPath (Join-Path $root 'ui-assets') -Destination (Join-Path $ou
 Copy-Item -LiteralPath (Join-Path $root 'cyberpw-logo.png') -Destination (Join-Path $output 'cyberpw-logo.png')
 Copy-Item -LiteralPath (Join-Path $root 'loot-icons') -Destination (Join-Path $output 'loot-icons') -Recurse
 Copy-Item -LiteralPath (Join-Path $root 'class-icons') -Destination (Join-Path $output 'class-icons') -Recurse
+if (Test-Path -LiteralPath (Join-Path $root 'default-macros')) { Copy-Item -LiteralPath (Join-Path $root 'default-macros') -Destination (Join-Path $output 'default-macros') -Recurse }
 Copy-Item -LiteralPath (Join-Path $root 'README-PORTABLE.md') -Destination (Join-Path $output 'README-PORTABLE.md')
 Copy-Item -LiteralPath (Join-Path $root 'VERSION') -Destination (Join-Path $output 'VERSION')
 

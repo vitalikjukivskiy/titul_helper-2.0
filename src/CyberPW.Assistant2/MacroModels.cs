@@ -1,47 +1,17 @@
-using System;
-using System.Collections.Generic;
-
-namespace CyberPW.Assistant2
-{
-    internal sealed class MacroFile
-    {
-        public int schemaVersion { get; set; }
-        public string name { get; set; }
-        public string targetProcess { get; set; }
-        public string startHotkey { get; set; }
-        public string stopHotkey { get; set; }
-        public List<MacroRow> steps { get; set; }
-    }
-    internal sealed class MacroRow
-    {
-        public string command { get; set; }
-        public string argument { get; set; }
-        public string description { get; set; }
-    }
-    internal sealed class MacroInstruction
-    {
-        public string Command;
-        public string Argument;
-        public int Jump = -1;
-    }
-    internal static class MacroCompiler
-    {
-        sealed class Block { public string Type; public int Start; public int Count; }
-        public static List<MacroInstruction> Compile(IEnumerable<MacroRow> rows)
-        {
-            var result=new List<MacroInstruction>();var blocks=new Stack<Block>();
-            foreach(MacroRow row in rows)
-            {
-                string command=(row.command??"").Trim().ToUpperInvariant();if(command=="")continue;
-                if(command=="REPEAT") { int count;if(!int.TryParse(row.argument,out count)||count<1||count>1000)throw new InvalidOperationException("REPEAT: 1–1000.");blocks.Push(new Block{Type="REPEAT",Start=result.Count,Count=count});continue; }
-                if(command=="END") { if(blocks.Count==0||blocks.Peek().Type!="REPEAT")throw new InvalidOperationException("END без REPEAT.");Block b=blocks.Pop();var body=result.GetRange(b.Start,result.Count-b.Start);for(int c=1;c<b.Count;c++)foreach(var item in body)result.Add(new MacroInstruction{Command=item.Command,Argument=item.Argument});if(result.Count>10000)throw new InvalidOperationException("Максимум 10000 команд.");continue; }
-                if(command=="IFCOLOR"||command=="IFNOTCOLOR")blocks.Push(new Block{Type="IF"});
-                else if(command=="ENDIF") { if(blocks.Count==0||blocks.Peek().Type!="IF")throw new InvalidOperationException("ENDIF без IF.");blocks.Pop(); }
-                result.Add(new MacroInstruction{Command=command,Argument=row.argument??""});
-            }
-            if(blocks.Count>0)throw new InvalidOperationException("Не закрито "+blocks.Peek().Type+".");
-            var conditions=new Stack<int>();for(int i=0;i<result.Count;i++){if(result[i].Command=="IFCOLOR"||result[i].Command=="IFNOTCOLOR")conditions.Push(i);else if(result[i].Command=="ENDIF"){int open=conditions.Pop();result[open].Jump=i+1;}}
-            return result;
-        }
-    }
+using System;using System.Collections.Generic;using System.Drawing;using System.Globalization;using System.Text.RegularExpressions;using System.Windows.Forms;
+namespace CyberPW.Assistant2{
+internal sealed class MacroFile{public int schemaVersion{get;set;}public string name{get;set;}public string targetProcess{get;set;}public string startHotkey{get;set;}public string stopHotkey{get;set;}public List<MacroRow> steps{get;set;}}
+internal sealed class MacroRow{public string command{get;set;}public string argument{get;set;}public string description{get;set;}}
+internal sealed class MacroInstruction{public string Command;public string Argument;public int Jump=-1;public int SourceLine;}
+internal static class MacroScriptParser{
+ static readonly Regex P=new Regex(@"^\s*([A-Za-z_]+)(?:\s+(.*?))?\s*$",RegexOptions.Compiled);
+ public static List<MacroRow> Parse(string script){var r=new List<MacroRow>();string[]ls=(script??"").Replace("\r\n","\n").Replace('\r','\n').Split('\n');for(int i=0;i<ls.Length;i++){string t=ls[i].Trim();if(t.Length==0||t.StartsWith("#")||t.StartsWith("//"))continue;Match m=P.Match(t);if(!m.Success)throw E(i+1,"не вдалося розібрати команду");string c=m.Groups[1].Value.ToUpperInvariant(),a=m.Groups[2].Success?A(m.Groups[2].Value):"",d;switch(c){case"SEND":c="KEY";d="Натиснути клавішу";break;case"SLEEP":c="WAIT";d="Пауза, мс";break;case"IF":c="IFCOLOR";d="Якщо колір збігається";break;case"IF_NOT":case"IFNOT":c="IFNOTCOLOR";d="Якщо колір НЕ збігається";break;case"END_IF":c="ENDIF";d="Кінець IF";break;case"WHILE":c="WHILECOLOR";d="Поки колір збігається";break;case"WHILE_NOT":c="WHILENOTCOLOR";d="Поки колір НЕ збігається";break;case"END_WHILE":c="ENDWHILE";d="End WHILE";break;case"FOREVER":case"LOOP":c="FOREVER";d="Infinite loop";break;case"END_FOREVER":case"END_LOOP":c="ENDFOREVER";d="End infinite loop";break;default:d=c;break;}r.Add(new MacroRow{command=c,argument=a,description=d});}return r;}static string A(string s){return Regex.Replace(s.Replace(',',' '),@"\s+"," ").Trim();}static Exception E(int n,string s){return new InvalidOperationException("Рядок "+n+": "+s+".");}}
+internal static class MacroCompiler{
+ sealed class B{public string T;public int S,N,L;}static readonly HashSet<string> Simple=new HashSet<string>{"WAIT","TEXT","KEY","KEYDOWN","KEYUP","CLICK","RCLICK","MOVE","WHEEL","WAITCOLOR"};
+ public static List<MacroInstruction> Compile(IEnumerable<MacroRow> rows){var o=new List<MacroInstruction>();var b=new Stack<B>();int l=0;foreach(MacroRow row in rows){l++;string c=C(row.command),a=A(row.argument);if(c=="")continue;if(c=="REPEAT"){b.Push(new B{T="REPEAT",S=o.Count,N=N(a,1,1000,l,"повтор"),L=l});continue;}if(c=="END"){Need(b,"REPEAT",l);B q=b.Pop();var body=o.GetRange(q.S,o.Count-q.S);if((long)body.Count*q.N+q.S>10000)throw E(l,"максимум 10000 команд");for(int z=1;z<q.N;z++)foreach(var x in body)o.Add(I(x.Command,x.Argument,x.SourceLine));continue;}if(c=="FOREVER"){b.Push(new B{T="FOREVER",S=o.Count,L=l});o.Add(I(c,"",l));}else if(c=="ENDFOREVER"){Need(b,"FOREVER",l);b.Pop();o.Add(I(c,"",l));}else if(c=="IFCOLOR"||c=="IFNOTCOLOR"){Pixel(a,false,l);b.Push(new B{T="IF",S=o.Count,L=l});o.Add(I(c,a,l));}else if(c=="ENDIF"){Need(b,"IF",l);B q=b.Pop();o.Add(I(c,"",l));o[q.S].Jump=o.Count;}else if(c=="WHILECOLOR"||c=="WHILENOTCOLOR"){Pixel(a,false,l);b.Push(new B{T="WHILE",S=o.Count,L=l});o.Add(I(c,a,l));}else if(c=="ENDWHILE"){Need(b,"WHILE",l);B q=b.Pop();var x=I(c,"",l);x.Jump=q.S;o.Add(x);o[q.S].Jump=o.Count;}else{Valid(c,a,l);o.Add(I(c,a,l));}if(o.Count>10000)throw E(l,"максимум 10000 команд");}if(b.Count>0)throw E(b.Peek().L,"не закрито "+b.Peek().T);Link(o);return o;}
+ static void Link(List<MacroInstruction> code){var stack=new Stack<int>();for(int i=0;i<code.Count;i++){string c=code[i].Command;code[i].Jump=-1;if(c=="IFCOLOR"||c=="IFNOTCOLOR"||c=="WHILECOLOR"||c=="WHILENOTCOLOR"||c=="FOREVER")stack.Push(i);else if(c=="ENDIF"){int open=stack.Pop();code[open].Jump=i+1;}else if(c=="ENDWHILE"||c=="ENDFOREVER"){int open=stack.Pop();code[open].Jump=i+1;code[i].Jump=open;}}if(stack.Count>0)throw new InvalidOperationException("Internal macro block error.");}
+ static MacroInstruction I(string c,string a,int l){return new MacroInstruction{Command=c,Argument=a,SourceLine=l};}static string C(string s){string c=(s??"").Trim().ToUpperInvariant().Replace('-','_');switch(c){case"SEND":return"KEY";case"SLEEP":return"WAIT";case"IF":return"IFCOLOR";case"IF_NOT":case"IFNOT":return"IFNOTCOLOR";case"END_IF":return"ENDIF";case"WHILE":return"WHILECOLOR";case"WHILE_NOT":return"WHILENOTCOLOR";case"END_WHILE":return"ENDWHILE";case"LOOP":return"FOREVER";case"END_FOREVER":case"END_LOOP":return"ENDFOREVER";default:return c;}}static string A(string s){return Regex.Replace((s??"").Replace(',',' '),@"\s+"," ").Trim();}
+ static void Valid(string c,string a,int l){if(!Simple.Contains(c))throw E(l,"невідома команда "+c);if(c=="WAIT")N(a,1,3600000,l,"пауза");else if(c=="KEY"||c=="KEYDOWN"||c=="KEYUP"){string k=a;if(k.Length==1&&char.IsDigit(k[0]))k="D"+k;Keys x;if(!Enum.TryParse(k,true,out x)||x==Keys.None)throw E(l,"невідома клавіша "+a);}else if(c=="CLICK"&&a!=""&&a!="LEFT"&&a!="RIGHT"&&a!="MIDDLE")throw E(l,"невідома кнопка миші");else if(c=="MOVE"){string[]p=S(a);if(p.Length!=2)throw E(l,"MOVE: X Y");N(p[0],-100000,100000,l,"X");N(p[1],-100000,100000,l,"Y");}else if(c=="WHEEL")N(a,-12000,12000,l,"прокрутка");else if(c=="WAITCOLOR")Pixel(a,true,l);}
+ static void Pixel(string a,bool wait,int l){string[]p=S(a);if(p.Length<(wait?5:3)||p.Length>(wait?5:4))throw E(l,wait?"WAITCOLOR: X Y колір допуск тайм-аут":"умова: X Y колір [допуск]");N(p[0],-100000,100000,l,"X");N(p[1],-100000,100000,l,"Y");ParseColor(p[2],l);if(p.Length>3)N(p[3],0,255,l,"допуск");if(wait)N(p[4],100,3600000,l,"тайм-аут");}
+ internal static Color ParseColor(string s,int l){try{if(s.StartsWith("#"))return ColorTranslator.FromHtml(s);int n;if(!int.TryParse(s,NumberStyles.Integer,CultureInfo.InvariantCulture,out n)||n<0||n>0xFFFFFF)throw new FormatException();return Color.FromArgb((n>>16)&255,(n>>8)&255,n&255);}catch{throw E(l,"колір має бути #RRGGBB або числом 0–16777215");}}static string[]S(string s){return s.Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);}static int N(string s,int min,int max,int l,string name){int n;if(!int.TryParse(s,NumberStyles.Integer,CultureInfo.InvariantCulture,out n)||n<min||n>max)throw E(l,name+": число від "+min+" до "+max);return n;}static void Need(Stack<B>b,string t,int l){if(b.Count==0||b.Peek().T!=t)throw E(l,"неправильне завершення блоку або вкладеність");}static InvalidOperationException E(int l,string s){return new InvalidOperationException("Рядок "+l+": "+s+".");}}
 }

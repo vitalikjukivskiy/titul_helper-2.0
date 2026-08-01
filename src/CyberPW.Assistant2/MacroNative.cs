@@ -15,6 +15,7 @@ namespace CyberPW.Assistant2
         [DllImport("user32.dll")] static extern IntPtr GetDC(IntPtr handle);
         [DllImport("user32.dll")] static extern int ReleaseDC(IntPtr handle, IntPtr dc);
         [DllImport("gdi32.dll")] static extern uint GetPixel(IntPtr dc, int x, int y);
+        [DllImport("user32.dll")] static extern uint MapVirtualKey(uint code, uint mapType);
         [DllImport("user32.dll", SetLastError=true)] static extern uint SendInput(uint count, INPUT[] inputs, int size);
 
         [StructLayout(LayoutKind.Sequential)] struct POINT { public int X, Y; }
@@ -30,7 +31,13 @@ namespace CyberPW.Assistant2
         }
         public static void Key(ushort key,bool up)
         {
-            var input=new INPUT();input.type=1;input.data.keyboard.virtualKey=key;input.data.keyboard.flags=up?2u:0u;Send(new[]{input});
+            uint scan=MapVirtualKey(key,0);if(scan==0)throw new InvalidOperationException("No scan code for key: "+key);
+            var input=new INPUT();input.type=1;input.data.keyboard.scanCode=(ushort)scan;
+            input.data.keyboard.flags=0x8u|(up?0x2u:0u)|(IsExtended(key)?0x1u:0u);Send(new[]{input});
+        }
+        static bool IsExtended(ushort key)
+        {
+            return key==0x21||key==0x22||key==0x23||key==0x24||key==0x25||key==0x26||key==0x27||key==0x28||key==0x2D||key==0x2E||key==0x6F||key==0x90||key==0xA3||key==0xA5;
         }
         public static void Text(string text)
         {
