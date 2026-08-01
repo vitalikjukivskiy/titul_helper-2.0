@@ -72,8 +72,22 @@ namespace CyberPW.Assistant2
             if (!File.Exists(installedUpdater)) throw new FileNotFoundException("Не знайдено CyberPW Updater.exe.", installedUpdater);
             string tempUpdater = Path.Combine(tempRoot, "CyberPW Updater.exe");
             File.Copy(installedUpdater, tempUpdater, true);
-            string exeName = Path.GetFileName(ApplicationExecutable());
-            Process.Start(new ProcessStartInfo(tempUpdater, Quote(Process.GetCurrentProcess().Id.ToString()) + " " + Quote(zip) + " " + Quote(AppPaths.Root) + " " + Quote(exeName)) { UseShellExecute = true });
+
+            // A request file avoids Windows/shortcut argument parsing issues with paths containing spaces or Cyrillic.
+            string request = Path.Combine(tempRoot, "update-request.txt");
+            File.WriteAllLines(request, new[] {
+                Process.GetCurrentProcess().Id.ToString(),
+                zip,
+                AppPaths.Root,
+                Path.GetFileName(ApplicationExecutable())
+            }, new UTF8Encoding(false));
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = tempUpdater,
+                Arguments = Quote(request),
+                WorkingDirectory = tempRoot,
+                UseShellExecute = false
+            });
         }
 
         static WebClient Client()

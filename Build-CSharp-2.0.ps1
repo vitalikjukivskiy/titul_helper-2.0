@@ -65,7 +65,7 @@ if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $updaterExe -PathType L
     throw 'Не вдалося зібрати CyberPW Updater.'
 }
 
-foreach ($name in @('titles.json', 'memory-offsets.json', 'state.json', 'chest-drops.json', 'bosses.json')) {
+foreach ($name in @('titles.json', 'memory-offsets.json', 'chest-drops.json', 'bosses.json')) {
     Copy-Item -LiteralPath (Join-Path $root $name) -Destination (Join-Path (Join-Path $output 'data') $name)
 }
 Copy-Item -LiteralPath (Join-Path $root 'cyberpw-logo.ico') -Destination (Join-Path $output 'cyberpw-logo.ico')

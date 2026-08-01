@@ -16,12 +16,14 @@ namespace CyberPW.Updater
         {
             try
             {
+                args = ResolveArguments(args);
                 if (args.Length != 4)
                 {
                     MessageBox.Show("CyberPW Updater запускається автоматично.\n\nВідкрийте CyberPW Assistant 2 Beta.exe і натисніть кнопку «ОНОВЛЕННЯ».", "CyberPW Updater", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
-                int pid = int.Parse(args[0]); string zip = Path.GetFullPath(args[1]); string target = EnsureSlash(Path.GetFullPath(args[2])); string exeName = args[3];
+                int pid = int.Parse(args[0]); string zip = Path.GetFullPath(args[1]); string target = EnsureSlash(Path.GetFullPath(args[2])); string exeName = Path.GetFileName(args[3]);
+                if (string.IsNullOrWhiteSpace(exeName)) throw new InvalidDataException("Не вказано файл запуску Assistant.");
                 WaitForExit(pid);
                 string work = Path.Combine(Path.GetTempPath(), "CyberPW-Stage-" + Guid.NewGuid().ToString("N"));
                 string stage = Path.Combine(work, "stage"), backup = Path.Combine(work, "backup");
@@ -52,6 +54,14 @@ namespace CyberPW.Updater
             {
                 MessageBox.Show("Не вдалося встановити оновлення. Старі дані збережено.\n\n" + e.Message, "CyberPW Updater", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+        static string[] ResolveArguments(string[] args)
+        {
+            if (args.Length == 4) return args;
+            if (args.Length != 1 || !File.Exists(args[0])) return args;
+            string[] lines = File.ReadAllLines(args[0]);
+            if (lines.Length != 4) throw new InvalidDataException("Пошкоджений файл-завдання оновлення.");
+            return lines.Select(x => x.Trim()).ToArray();
         }
         static void WaitForExit(int pid){try{var p=Process.GetProcessById(pid);if(!p.WaitForExit(30000))throw new TimeoutException("Assistant не закрився за 30 секунд.");}catch(ArgumentException){}}
         static void ExtractSafe(string zip,string stage){string root=EnsureSlash(Path.GetFullPath(stage));using(var archive=ZipFile.OpenRead(zip))foreach(var entry in archive.Entries){string path=Path.GetFullPath(Path.Combine(root,entry.FullName.Replace('/','\\')));if(!path.StartsWith(root,StringComparison.OrdinalIgnoreCase))throw new InvalidDataException("Небезпечний шлях у ZIP.");if(string.IsNullOrEmpty(entry.Name)){Directory.CreateDirectory(path);continue;}Directory.CreateDirectory(Path.GetDirectoryName(path));entry.ExtractToFile(path,true);}}
