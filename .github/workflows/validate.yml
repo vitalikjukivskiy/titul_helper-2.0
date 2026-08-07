@@ -2,7 +2,7 @@ name: Validate portable build
 
 on:
   push:
-    branches: [main, "agent/**"]
+    branches: [main, "agent/**", "release/**"]
   pull_request:
     branches: [main]
 
@@ -33,6 +33,28 @@ jobs:
             exit 1
           }
 
+      - name: Build C# Assistant and updater
+        shell: powershell
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-CSharp-2.0.ps1
+
+      - name: Verify C# release output
+        shell: powershell
+        run: |
+          $required = @(
+            'dist-csharp-2.0-beta\CyberPW Assistant 2 Beta.exe',
+            'dist-csharp-2.0-beta\CyberPW Updater.exe',
+            'dist-csharp-2.0-beta\VERSION'
+          )
+          foreach ($path in $required) {
+            if (-not (Test-Path -LiteralPath $path)) { throw "Missing C# build output: $path" }
+          }
+          $version = (Get-Content -LiteralPath 'dist-csharp-2.0-beta\VERSION' -Raw).Trim()
+          if ($version -ne '2.0.11-beta') { throw "Unexpected VERSION: $version" }
+
+      - name: Pack C# release candidate
+        shell: powershell
+        run: Compress-Archive -Path '.\dist-csharp-2.0-beta\*' -DestinationPath '.\CyberPW-Assistant-2.0-Beta-Portable.zip' -Force
+
       - name: Build portable archive
         shell: powershell
         run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Portable.ps1
@@ -50,6 +72,13 @@ jobs:
           foreach ($path in $required) {
             if (-not (Test-Path -LiteralPath $path)) { throw "Missing build output: $path" }
           }
+
+      - name: Upload C# release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: CyberPW-Assistant-2.0.11-Beta-${{ github.sha }}
+          path: CyberPW-Assistant-2.0-Beta-Portable.zip
+          if-no-files-found: error
 
       - name: Upload portable artifact
         uses: actions/upload-artifact@v4
