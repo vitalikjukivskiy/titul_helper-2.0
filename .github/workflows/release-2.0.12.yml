@@ -1,14 +1,14 @@
-name: Release 2.0.11 Beta
+name: Release 2.0.12 Beta
 
 on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/release-2.0.11.yml'
+      - '.github/workflows/release-2.0.12.yml'
       - 'src/CyberPW.Assistant2/**'
       - 'src/CyberPW.Updater/**'
       - 'VERSION'
-      - 'RELEASE_NOTES_2.0.11.md'
+      - 'RELEASE_NOTES_2.0.12.md'
       - 'Build-CSharp-2.0.ps1'
 
 permissions:
@@ -24,13 +24,44 @@ jobs:
         shell: powershell
         run: |
           $version = (Get-Content -LiteralPath '.\VERSION' -Raw).Trim()
-          if ($version -ne '2.0.11-beta') { throw "Unexpected VERSION: $version" }
+          if ($version -ne '2.0.12-beta') { throw "Unexpected VERSION: $version" }
+
+      - name: Validate embedded quiz databases
+        shell: powershell
+        run: |
+          Add-Type -AssemblyName System.IO.Compression
+          Add-Type -AssemblyName System.Web.Extensions
+          $serializer = New-Object System.Web.Script.Serialization.JavaScriptSerializer
+          $serializer.MaxJsonLength = 10485760
+          $source = Get-Content -LiteralPath '.\src\CyberPW.Assistant2\QuizData.cs' -Raw
+          $expected = @{ Kh = 79; ChonPon = 200 }
+          foreach ($name in $expected.Keys) {
+            $pattern = 'const\s+string\s+' + [Regex]::Escape($name) + '\s*=\s*"([^"]+)";'
+            $match = [Regex]::Match($source, $pattern)
+            if (-not $match.Success) { throw "Quiz payload $name was not found." }
+            try { $packed = [Convert]::FromBase64String($match.Groups[1].Value) }
+            catch { throw "Quiz payload $name is not valid Base64: $($_.Exception.Message)" }
+            $input = New-Object IO.MemoryStream(,$packed)
+            $gzip = New-Object IO.Compression.GZipStream($input,[IO.Compression.CompressionMode]::Decompress)
+            $reader = New-Object IO.StreamReader($gzip,[Text.Encoding]::UTF8)
+            try { $json = $reader.ReadToEnd() } finally { $reader.Dispose(); $gzip.Dispose(); $input.Dispose() }
+            try { $items = $serializer.DeserializeObject($json) }
+            catch { throw "Quiz payload $name contains invalid JSON: $($_.Exception.Message)" }
+            $count = @($items).Count
+            if ($count -ne $expected[$name]) { throw "Quiz payload $name count is $count, expected $($expected[$name])." }
+            foreach ($item in @($items)) {
+              if ([string]::IsNullOrWhiteSpace([string]$item['question']) -or [string]::IsNullOrWhiteSpace([string]$item['answer'])) {
+                throw "Quiz payload $name contains an empty question or answer."
+              }
+            }
+            Write-Host "$name OK: $count records"
+          }
 
       - name: Build production Assistant and updater
         shell: powershell
         run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-CSharp-2.0.ps1
 
-      - name: Sanitize release output
+      - name: Sanitize and verify release output
         shell: powershell
         run: |
           $root = '.\dist-csharp-2.0-beta'
@@ -39,7 +70,7 @@ jobs:
             if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing release file: $path" }
           }
           $version = (Get-Content -LiteralPath "$root\VERSION" -Raw).Trim()
-          if ($version -ne '2.0.11-beta') { throw "Unexpected packaged VERSION: $version" }
+          if ($version -ne '2.0.12-beta') { throw "Unexpected packaged VERSION: $version" }
           Get-ChildItem -LiteralPath $root -Recurse -Force |
             Where-Object { $_.Name -match '(?i)comeback' } |
             Sort-Object FullName -Descending |
@@ -61,17 +92,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = 'v2.0.11-beta'
+          $tag = 'v2.0.12-beta'
           $asset = '.\CyberPW-Assistant-2.0-Beta-Portable.zip'
           gh release view $tag --repo '${{ github.repository }}' *> $null
           if ($LASTEXITCODE -eq 0) {
-            Write-Host "$tag already exists; replacing release asset."
             gh release upload $tag $asset --repo '${{ github.repository }}' --clobber
             if ($LASTEXITCODE -ne 0) { throw 'Failed to replace release asset.' }
-            gh release edit $tag --repo '${{ github.repository }}' --target '${{ github.sha }}' --title 'CyberPW Assistant 2.0.11 Beta - Quiz Update' --notes-file '.\RELEASE_NOTES_2.0.11.md' --prerelease
+            gh release edit $tag --repo '${{ github.repository }}' --target '${{ github.sha }}' --title 'CyberPW Assistant 2.0.12 Beta - Quiz Hotfix' --notes-file '.\RELEASE_NOTES_2.0.12.md' --prerelease
             if ($LASTEXITCODE -ne 0) { throw 'Failed to refresh release metadata.' }
           } else {
-            gh release create $tag $asset --repo '${{ github.repository }}' --target '${{ github.sha }}' --title 'CyberPW Assistant 2.0.11 Beta - Quiz Update' --notes-file '.\RELEASE_NOTES_2.0.11.md' --prerelease
+            gh release create $tag $asset --repo '${{ github.repository }}' --target '${{ github.sha }}' --title 'CyberPW Assistant 2.0.12 Beta - Quiz Hotfix' --notes-file '.\RELEASE_NOTES_2.0.12.md' --prerelease
             if ($LASTEXITCODE -ne 0) { throw 'Failed to create prerelease.' }
           }
 
@@ -80,7 +110,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $json = gh release view 'v2.0.11-beta' --repo '${{ github.repository }}' --json isPrerelease,assets | ConvertFrom-Json
+          $json = gh release view 'v2.0.12-beta' --repo '${{ github.repository }}' --json isPrerelease,assets | ConvertFrom-Json
           if (-not $json.isPrerelease) { throw 'Release is not marked as prerelease.' }
           $asset = @($json.assets | Where-Object { $_.name -eq 'CyberPW-Assistant-2.0-Beta-Portable.zip' })
           if ($asset.Count -ne 1) { throw 'Expected updater-compatible asset was not found.' }
