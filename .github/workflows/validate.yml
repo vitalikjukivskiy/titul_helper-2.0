@@ -21,8 +21,7 @@ jobs:
         run: |
           $failed = @()
           Get-ChildItem -File -Filter '*.ps1' | ForEach-Object {
-            $tokens = $null
-            $issues = $null
+            $tokens = $null; $issues = $null
             [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$issues) | Out-Null
             if (@($issues).Count) { $failed += "$($_.Name): $((@($issues) | ForEach-Object Message) -join ' | ')" }
           }
@@ -41,23 +40,25 @@ jobs:
             $pattern = 'const\s+string\s+' + [Regex]::Escape($name) + '\s*=\s*"([^"]+)";'
             $match = [Regex]::Match($source, $pattern)
             if (-not $match.Success) { throw "Quiz payload $name was not found." }
-            try { $packed = [Convert]::FromBase64String($match.Groups[1].Value) }
-            catch { throw "Quiz payload $name is not valid Base64: $($_.Exception.Message)" }
+            try { $packed = [Convert]::FromBase64String($match.Groups[1].Value) } catch { throw "Quiz payload $name is not valid Base64: $($_.Exception.Message)" }
             $input = New-Object IO.MemoryStream(,$packed)
             $gzip = New-Object IO.Compression.GZipStream($input,[IO.Compression.CompressionMode]::Decompress)
             $reader = New-Object IO.StreamReader($gzip,[Text.Encoding]::UTF8)
             try { $json = $reader.ReadToEnd() } finally { $reader.Dispose(); $gzip.Dispose(); $input.Dispose() }
-            try { $items = $serializer.DeserializeObject($json) }
-            catch { throw "Quiz payload $name contains invalid JSON: $($_.Exception.Message)" }
+            $items = $serializer.DeserializeObject($json)
             $count = @($items).Count
             if ($count -ne $expected[$name]) { throw "Quiz payload $name count is $count, expected $($expected[$name])." }
-            foreach ($item in @($items)) {
-              if ([string]::IsNullOrWhiteSpace([string]$item['question']) -or [string]::IsNullOrWhiteSpace([string]$item['answer'])) {
-                throw "Quiz payload $name contains an empty question or answer."
-              }
-            }
+            foreach ($item in @($items)) { if ([string]::IsNullOrWhiteSpace([string]$item['question']) -or [string]::IsNullOrWhiteSpace([string]$item['answer'])) { throw "Quiz payload $name contains an empty question or answer." } }
             Write-Host "$name OK: $count records"
           }
+
+      - name: Verify TitulHelper hotfix guards
+        shell: powershell
+        run: |
+          $source = Get-Content -LiteralPath '.\src\CyberPW.Assistant2\TitleCoordinateService.cs' -Raw
+          $required = @('PressEscape(2,130)', 'PressEscape(3,130)', 'EnsureCoordinatePanel', 'CoordSigCount', 'matches>=4', 'changedPoints>=3', 'MacroNative.Text(title.x+" "+title.y)', 'MacroNative.Text(title.name)')
+          foreach ($token in $required) { if (-not $source.Contains($token)) { throw "Missing TitulHelper hotfix guard: $token" } }
+          if ($source.Contains('SendKeys.SendWait')) { throw 'Legacy SendKeys remains in TitulHelper auto-input.' }
 
       - name: Build C# Assistant and updater
         shell: powershell
@@ -68,8 +69,9 @@ jobs:
         run: |
           $required = @('dist-csharp-2.0-beta\CyberPW Assistant 2 Beta.exe','dist-csharp-2.0-beta\CyberPW Updater.exe','dist-csharp-2.0-beta\VERSION')
           foreach ($path in $required) { if (-not (Test-Path -LiteralPath $path)) { throw "Missing C# build output: $path" } }
-          $version = (Get-Content -LiteralPath 'dist-csharp-2.0-beta\VERSION' -Raw).Trim()
-          if ($version -ne '2.0.12-beta') { throw "Unexpected VERSION: $version" }
+          $sourceVersion = (Get-Content -LiteralPath 'VERSION' -Raw).Trim()
+          $builtVersion = (Get-Content -LiteralPath 'dist-csharp-2.0-beta\VERSION' -Raw).Trim()
+          if ($builtVersion -ne $sourceVersion) { throw "Built VERSION $builtVersion does not match source VERSION $sourceVersion" }
           $foreign = @(Get-ChildItem -LiteralPath 'dist-csharp-2.0-beta' -Recurse -Force | Where-Object { $_.Name -match '(?i)comeback' })
           foreach ($item in $foreign) { Remove-Item -LiteralPath $item.FullName -Force -Recurse }
           if (@(Get-ChildItem -LiteralPath 'dist-csharp-2.0-beta' -Recurse -Force | Where-Object { $_.Name -match '(?i)comeback' }).Count) { throw 'Foreign branding remains in release output.' }
@@ -91,7 +93,7 @@ jobs:
       - name: Upload C# release candidate
         uses: actions/upload-artifact@v4
         with:
-          name: CyberPW-Assistant-2.0.12-Beta-${{ github.sha }}
+          name: CyberPW-Assistant-2.0.13-Beta-${{ github.sha }}
           path: CyberPW-Assistant-2.0-Beta-Portable.zip
           if-no-files-found: error
 
