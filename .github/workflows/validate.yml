@@ -32,6 +32,9 @@ jobs:
         shell: powershell
         run: |
           Add-Type -AssemblyName System.IO.Compression
+          Add-Type -AssemblyName System.Web.Extensions
+          $serializer = New-Object System.Web.Script.Serialization.JavaScriptSerializer
+          $serializer.MaxJsonLength = 10485760
           $source = Get-Content -LiteralPath '.\src\CyberPW.Assistant2\QuizData.cs' -Raw
           $expected = @{ Kh = 79; ChonPon = 200 }
           foreach ($name in $expected.Keys) {
@@ -44,13 +47,16 @@ jobs:
             $gzip = New-Object IO.Compression.GZipStream($input,[IO.Compression.CompressionMode]::Decompress)
             $reader = New-Object IO.StreamReader($gzip,[Text.Encoding]::UTF8)
             try { $json = $reader.ReadToEnd() } finally { $reader.Dispose(); $gzip.Dispose(); $input.Dispose() }
-            try { $items = @($json | ConvertFrom-Json) }
+            try { $items = $serializer.DeserializeObject($json) }
             catch { throw "Quiz payload $name contains invalid JSON: $($_.Exception.Message)" }
-            if ($items.Count -ne $expected[$name]) { throw "Quiz payload $name count is $($items.Count), expected $($expected[$name])." }
-            if (@($items | Where-Object { [string]::IsNullOrWhiteSpace($_.question) -or [string]::IsNullOrWhiteSpace($_.answer) }).Count) {
-              throw "Quiz payload $name contains an empty question or answer."
+            $count = @($items).Count
+            if ($count -ne $expected[$name]) { throw "Quiz payload $name count is $count, expected $($expected[$name])." }
+            foreach ($item in @($items)) {
+              if ([string]::IsNullOrWhiteSpace([string]$item['question']) -or [string]::IsNullOrWhiteSpace([string]$item['answer'])) {
+                throw "Quiz payload $name contains an empty question or answer."
+              }
             }
-            Write-Host "$name OK: $($items.Count) records"
+            Write-Host "$name OK: $count records"
           }
 
       - name: Build C# Assistant and updater
