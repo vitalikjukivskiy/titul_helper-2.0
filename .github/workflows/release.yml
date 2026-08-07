@@ -72,6 +72,9 @@ jobs:
           $sourceVersion = (Get-Content -LiteralPath '.\VERSION' -Raw).Trim()
           $builtVersion = (Get-Content -LiteralPath "$root\VERSION" -Raw).Trim()
           if ($builtVersion -ne $sourceVersion) { throw "Built VERSION $builtVersion does not match source VERSION $sourceVersion" }
+          $expectedAssembly = (($sourceVersion -replace '-.*$','') + '.0')
+          $actualAssembly = [Reflection.AssemblyName]::GetAssemblyName((Resolve-Path -LiteralPath "$root\CyberPW Assistant 2 Beta.exe")).Version.ToString()
+          if ($actualAssembly -ne $expectedAssembly) { throw "Assistant AssemblyVersion $actualAssembly does not match VERSION $sourceVersion (expected $expectedAssembly)." }
           Get-ChildItem -LiteralPath $root -Recurse -Force | Where-Object { $_.Name -match '(?i)comeback' } | Sort-Object FullName -Descending | ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force -Recurse }
           if (@(Get-ChildItem -LiteralPath $root -Recurse -Force | Where-Object { $_.Name -match '(?i)comeback' }).Count) { throw 'Foreign branding remains in release output.' }
 
