@@ -1,0 +1,105 @@
+name: Publish CyberPW Assistant 2.0.11 Beta
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check release version
+        id: version
+        shell: pwsh
+        run: |
+          $version = (Get-Content -LiteralPath '.\VERSION' -Raw).Trim()
+          if ($version -eq '2.0.11-beta') {
+            'publish=true' >> $env:GITHUB_OUTPUT
+          } else {
+            'publish=false' >> $env:GITHUB_OUTPUT
+            Write-Host "VERSION is $version; 2.0.11 release job will not publish."
+          }
+
+      - name: Check whether release already exists
+        if: steps.version.outputs.publish == 'true'
+        id: existing
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view 'v2.0.11-beta' --repo '${{ github.repository }}' *> $null
+          if ($LASTEXITCODE -eq 0) {
+            'exists=true' >> $env:GITHUB_OUTPUT
+            Write-Host 'v2.0.11-beta already exists; publication will be skipped.'
+          } else {
+            'exists=false' >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Build Assistant and updater
+        if: steps.version.outputs.publish == 'true' && steps.existing.outputs.exists == 'false'
+        shell: powershell
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-CSharp-2.0.ps1
+
+      - name: Verify and sanitize release output
+        if: steps.version.outputs.publish == 'true' && steps.existing.outputs.exists == 'false'
+        shell: powershell
+        run: |
+          $root = '.\dist-csharp-2.0-beta'
+          $required = @(
+            "$root\CyberPW Assistant 2 Beta.exe",
+            "$root\CyberPW Updater.exe",
+            "$root\VERSION"
+          )
+          foreach ($path in $required) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing release file: $path" }
+          }
+          $version = (Get-Content -LiteralPath "$root\VERSION" -Raw).Trim()
+          if ($version -ne '2.0.11-beta') { throw "Unexpected release VERSION: $version" }
+
+          Get-ChildItem -LiteralPath $root -Recurse -Force |
+            Where-Object { $_.Name -match '(?i)comeback' } |
+            Sort-Object FullName -Descending |
+            ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force -Recurse }
+
+          $foreign = @(Get-ChildItem -LiteralPath $root -Recurse -Force | Where-Object { $_.Name -match '(?i)comeback' })
+          if ($foreign.Count) { throw 'Foreign branding remains in release output.' }
+
+      - name: Pack update archive
+        if: steps.version.outputs.publish == 'true' && steps.existing.outputs.exists == 'false'
+        shell: powershell
+        run: |
+          $archive = '.\CyberPW-Assistant-2.0-Beta-Portable.zip'
+          if (Test-Path -LiteralPath $archive) { Remove-Item -LiteralPath $archive -Force }
+          Compress-Archive -Path '.\dist-csharp-2.0-beta\*' -DestinationPath $archive -CompressionLevel Optimal
+          if (-not (Test-Path -LiteralPath $archive -PathType Leaf)) { throw 'Release archive was not created.' }
+
+      - name: Publish prerelease
+        if: steps.version.outputs.publish == 'true' && steps.existing.outputs.exists == 'false'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create 'v2.0.11-beta' `
+            '.\CyberPW-Assistant-2.0-Beta-Portable.zip#CyberPW-Assistant-2.0-Beta-Portable.zip' `
+            --repo '${{ github.repository }}' `
+            --target '${{ github.sha }}' `
+            --title 'CyberPW Assistant 2.0.11 Beta — Вікторини' `
+            --notes-file '.\RELEASE_NOTES_2.0.11.md' `
+            --prerelease
+
+      - name: Verify published asset
+        if: steps.version.outputs.publish == 'true' && steps.existing.outputs.exists == 'false'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $json = gh release view 'v2.0.11-beta' --repo '${{ github.repository }}' --json isPrerelease,assets | ConvertFrom-Json
+          if (-not $json.isPrerelease) { throw 'Published release is not marked as prerelease.' }
+          $asset = @($json.assets | Where-Object { $_.name -eq 'CyberPW-Assistant-2.0-Beta-Portable.zip' })
+          if ($asset.Count -ne 1) { throw 'Expected update asset was not found after publication.' }
