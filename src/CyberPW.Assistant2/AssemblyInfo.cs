@@ -7,5 +7,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("CyberPW Assistant")]
 [assembly: AssemblyCopyright("CyberPW Community")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("2.0.12.0")]
-[assembly: AssemblyFileVersion("2.0.12.0")]
+[assembly: AssemblyVersion("2.0.13.0")]
+[assembly: AssemblyFileVersion("2.0.13.0")]
