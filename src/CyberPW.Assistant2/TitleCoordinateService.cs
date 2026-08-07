@@ -40,9 +40,33 @@ namespace CyberPW.Assistant2
             if(ox<=0||oy<=0||cx<=0||cy<=0)throw new InvalidOperationException("Спочатку налаштуйте обидві координатні точки.");
             Process game=FindGame();if(game==null)throw new InvalidOperationException("CyberPW не запущено.");
             RECT rect;if(!GetWindowRect(game.MainWindowHandle,out rect))throw new InvalidOperationException("Не вдалося визначити вікно CyberPW.");
-            owner.WindowState=FormWindowState.Minimized;ShowWindowAsync(game.MainWindowHandle,9);SetForegroundWindow(game.MainWindowHandle);Thread.Sleep(350);
-            Click(rect.Left+ox,rect.Top+oy);Thread.Sleep(delay);Click(rect.Left+cx,rect.Top+cy);Thread.Sleep(180);
-            SendKeys.SendWait("{END}");SendKeys.SendWait("{BACKSPACE 12}");SendKeys.SendWait(title.x+" "+title.y);SendKeys.SendWait("{ENTER}");Thread.Sleep(delay);SendKeys.SendWait(title.name);SendKeys.SendWait("{ENTER}");
+
+            owner.WindowState=FormWindowState.Minimized;
+            FocusGame(game);Thread.Sleep(250);
+
+            // Normalize the UI before every injection. This closes stale map/dialog layers
+            // left from a previous title and prevents text from going into the wrong field.
+            EscapeBurst(game,2,120);
+            Thread.Sleep(180);
+
+            FocusGame(game);Click(rect.Left+ox,rect.Top+oy);Thread.Sleep(delay);
+            FocusGame(game);Click(rect.Left+cx,rect.Top+cy);Thread.Sleep(180);
+
+            SendKeys.SendWait("{END}");
+            SendKeys.SendWait("{BACKSPACE 12}");
+            SendKeys.SendWait(title.x+" "+title.y);
+            SendKeys.SendWait("{ENTER}");
+            Thread.Sleep(delay);
+
+            FocusGame(game);
+            SendKeys.SendWait(title.name);
+            SendKeys.SendWait("{ENTER}");
+            Thread.Sleep(220);
+
+            // After the title is accepted, close every active map/dialog layer.
+            // Multiple Esc presses are intentional: different players can have a
+            // different number of panels open, especially after a frozen window.
+            EscapeBurst(game,3,140);
         }
 
         public static int Get(Dictionary<string,object> config,string key,int fallback=0)
@@ -52,6 +76,22 @@ namespace CyberPW.Assistant2
         static Process FindGame()
         {
             Process best=null;long bestArea=-1;foreach(Process p in Process.GetProcessesByName("ElementClient")){if(p.MainWindowHandle==IntPtr.Zero)continue;RECT r;if(GetWindowRect(p.MainWindowHandle,out r)){long area=(long)(r.Right-r.Left)*(r.Bottom-r.Top);if(area>bestArea){best=p;bestArea=area;}}}return best;
+        }
+        static void FocusGame(Process game)
+        {
+            if(game==null||game.MainWindowHandle==IntPtr.Zero)return;
+            ShowWindowAsync(game.MainWindowHandle,9);
+            SetForegroundWindow(game.MainWindowHandle);
+            Thread.Sleep(90);
+        }
+        static void EscapeBurst(Process game,int count,int pauseMs)
+        {
+            for(int i=0;i<count;i++)
+            {
+                FocusGame(game);
+                SendKeys.SendWait("{ESC}");
+                Thread.Sleep(Math.Max(60,pauseMs));
+            }
         }
         static void Click(int x,int y){SetCursorPos(x,y);mouse_event(2,0,0,0,UIntPtr.Zero);mouse_event(4,0,0,0,UIntPtr.Zero);}
     }
