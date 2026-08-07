@@ -1,8 +1,8 @@
-name: Validate portable build
+name: Validate build
 
 on:
   push:
-    branches: [main, "agent/**", "release/**", "hotfix/**"]
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -15,6 +15,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Read version
+        id: version
+        shell: pwsh
+        run: |
+          $version = (Get-Content -LiteralPath '.\VERSION' -Raw).Trim()
+          if ([string]::IsNullOrWhiteSpace($version)) { throw 'VERSION is empty.' }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          Write-Host "Version: $version"
 
       - name: Parse Windows PowerShell scripts
         shell: powershell
@@ -48,16 +57,18 @@ jobs:
             $items = $serializer.DeserializeObject($json)
             $count = @($items).Count
             if ($count -ne $expected[$name]) { throw "Quiz payload $name count is $count, expected $($expected[$name])." }
-            foreach ($item in @($items)) { if ([string]::IsNullOrWhiteSpace([string]$item['question']) -or [string]::IsNullOrWhiteSpace([string]$item['answer'])) { throw "Quiz payload $name contains an empty question or answer." } }
+            foreach ($item in @($items)) {
+              if ([string]::IsNullOrWhiteSpace([string]$item['question']) -or [string]::IsNullOrWhiteSpace([string]$item['answer'])) { throw "Quiz payload $name contains an empty question or answer." }
+            }
             Write-Host "$name OK: $count records"
           }
 
-      - name: Verify TitulHelper hotfix guards
+      - name: Verify TitulHelper auto-input guards
         shell: powershell
         run: |
           $source = Get-Content -LiteralPath '.\src\CyberPW.Assistant2\TitleCoordinateService.cs' -Raw
           $required = @('PressEscape(2,130)', 'PressEscape(3,130)', 'EnsureCoordinatePanel', 'CoordSigCount', 'matches>=4', 'changedPoints>=3', 'MacroNative.Text(title.x+" "+title.y)', 'MacroNative.Text(title.name)')
-          foreach ($token in $required) { if (-not $source.Contains($token)) { throw "Missing TitulHelper hotfix guard: $token" } }
+          foreach ($token in $required) { if (-not $source.Contains($token)) { throw "Missing TitulHelper auto-input guard: $token" } }
           if ($source.Contains('SendKeys.SendWait')) { throw 'Legacy SendKeys remains in TitulHelper auto-input.' }
 
       - name: Build C# Assistant and updater
@@ -67,24 +78,25 @@ jobs:
       - name: Verify C# release output
         shell: powershell
         run: |
-          $required = @('dist-csharp-2.0-beta\CyberPW Assistant 2 Beta.exe','dist-csharp-2.0-beta\CyberPW Updater.exe','dist-csharp-2.0-beta\VERSION')
+          $root = 'dist-csharp-2.0-beta'
+          $required = @("$root\CyberPW Assistant 2 Beta.exe", "$root\CyberPW Updater.exe", "$root\VERSION")
           foreach ($path in $required) { if (-not (Test-Path -LiteralPath $path)) { throw "Missing C# build output: $path" } }
           $sourceVersion = (Get-Content -LiteralPath 'VERSION' -Raw).Trim()
-          $builtVersion = (Get-Content -LiteralPath 'dist-csharp-2.0-beta\VERSION' -Raw).Trim()
+          $builtVersion = (Get-Content -LiteralPath "$root\VERSION" -Raw).Trim()
           if ($builtVersion -ne $sourceVersion) { throw "Built VERSION $builtVersion does not match source VERSION $sourceVersion" }
-          $foreign = @(Get-ChildItem -LiteralPath 'dist-csharp-2.0-beta' -Recurse -Force | Where-Object { $_.Name -match '(?i)comeback' })
+          $foreign = @(Get-ChildItem -LiteralPath $root -Recurse -Force | Where-Object { $_.Name -match '(?i)comeback' })
           foreach ($item in $foreign) { Remove-Item -LiteralPath $item.FullName -Force -Recurse }
-          if (@(Get-ChildItem -LiteralPath 'dist-csharp-2.0-beta' -Recurse -Force | Where-Object { $_.Name -match '(?i)comeback' }).Count) { throw 'Foreign branding remains in release output.' }
+          if (@(Get-ChildItem -LiteralPath $root -Recurse -Force | Where-Object { $_.Name -match '(?i)comeback' }).Count) { throw 'Foreign branding remains in release output.' }
 
       - name: Pack C# release candidate
         shell: powershell
         run: Compress-Archive -Path '.\dist-csharp-2.0-beta\*' -DestinationPath '.\CyberPW-Assistant-2.0-Beta-Portable.zip' -Force
 
-      - name: Build portable archive
+      - name: Build legacy portable archive
         shell: powershell
         run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Portable.ps1
 
-      - name: Verify build output
+      - name: Verify legacy portable output
         shell: powershell
         run: |
           $required = @('dist\Cyber.pw-Asistant-Portable.zip','dist\SHA256.txt','dist\Cyber.pw-Asistant\CyberPW-MacroStudio.ps1','dist\Cyber.pw-Asistant\CyberPW-TerritoryMap.ps1','dist\Cyber.pw-Asistant\CyberPW-Design.ps1')
@@ -93,14 +105,14 @@ jobs:
       - name: Upload C# release candidate
         uses: actions/upload-artifact@v4
         with:
-          name: CyberPW-Assistant-2.0.13-Beta-${{ github.sha }}
+          name: CyberPW-Assistant-${{ steps.version.outputs.version }}-${{ github.sha }}
           path: CyberPW-Assistant-2.0-Beta-Portable.zip
           if-no-files-found: error
 
-      - name: Upload portable artifact
+      - name: Upload legacy portable artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CyberPW-Assistant-${{ github.sha }}
+          name: CyberPW-Legacy-Portable-${{ github.sha }}
           path: |
             dist/Cyber.pw-Asistant-Portable.zip
             dist/SHA256.txt
