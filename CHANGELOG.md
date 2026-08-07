@@ -2,6 +2,18 @@
 
 У цьому файлі зберігаються основні зміни CyberPW Assistant. Повні тексти опублікованих версій також доступні на сторінці GitHub Releases.
 
+## 2.0.14 Beta — 2026-08-07
+
+### Maintenance / Audit
+
+- Проведено повний аудит актуального `main`, Windows CI, релізного ZIP, автооновлення, TitulHelper та обох вікторин.
+- Версія в лівому меню більше не зашита вручну та читається з файла `VERSION`.
+- `AssemblyVersion` і `AssemblyFileVersion` синхронізовано з версією релізу.
+- CI та release workflow перевіряють відповідність версії зібраного EXE файлу `VERSION`.
+- Виправлено README-посилання на prerelease-релізи.
+- Оновлено portable-документацію з актуальними модулями та fail-safe алгоритмом TitulHelper.
+- Підтверджено збірку `CyberPW Assistant 2 Beta.exe`, `CyberPW Updater.exe` і updater-сумісного ZIP.
+
 ## 2.0.13 Beta — 2026-08-07
 
 ### HOTFIX TitulHelper

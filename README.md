@@ -2,7 +2,7 @@
 <h1 align="center">CyberPW Assistant</h1>
 <p align="center">Неофіційний відкритий інструментарій для гравців CyberPW</p>
 <p align="center">
-<a href="https://github.com/vitalikjukivskiy/titul_helper-2.0/releases/latest"><img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper-2.0?include_prereleases&style=for-the-badge&label=Version" alt="Latest release"></a>
+<a href="https://github.com/vitalikjukivskiy/titul_helper-2.0/releases"><img src="https://img.shields.io/github/v/release/vitalikjukivskiy/titul_helper-2.0?include_prereleases&style=for-the-badge&label=Version" alt="Latest release"></a>
 <a href="https://github.com/vitalikjukivskiy/titul_helper-2.0/releases"><img src="https://img.shields.io/github/downloads/vitalikjukivskiy/titul_helper-2.0/total?style=for-the-badge&logo=github&label=Downloads" alt="Downloads"></a>
 </p>
 
