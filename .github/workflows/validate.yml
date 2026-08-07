@@ -60,6 +60,13 @@ jobs:
           foreach ($token in $required) { if (-not $source.Contains($token)) { throw "Missing TitulHelper hotfix guard: $token" } }
           if ($source.Contains('SendKeys.SendWait')) { throw 'Legacy SendKeys remains in TitulHelper auto-input.' }
 
+      - name: Verify UI version source
+        shell: powershell
+        run: |
+          $source = Get-Content -LiteralPath '.\src\CyberPW.Assistant2\MainForm.cs' -Raw
+          if (-not $source.Contains('Theme.Label(DisplayVersion()')) { throw 'Navigation version is not sourced from VERSION.' }
+          if ($source -match 'Theme\.Label\("\d+\.\d+\.\d+ \(BETA\)"') { throw 'A hardcoded navigation version was reintroduced.' }
+
       - name: Build C# Assistant and updater
         shell: powershell
         run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-CSharp-2.0.ps1
