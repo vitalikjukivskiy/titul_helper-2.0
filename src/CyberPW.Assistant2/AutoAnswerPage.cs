@@ -55,7 +55,7 @@ namespace CyberPW.Assistant2
         readonly TextBox question;
         readonly TextBox answer;
         readonly TextBox matches;
-        readonly Timer autoTimer = new Timer();
+        readonly System.Windows.Forms.Timer autoTimer = new System.Windows.Forms.Timer();
         readonly BackgroundWorker scanWorker = new BackgroundWorker();
         readonly List<QuizRecord> database = new List<QuizRecord>();
         readonly Dictionary<QuizRecord,string> normalizedQuestions = new Dictionary<QuizRecord,string>();
