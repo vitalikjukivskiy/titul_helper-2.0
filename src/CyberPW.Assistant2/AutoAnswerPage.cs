@@ -44,4 +44,3 @@ internal sealed class AutoAnswerPage:UserControl,IModulePage{
  static double Score(string seen,string candidate){string a=Norm(seen),b=Norm(candidate);if(a.Length==0||b.Length==0)return 0;if(a.Contains(b)||b.Contains(a))return 1;string[] sa=a.Split(' '),sb=b.Split(' ');double hit=0,total=0;foreach(string ct in sb){if(ct.Length<2)continue;double w=Math.Min(14,Math.Max(2,ct.Length));total+=w;foreach(string st in sa){if(Similar(ct,st)){hit+=w;break;}}}return total<=0?0:Math.Min(1,hit/total);}
  static bool Similar(string a,string b){if(a==b)return true;if(a.Length>=4&&b.Length>=4){int n=Math.Min(5,Math.Min(a.Length,b.Length));return a.Substring(0,n)==b.Substring(0,n);}return false;}
 }}
-}
