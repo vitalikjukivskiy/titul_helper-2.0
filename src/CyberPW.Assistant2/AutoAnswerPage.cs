@@ -1,46 +1,50 @@
-using System;using System.Collections.Generic;using System.Diagnostics;using System.Drawing;using System.Drawing.Drawing2D;using System.IO;using System.Linq;using System.Net;using System.Runtime.InteropServices;using System.Text;using System.Text.RegularExpressions;using System.Windows.Forms;
-namespace CyberPW.Assistant2{
-internal sealed class AutoAnswerPage:UserControl,IModulePage{
- [DllImport("user32.dll")]static extern bool GetWindowRect(IntPtr hWnd,out RECT r);
- [StructLayout(LayoutKind.Sequential)]struct RECT{public int Left,Top,Right,Bottom;}
- sealed class ClientItem{public int Pid;public string Name;public override string ToString(){return "PID "+Pid+" · "+Name;}}
- sealed class Match{public QuizRecord Item;public double Score;public string Fragment;}
- readonly ComboBox clients=new ComboBox();readonly Button refresh,scan,region,autoRegion,setup;readonly CheckBox autoScan=new CheckBox();readonly Label status=new Label();readonly TextBox question=new TextBox(),answer=new TextBox();readonly ListBox matches=new ListBox();readonly Timer timer=new Timer();
- List<QuizRecord> db=new List<QuizRecord>();bool busy;
- string OcrRoot{get{return Path.Combine(AppPaths.Data,"ocr");}}string TessRoot{get{return Path.Combine(OcrRoot,"tesseract");}}string TessExe{get{return Path.Combine(TessRoot,"tesseract.exe");}}string TessData{get{return Path.Combine(OcrRoot,"tessdata");}}string RegionPath{get{return Path.Combine(AppPaths.Data,"autoanswer-region.txt");}}
- public AutoAnswerPage(){Dock=DockStyle.Fill;BackColor=Theme.Ink;ForeColor=Theme.Text;Font=new Font("Segoe UI",9);
-  var title=Theme.Label("АВТОВІДПОВІДІ · СУПЕР БЕТА",21,Theme.GoldSoft,FontStyle.Bold);title.SetBounds(24,14,720,40);Controls.Add(title);
-  var sub=Theme.Label("Чон-Пон + КХ · OCR · без автокліків",9,Theme.Cyan,FontStyle.Bold);sub.SetBounds(26,54,650,22);Controls.Add(sub);
-  clients.DropDownStyle=ComboBoxStyle.DropDownList;clients.SetBounds(24,90,420,32);Controls.Add(clients);
-  refresh=Theme.Button("ОНОВИТИ");refresh.SetBounds(456,88,110,34);refresh.Click+=(s,e)=>LoadClients();Controls.Add(refresh);
-  setup=Theme.Button("ПІДГОТУВАТИ OCR");setup.SetBounds(578,88,165,34);setup.Click+=(s,e)=>PrepareOcr();Controls.Add(setup);
-  region=Theme.Button("НАЛАШТУВАТИ ОБЛАСТЬ");region.SetBounds(24,136,205,34);region.Click+=(s,e)=>SelectRegion();Controls.Add(region);
-  autoRegion=Theme.Button("АВТО-ОБЛАСТЬ");autoRegion.SetBounds(241,136,145,34);autoRegion.Click+=(s,e)=>{try{if(File.Exists(RegionPath))File.Delete(RegionPath);}catch{}status.Text="Увімкнено автоматичну область.";};Controls.Add(autoRegion);
-  scan=Theme.Button("СКАНУВАТИ");scan.SetBounds(398,136,145,34);scan.Click+=(s,e)=>DoScan();Controls.Add(scan);
-  autoScan.Text="АВТО 1.5 с";autoScan.ForeColor=Theme.Text;autoScan.BackColor=Color.Transparent;autoScan.SetBounds(560,142,120,24);autoScan.CheckedChanged+=(s,e)=>timer.Enabled=autoScan.Checked;Controls.Add(autoScan);
-  status.SetBounds(24,184,850,28);status.ForeColor=Theme.Cyan;status.Font=new Font("Segoe UI",9,FontStyle.Bold);Controls.Add(status);
-  var ql=Theme.Label("ПИТАННЯ",8,Theme.GoldSoft,FontStyle.Bold);ql.SetBounds(24,220,140,20);Controls.Add(ql);
-  question.SetBounds(24,244,830,86);question.Multiline=true;question.ReadOnly=true;question.BackColor=Color.FromArgb(14,27,25);question.ForeColor=Color.White;question.BorderStyle=BorderStyle.FixedSingle;question.Font=new Font("Segoe UI",11);Controls.Add(question);
-  var al=Theme.Label("ПРАВИЛЬНА ВІДПОВІДЬ",8,Theme.Cyan,FontStyle.Bold);al.SetBounds(24,344,220,20);Controls.Add(al);
-  answer.SetBounds(24,368,830,76);answer.Multiline=true;answer.ReadOnly=true;answer.BackColor=Color.FromArgb(8,48,42);answer.ForeColor=Color.FromArgb(160,245,210);answer.BorderStyle=BorderStyle.FixedSingle;answer.Font=new Font("Segoe UI",14,FontStyle.Bold);Controls.Add(answer);
-  var ml=Theme.Label("НАЙКРАЩІ ЗБІГИ",8,Theme.GoldSoft,FontStyle.Bold);ml.SetBounds(24,460,220,20);Controls.Add(ml);
-  matches.SetBounds(24,484,830,120);matches.BackColor=Color.FromArgb(14,27,25);matches.ForeColor=Theme.Text;matches.BorderStyle=BorderStyle.FixedSingle;matches.Font=new Font("Segoe UI",9);Controls.Add(matches);
-  timer.Interval=1500;timer.Tick+=(s,e)=>{if(!busy)DoScan();};
-  db.AddRange(QuizData.LoadKh());db.AddRange(QuizData.LoadChonPon());LoadClients();UpdateOcrStatus();
- }
- public void OnActivated(){LoadClients();UpdateOcrStatus();}
- void UpdateOcrStatus(){if(File.Exists(TessExe))status.Text="OCR готовий · база: "+db.Count+" питань.";else status.Text="OCR не підготовлений. Натисни «ПІДГОТУВАТИ OCR» один раз.";}
- void LoadClients(){int old=SelectedPid();clients.Items.Clear();Process[] ps=Process.GetProcesses();foreach(Process p in ps){try{if(p.MainWindowHandle!=IntPtr.Zero&&(p.ProcessName.IndexOf("element",StringComparison.OrdinalIgnoreCase)>=0||p.MainWindowTitle.IndexOf("CyberPW",StringComparison.OrdinalIgnoreCase)>=0)){clients.Items.Add(new ClientItem{Pid=p.Id,Name=string.IsNullOrWhiteSpace(p.MainWindowTitle)?p.ProcessName:p.MainWindowTitle});}}catch{}finally{p.Dispose();}}if(clients.Items.Count>0){int ix=0;for(int i=0;i<clients.Items.Count;i++)if(((ClientItem)clients.Items[i]).Pid==old)ix=i;clients.SelectedIndex=ix;}}
- int SelectedPid(){ClientItem c=clients.SelectedItem as ClientItem;return c==null?0:c.Pid;}
- Process SelectedProcess(){int pid=SelectedPid();if(pid<=0)return null;try{return Process.GetProcessById(pid);}catch{return null;}}
- void PrepareOcr(){try{Directory.CreateDirectory(OcrRoot);Directory.CreateDirectory(TessData);if(!File.Exists(TessExe)){if(MessageBox.Show("Буде завантажено Tesseract OCR у папку CyberPW Assistant. Продовжити?","Автовідповіді",MessageBoxButtons.YesNo,MessageBoxIcon.Information)!=DialogResult.Yes)return;string tmp=Path.Combine(Path.GetTempPath(),"CyberPW-Tesseract.exe");using(var wc=new WebClient())wc.DownloadFile("https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-5.4.0.20240606.exe",tmp);Directory.CreateDirectory(TessRoot);var pi=new ProcessStartInfo(tmp,"/S /D="+TessRoot){UseShellExecute=true};var pr=Process.Start(pi);pr.WaitForExit();try{File.Delete(tmp);}catch{}if(!File.Exists(TessExe))throw new Exception("Після встановлення не знайдено tesseract.exe.");}DownloadLang("ukr");DownloadLang("rus");UpdateOcrStatus();MessageBox.Show("OCR готовий.","Автовідповіді",MessageBoxButtons.OK,MessageBoxIcon.Information);}catch(Exception ex){MessageBox.Show("Не вдалося підготувати OCR.\n\n"+ex.Message,"Автовідповіді",MessageBoxButtons.OK,MessageBoxIcon.Warning);}}
- void DownloadLang(string lang){string f=Path.Combine(TessData,lang+".traineddata");if(File.Exists(f)&&new FileInfo(f).Length>500000)return;using(var wc=new WebClient())wc.DownloadFile("https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main/"+lang+".traineddata",f);}
- void SelectRegion(){Process p=SelectedProcess();if(p==null){MessageBox.Show("Спочатку вибери CyberPW клієнт.","Автовідповіді");return;}try{RECT wr;if(!GetWindowRect(p.MainWindowHandle,out wr))throw new Exception("Не вдалося отримати координати вікна.");int ww=wr.Right-wr.Left,wh=wr.Bottom-wr.Top;var f=new Form{FormBorderStyle=FormBorderStyle.None,StartPosition=FormStartPosition.Manual,Location=new Point(wr.Left,wr.Top),Size=new Size(ww,wh),TopMost=true,ShowInTaskbar=false,Opacity=.38,BackColor=Color.Black,Cursor=Cursors.Cross,KeyPreview=true};Point a=Point.Empty,b=Point.Empty;bool drag=false;var hint=new Label{Text="Затисни ЛКМ у першому куті та протягни до другого. ESC — скасувати.",AutoSize=true,ForeColor=Color.White,BackColor=Color.Black,Font=new Font("Segoe UI",13,FontStyle.Bold),Location=new Point(20,20)};f.Controls.Add(hint);f.MouseDown+=(s,e)=>{if(e.Button==MouseButtons.Left){a=e.Location;b=e.Location;drag=true;f.Invalidate();}};f.MouseMove+=(s,e)=>{if(drag){b=e.Location;f.Invalidate();}};f.Paint+=(s,e)=>{if(a!=Point.Empty||b!=Point.Empty){int x=Math.Min(a.X,b.X),y=Math.Min(a.Y,b.Y),w=Math.Abs(a.X-b.X),h=Math.Abs(a.Y-b.Y);using(var pen=new Pen(Color.Lime,3))e.Graphics.DrawRectangle(pen,x,y,w,h);}};f.KeyDown+=(s,e)=>{if(e.KeyCode==Keys.Escape)f.Close();};f.MouseUp+=(s,e)=>{if(e.Button!=MouseButtons.Left||!drag)return;drag=false;b=e.Location;int x=Math.Min(a.X,b.X),y=Math.Min(a.Y,b.Y),w=Math.Abs(a.X-b.X),h=Math.Abs(a.Y-b.Y);if(w<100||h<100)return;Directory.CreateDirectory(AppPaths.Data);File.WriteAllText(RegionPath,string.Join(";",new[]{((double)x/ww).ToString(System.Globalization.CultureInfo.InvariantCulture),((double)y/wh).ToString(System.Globalization.CultureInfo.InvariantCulture),((double)w/ww).ToString(System.Globalization.CultureInfo.InvariantCulture),((double)h/wh).ToString(System.Globalization.CultureInfo.InvariantCulture)}));f.Close();status.Text="Область сканування збережено.";};f.ShowDialog();}catch(Exception ex){MessageBox.Show(ex.Message,"Автовідповіді");}finally{p.Dispose();}}
- Rectangle GetRegion(Process p){RECT wr;if(!GetWindowRect(p.MainWindowHandle,out wr))throw new Exception("Не вдалося отримати вікно.");int ww=wr.Right-wr.Left,wh=wr.Bottom-wr.Top;double x=0,y=.02,w=.30,h=.90;if(File.Exists(RegionPath)){try{string[] z=File.ReadAllText(RegionPath).Split(';');if(z.Length==4){x=D(z[0]);y=D(z[1]);w=D(z[2]);h=D(z[3]);}}catch{}}int rx=wr.Left+(int)(ww*x),ry=wr.Top+(int)(wh*y),rw=Math.Max(120,(int)(ww*w)),rh=Math.Max(120,(int)(wh*h));return new Rectangle(rx,ry,rw,rh);}
- static double D(string s){double v;return double.TryParse(s,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out v)?v:0;}
- void DoScan(){if(busy)return;Process p=SelectedProcess();if(p==null){status.Text="Вибери CyberPW клієнт.";return;}if(!File.Exists(TessExe)){status.Text="Спочатку підготуй OCR.";p.Dispose();return;}busy=true;scan.Enabled=false;try{question.Text="";answer.Text="";matches.Items.Clear();Rectangle r=GetRegion(p);string img=Path.Combine(OcrRoot,"capture.png"),outBase=Path.Combine(OcrRoot,"ocr");Directory.CreateDirectory(OcrRoot);using(var bmp=new Bitmap(r.Width,r.Height)){using(Graphics g=Graphics.FromImage(bmp))g.CopyFromScreen(r.Left,r.Top,0,0,r.Size);using(var big=new Bitmap(r.Width*3,r.Height*3)){using(Graphics g=Graphics.FromImage(big)){g.InterpolationMode=InterpolationMode.HighQualityBicubic;g.DrawImage(bmp,new Rectangle(0,0,big.Width,big.Height));}big.Save(img,System.Drawing.Imaging.ImageFormat.Png);}}string txt=outBase+".txt";try{if(File.Exists(txt))File.Delete(txt);}catch{}var pi=new ProcessStartInfo(TessExe,"\""+img+"\" \""+outBase+"\" --tessdata-dir \""+TessData+"\" -l ukr+rus --oem 1 --psm 6"){UseShellExecute=false,CreateNoWindow=true,RedirectStandardError=true};var pr=Process.Start(pi);string err=pr.StandardError.ReadToEnd();pr.WaitForExit();if(pr.ExitCode!=0)throw new Exception("Tesseract exit "+pr.ExitCode+": "+err);string ocr=File.Exists(txt)?File.ReadAllText(txt,Encoding.UTF8):"";List<Match> ranked=Rank(ocr);for(int i=0;i<Math.Min(3,ranked.Count);i++)matches.Items.Add((i+1)+". "+Math.Round(ranked[i].Score*100)+"% · "+ranked[i].Item.question+" → "+ranked[i].Item.answer);if(ranked.Count==0){status.Text="Збігів не знайдено.";return;}Match top=ranked[0];double second=ranked.Count>1?ranked[1].Score:0,margin=top.Score-second;if(top.Score>=.60&&margin>=.07){question.Text=top.Item.question;answer.Text=top.Item.answer;status.Text="Впевнений збіг: "+Math.Round(top.Score*100)+"% · запас "+Math.Round(margin*100)+"%";}else{status.Text="Недостатня впевненість: "+Math.Round(top.Score*100)+"%. Відповідь не показую.";}}catch(Exception ex){status.Text="Помилка: "+ex.Message;}finally{p.Dispose();busy=false;scan.Enabled=true;}}
- List<Match> Rank(string ocr){var lines=(ocr??"").Split(new[]{"\r\n","\n"},StringSplitOptions.RemoveEmptyEntries).Select(x=>x.Trim()).Where(x=>x.Length>=5&&x.Length<=240).ToList();var frags=new List<string>();for(int i=0;i<lines.Count;i++){if(lines[i].Contains("?")){frags.Add(lines[i]);if(i>0)frags.Add(lines[i-1]+" "+lines[i]);if(i+1<lines.Count)frags.Add(lines[i]+" "+lines[i+1]);}}if(frags.Count==0)frags.AddRange(lines.Take(30));var ranked=new List<Match>();foreach(var q in db){double best=0;string bf="";foreach(string f in frags){double s=Score(f,q.question);if(s>best){best=s;bf=f;}}if(best>=.20)ranked.Add(new Match{Item=q,Score=best,Fragment=bf});}return ranked.OrderByDescending(x=>x.Score).ToList();}
- static string Norm(string s){s=(s??"").ToLowerInvariant().Replace('ё','е');s=Regex.Replace(s,"[^\\p{L}\\p{Nd}]+"," ");return Regex.Replace(s,"\\s+"," ").Trim();}
- static double Score(string seen,string candidate){string a=Norm(seen),b=Norm(candidate);if(a.Length==0||b.Length==0)return 0;if(a.Contains(b)||b.Contains(a))return 1;string[] sa=a.Split(' '),sb=b.Split(' ');double hit=0,total=0;foreach(string ct in sb){if(ct.Length<2)continue;double w=Math.Min(14,Math.Max(2,ct.Length));total+=w;foreach(string st in sa){if(Similar(ct,st)){hit+=w;break;}}}return total<=0?0:Math.Min(1,hit/total);}
- static bool Similar(string a,string b){if(a==b)return true;if(a.Length>=4&&b.Length>=4){int n=Math.Min(5,Math.Min(a.Length,b.Length));return a.Substring(0,n)==b.Substring(0,n);}return false;}
-}}
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace CyberPW.Assistant2
+{
+    internal sealed class AutoAnswerPage : UserControl, IModulePage
+    {
+        readonly Label status;
+
+        public AutoAnswerPage()
+        {
+            Dock = DockStyle.Fill;
+            BackColor = Theme.Ink;
+            ForeColor = Theme.Text;
+            Font = new Font("Segoe UI", 9);
+
+            var title = Theme.Label("АВТОВІДПОВІДІ · СУПЕР БЕТА", 22, Theme.GoldSoft, FontStyle.Bold);
+            title.SetBounds(24, 18, 760, 42);
+            Controls.Add(title);
+
+            var sub = Theme.Label("Чон-Пон + КХ · OCR-помічник · без автокліків", 10, Theme.Cyan, FontStyle.Bold);
+            sub.SetBounds(26, 66, 760, 26);
+            Controls.Add(sub);
+
+            var card = new CardPanel();
+            card.SetBounds(24, 118, 820, 260);
+            Controls.Add(card);
+
+            var info = Theme.Label(
+                "Модуль інтегровано у CyberPW Assistant.\r\n\r\n" +
+                "База Чон-Пон: " + QuizData.LoadChonPon().Count + " питань.\r\n" +
+                "База КХ: " + QuizData.LoadKh().Count + " питань.\r\n\r\n" +
+                "Автокліки вимкнено. OCR та налаштування області додаються у цю ж вкладку.",
+                11, Theme.Text, FontStyle.Regular);
+            info.AutoSize = false;
+            info.SetBounds(24, 24, 760, 180);
+            card.Controls.Add(info);
+
+            status = Theme.Label("SUPER BETA · модуль завантажено", 10, Theme.Cyan, FontStyle.Bold);
+            status.SetBounds(26, 404, 760, 30);
+            Controls.Add(status);
+        }
+
+        public void OnActivated()
+        {
+            status.Text = "SUPER BETA · модуль завантажено";
+        }
+    }
+}
