@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $source = Join-Path $root 'src\CyberPW.Assistant2'
@@ -40,7 +40,7 @@ New-Item -ItemType Directory -Path (Join-Path $output 'macros') | Out-Null
 $sources = @(Get-ChildItem -LiteralPath $source -Filter '*.cs' -File | ForEach-Object FullName)
 if (-not $sources.Count) { throw 'Не знайдено C# source files.' }
 
-$compileOutput = & $csc /nologo /target:winexe /platform:anycpu /optimize+ `
+& $csc /nologo /target:winexe /platform:anycpu /optimize+ `
     /reference:System.dll `
     /reference:System.Core.dll `
     /reference:System.Drawing.dll `
@@ -49,14 +49,9 @@ $compileOutput = & $csc /nologo /target:winexe /platform:anycpu /optimize+ `
     /reference:System.Security.dll `
     "/win32icon:$(Join-Path $root 'cyberpw-logo.ico')" `
     "/out:$exe" `
-    $sources 2>&1
-$compileExit = $LASTEXITCODE
-$compileOutput | ForEach-Object { Write-Host $_ }
-if ($compileExit -ne 0 -or -not (Test-Path -LiteralPath $exe -PathType Leaf)) {
-    foreach ($line in @($compileOutput)) {
-        $msg = ([string]$line).Replace('%','%25').Replace("`r",'%0D').Replace("`n",'%0A')
-        if ($msg) { Write-Host "::error::$msg" }
-    }
+    $sources
+
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $exe -PathType Leaf)) {
     throw 'Не вдалося зібрати CyberPW Assistant 2.0 Beta.'
 }
 $updaterSource = Join-Path $root 'src\CyberPW.Updater\Program.cs'
